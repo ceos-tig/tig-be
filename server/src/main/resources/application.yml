@@ -1,8 +1,7 @@
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/everytime?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useUnicode=true&serverTimezone=Asia/Seoul?useSSL=false
-  #  url: jdbc:mysql://localhost:8080/everytime?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul?useSSL=false
+    url: jdbc:mysql://localhost:3306/tig?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useUnicode=true&serverTimezone=Asia/Seoul
     username: root
     password: ${LOCAL_DB_PS}
   jpa:
@@ -29,8 +28,8 @@ spring:
       client:
         registration:
           kakao:
-            client-id: 772ee8988ee944d126d126ee9b3ccab2
-            client-secret: mVi0XG4Zi8lry3d76hx76oxlJnvzHA1x
+            client-id: ${LOCAL_KAKAO_ID}
+            client-secret: ${LOCAL_KAKAO_PW}
             scope:
               - profile_nickname
             authorization-grant-type: authorization_code
@@ -63,5 +62,5 @@ springdoc:
 jwt:
   header: Authorization
   #HS512 알고리즘을 사용할 것이기 때문에 512bit, 즉 64byte 이상의 secret key를 사용해야 한다.
-  secret: a2FyaW10b2thcmltdG9rYXJpbXRva2FyaW10b2thcmltdG9rYXJpbXRva2FyaW10b2thcmltdG9rYXJpbXRva2FyaW10b2thcmltdG9rYXJpbXRva2FyaW10b2thcmltdG9rYXJpbXRva2FyaW10b2thcmltdG9rYXJpbXRva2FyaW10b2thcmltdG9rYXJpbQ==
+  secret: ${JWT_SECRET}
   token-validity-in-seconds: 86400 # ttl (초)
