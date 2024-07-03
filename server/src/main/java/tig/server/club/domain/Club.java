@@ -46,5 +46,5 @@ public class Club extends BaseTimeEntity {
     @Column(name = "image_url")
     private List<String> imageUrls;
 
-    // private reviews(FK)
+    // private reservations(FK)
 }
