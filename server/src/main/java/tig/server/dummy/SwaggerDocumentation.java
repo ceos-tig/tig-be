@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Email;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import lombok.*;
@@ -233,6 +234,59 @@ public class SwaggerDocumentation {
     public void getReview(@PathVariable("reservationId") Long reservationId) {}
 
     /* 예약 내역 API 는 좀 많아서 지금 못끝낼 것 같아서 위시 리스트 부터 진행 할게요! */
+    /**
+     * 예약 내역 API
+     * */
+
+    @GetMapping("/reservationList")
+    @Operation(summary = "마이페이지 내의 예약 내역 화면 조회")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = DummyDto.ReservationReviewDetailsResponse.class)))
+    })
+    public void getReservationList() {}
+
+
+    @GetMapping("/review/{reviewId}")
+    @Operation(summary = "마이페이지 내의 작성한 리뷰 조회")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = DummyDto.ReviewResponse.class)))
+    })
+    public void getReviewList(@PathVariable("reviewId") Long reviewId) {}
+
+
+    @GetMapping("/reservationList/{reservationId}")
+    @Operation(summary = "마이페이지 내의 예약 상세 조회")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = DummyDto.ReservationDetails.class)))
+    })
+    public void getReservationDetails(@PathVariable("reservationId") Long reservationId) {}
+
+    @PatchMapping("/reservationList/{reservationId}")
+    @Operation(summary = "예약내역 페이지에서 예약 취소")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = DummyDto.ReservationDetails.class)))
+    })
+    public void cancleReservation(@PathVariable("reservationId") Long reservationId) {}
 
     /**
      * 위시 리스트 API
@@ -263,5 +317,51 @@ public class SwaggerDocumentation {
     /**
      * 마이 페이지 API
      * */
+
+    @DeleteMapping("/refresh-token")
+    @Operation(summary = "리프레시 토큰 제거")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "성공"
+            )
+    })
+    public void removeRefreshToken() {}
+
+    @PatchMapping("/rename")
+    @Operation(summary = "사용자 이름 변경")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = DummyDto.UserInfoResponse.class))) // 일단 사용자가 이름만 바꾸어도 이름, 번호, 이메일, 프로필 이미지 까지 모두 프론트로 넘겨주는 걸로 함.
+    })
+    public void changeUsername(@RequestBody DummyDto.UsernameRequest usernameRequest) {}
+
+    @PatchMapping("/phoneNumber")
+    @Operation(summary = "사용자 전화 번호 변경")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = DummyDto.UserInfoResponse.class))) // 일단 사용자가 이름만 바꾸어도 이름, 번호, 이메일, 프로필 이미지 까지 모두 프론트로 넘겨주는 걸로 함.
+    })
+    public void changePhoneNumber(@RequestBody DummyDto.PhoneNumberRequest phoneNumberRequest) {}
+
+    @PatchMapping("/email")
+    @Operation(summary = "사용자 이메일 변경")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = DummyDto.UserInfoResponse.class))) // 일단 사용자가 이름만 바꾸어도 이름, 번호, 이메일, 프로필 이미지 까지 모두 프론트로 넘겨주는 걸로 함.
+    })
+    public void changeEmail(@RequestBody DummyDto.EmailRequest emailRequest) {}
 
 }
