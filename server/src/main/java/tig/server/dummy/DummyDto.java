@@ -339,4 +339,136 @@ public class DummyDto {
         private List<LeisureType> results; // 결과 리스트
     }
 
+    @Getter
+    @Setter
+    public static class UserInfoResponse { // 근데 이건 커스텀어노테이션으로 해결할 것 같아서 필요할지는 모르겠음
+        @Schema(type = "string", example = "김티그")
+        private String username;
+
+        @Schema(type = "string", example = "010-1234-5678")
+        private String phoneNumber;
+
+        @Schema(type = "string", example = "abc@gmail.com")
+        private String email;
+
+        @Schema(type = "string", example = "abc.jpg")
+        private String profileImgUrl;
+    }
+
+    @Getter
+    @Setter
+    public static class UsernameRequest {
+        @Schema(type = "string", example = "김티그")
+        private String username;
+    }
+
+    @Getter
+    @Setter
+    public static class PhoneNumberRequest {
+        @Schema(type = "string", example = "010-1234-5678")
+        private String phoneNumber;
+    }
+
+    @Getter
+    @Setter
+    public static class EmailRequest {
+        @Schema(type = "string", example = "abc@gmail.com")
+        private String email;
+    }
+
+    @Getter
+    @Setter
+    public static class ReservationReviewDetails {
+        @Schema(type = "Long", example = "10")
+        private Long reservationId;
+
+        @Schema(type = "string", example = "예약확정")
+        private String status; // TODO: ENUM으로 바꾸어야 함.
+
+        @Schema(type = "string", example = "티그볼링장")
+        private String leisureName;
+
+        @Schema(type = "string", example = "서울특별시 마포구 동교동")
+        private String address;
+
+        @Schema(type = "date", example = "2023-07-01T14:30:00")
+        private LocalDateTime date;
+
+        @Schema(type = "string", example = "9:00")
+        private String startTime;
+
+        @Schema(type = "string", example = "12:00")
+        private String endTime;
+
+        @Schema(type = "int", example = "12:00")
+        private int headCount;
+
+        @Schema(type = "boolean", example = "true")
+        private boolean reviewWritten;
+
+        @Schema(type = "Long", example = "5")
+        private Long reviewId;
+
+    }
+
+    @Getter
+    @Setter
+    public static class ReservationReviewDetailsResponse {
+        @Schema(type = "array", implementation = ReservationReviewDetails.class)
+        private List<ReservationReviewDetails> reservationReviewDetails;
+    }
+
+    @Getter
+    @Setter
+    public static class ReservationDetails {
+
+        @Schema(type = "string", example = "티그볼링장")
+        private String leisureName; // 업체명
+
+        @Schema(type = "string", example = "서울특별시 마포구 동교동")
+        private String address; // 주소
+
+        @Schema(type = "date", example = "2023-07-01T14:30:00")
+        private LocalDateTime date; // 예약날짜
+
+        @Schema(type = "string", example = "14:00")
+        private String startTime; // 예약시간start
+
+        @Schema(type = "string", example = "16:00")
+        private String endTime; // 예약시간end
+
+        @Schema(type = "number", example = "4")
+        private int headCount; // 예약인원
+
+        @Schema(type = "Long", example = "14")
+        private Long reservationId; // 예약번호
+
+        @Schema(type = "string", example = "정기민")
+        private String reserverName; // 예약자
+
+        @Schema(type = "string", example = "010-1234-5678")
+        private String phoneNumber; // 연락처
+
+        @Schema(type = "date", example = "2023-07-10T15:30:00")
+        private LocalDateTime paymentDateTime; // 결제일시
+
+        @Schema(type = "string", example = "KakaoPay")
+        private String paymentMethod; // 결제수단
+
+        @Schema(type = "number", example = "50000")
+        private int paymentAmount; // 예약금액
+
+        @Schema(type = "number", example = "5000")
+        private int serviceFee; // 수수료
+
+        @Schema(type = "number", example = "10000")
+        private int couponDiscount; // 쿠폰할인
+
+        @Schema(type = "number", example = "45000")
+        private int totalPaymentAmount; // 총결제금액
+
+        @Schema(type = "string", format = "date", example = "2023-07-14")
+        private String cancellationDeadline; // 예약취소가능날짜
+    }
+
 }
