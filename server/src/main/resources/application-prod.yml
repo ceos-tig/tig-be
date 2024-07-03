@@ -7,27 +7,3 @@ spring:
     password: ${RDS_PASSWORD}
     hikari:
       maximum-pool-size: 40
-  jpa:
-    database: mysql
-    database-platform: org.hibernate.dialect.MySQL8Dialect
-    hibernate:
-      ddl-auto: update
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.MySQL8Dialect
-        show_sql: true
-        format_sql: true
-
-server:
-  port: 8080
-  servlet:
-    contextPath: /tig
-
-springdoc:
-  api-docs:
-    enabled: true
-  swagger-ui:
-    enabled: true
-    tagsSorter: alpha
-    operations-sorter: alpha
-    display-request-duration: true
