@@ -11,14 +11,13 @@ import org.springframework.security.config.annotation.web.configurers.CsrfConfig
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import tig.server.jwt.TokenProvider;
 import tig.server.jwt.handler.JwtAuthenticationFilter;
 import tig.server.jwt.handler.JwtExceptionHandlerFilter;
-import tig.server.member.MemberDetailsServiceImpl;
+import tig.server.member.service.MemberDetailsServiceImpl;
 import tig.server.oauth2.handler.CustomAuthenticationSuccessHandler;
 import tig.server.oauth2.service.OAuth2MemberService;
 

@@ -1,4 +1,4 @@
-package tig.server.member;
+package tig.server.member.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -6,6 +6,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import tig.server.member.domain.Member;
+import tig.server.member.domain.MemberDetailsImpl;
 import tig.server.member.repository.MemberRepository;
 
 @Service
