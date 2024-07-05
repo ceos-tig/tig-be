@@ -41,7 +41,14 @@ public class Member {
 
     private String profileImage;
 
+    private String refreshToken;
+
     // Enum
     @Enumerated(EnumType.STRING)
     private MemberRoleEnum memberRoleEnum;
+
+    //== 편의 메서드 ==//
+    public void updateRefreshToken(String refreshToken){
+        this.refreshToken = refreshToken;
+    }
 }
