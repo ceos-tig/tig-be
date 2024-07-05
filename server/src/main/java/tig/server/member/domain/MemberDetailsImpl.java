@@ -1,4 +1,4 @@
-package tig.server.member;
+package tig.server.member.domain;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -6,7 +6,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import tig.server.enums.MemberRoleEnum;
-import tig.server.member.domain.Member;
 
 import java.util.ArrayList;
 import java.util.Collection;
