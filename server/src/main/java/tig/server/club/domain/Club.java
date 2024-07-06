@@ -7,6 +7,7 @@ import org.hibernate.annotations.Where;
 import tig.server.base.BaseTimeEntity;
 import tig.server.enums.Category;
 import tig.server.enums.Type;
+import tig.server.reservation.domain.Reservation;
 
 import java.util.List;
 
@@ -53,5 +54,7 @@ public class Club extends BaseTimeEntity {
     @Column(name = "image_url")
     private List<String> imageUrls;
 
-    // private reservations(FK)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "club")
+    private List<Reservation> reservations;
+
 }

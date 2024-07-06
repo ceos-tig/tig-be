@@ -5,6 +5,8 @@ import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 import tig.server.base.BaseTimeEntity;
+import tig.server.club.domain.Club;
+import tig.server.member.domain.Member;
 
 @Getter
 @Setter
@@ -34,4 +36,12 @@ public class Reservation extends BaseTimeEntity {
     private Integer price;
 
     private Boolean isReviewed = false;
+
+    @ManyToOne
+    @JoinColumn(name = "member_id")
+    private Member member;
+
+    @ManyToOne
+    @JoinColumn(name = "club_id")
+    private Club club;
 }
