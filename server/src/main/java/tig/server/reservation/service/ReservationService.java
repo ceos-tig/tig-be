@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import tig.server.club.domain.Club;
 import tig.server.club.mapper.ClubMapper;
 import tig.server.club.service.ClubService;
+import tig.server.enums.Status;
 import tig.server.member.domain.Member;
 import tig.server.member.mapper.MemberMapper;
 import tig.server.member.service.MemberService;
@@ -56,6 +57,52 @@ public class ReservationService {
         return response;
     }
 
+    public List<ReservationDTO.Response> getReservationByMemberId(Long memberId) {
+        List<Reservation> reservations = reservationRepository.findByMemberId(memberId);
+        return reservations.stream()
+                .map(reservationMapper::entityToResponse)
+                .collect(Collectors.toList());
+    }
 
+    public List<ReservationDTO.Response> getProceedingReservationByMemberId(Long memberId) {
+        List<Status> proceedingStatuses = List.of(Status.TBC, Status.CONFIRMED, Status.DECLINED);
+        List<Reservation> reservations = reservationRepository.findReservationsByMemberId(memberId, proceedingStatuses);
+        return reservations.stream()
+                .map(reservationMapper::entityToResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<ReservationDTO.Response> getTerminatedReservationByMemberId(Long memberId) {
+        List<Status> proceedingStatuses = List.of(Status.DONE, Status.CANCELED, Status.REVIEWED);
+        List<Reservation> reservations = reservationRepository.findReservationsByMemberId(memberId, proceedingStatuses);
+        return reservations.stream()
+                .map(reservationMapper::entityToResponse)
+                .collect(Collectors.toList());
+    }
+
+
+    @Transactional
+    public void cancelReservationById(Long id) {
+        Reservation reservation = reservationRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("reservation not found"));
+        reservation.setStatus(Status.CANCELED);
+        reservationRepository.save(reservation);
+    }
+
+    @Transactional
+    public void confirmReservationById(Long id) {
+        Reservation reservation = reservationRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("reservation not found"));
+        reservation.setStatus(Status.CONFIRMED);
+        reservationRepository.save(reservation);
+    }
+
+    @Transactional
+    public void declineReservationById(Long id) {
+        Reservation reservation = reservationRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("reservation not found"));
+        reservation.setStatus(Status.DECLINED);
+        reservationRepository.save(reservation);
+    }
 
 }

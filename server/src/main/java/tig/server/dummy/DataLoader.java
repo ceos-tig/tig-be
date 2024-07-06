@@ -113,7 +113,7 @@ public class DataLoader implements CommandLineRunner {
                 .price(150)
                 .status(Status.CONFIRMED)
                 .isReviewed(false)
-                .member(member1)
+                .member(member2)
                 .club(club1)
                 .build();
 
@@ -127,7 +127,7 @@ public class DataLoader implements CommandLineRunner {
                 .price(250)
                 .status(Status.TBC)
                 .isReviewed(false)
-                .member(member2)
+                .member(member1)
                 .club(club2)
                 .build();
 

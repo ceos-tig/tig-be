@@ -1,7 +1,10 @@
 package tig.server.enums;
 
 public enum Status {
-    CONFIRMED,
     TBC,
-    DECLINED
+    CONFIRMED,
+    DECLINED,
+    CANCELED,
+    DONE,
+    REVIEWED
 }
