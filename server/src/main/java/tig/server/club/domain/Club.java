@@ -2,6 +2,8 @@ package tig.server.club.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 import tig.server.base.BaseTimeEntity;
 import tig.server.enums.Category;
 import tig.server.enums.Type;
@@ -13,12 +15,18 @@ import java.util.List;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
+@SQLDelete(sql = "UPDATE club SET is_deleted = true WHERE club_id = ?")
+@Where(clause = "is_deleted = false")
+
 public class Club extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "club_id")
     private Long id;
+
+    @Builder.Default
+    private boolean isDeleted = Boolean.FALSE;
 
     private String clubName;
     private String address;
