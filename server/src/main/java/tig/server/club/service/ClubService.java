@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class ClubService {
+
     private final ClubRepository clubRepository;
     private final ClubMapper clubMapper = ClubMapper.INSTANCE;
 

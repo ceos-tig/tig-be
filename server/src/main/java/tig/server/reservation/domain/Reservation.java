@@ -6,6 +6,7 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 import tig.server.base.BaseTimeEntity;
 import tig.server.club.domain.Club;
+import tig.server.enums.Status;
 import tig.server.member.domain.Member;
 
 @Getter
@@ -33,9 +34,9 @@ public class Reservation extends BaseTimeEntity {
     private String date;
     private String startTime;
     private String endTime;
-
     private Integer price;
 
+    private Status status;
     private Boolean isReviewed = false;
 
     @ManyToOne

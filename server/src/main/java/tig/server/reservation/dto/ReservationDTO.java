@@ -2,8 +2,10 @@ package tig.server.reservation.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import tig.server.enums.Status;
 
 public class ReservationDTO {
+
     @Getter
     @Setter
     @ToString
@@ -21,7 +23,7 @@ public class ReservationDTO {
         @Schema(type = "integer", example = "0")
         private Integer kidsCount;
 
-        @Schema(type = "string", example = "24.07.04")
+        @Schema(type = "string", example = "2024-07-04")
         private String date;
 
         @Schema(type = "string", example = "10:00")
@@ -32,6 +34,9 @@ public class ReservationDTO {
 
         @Schema(type = "integer", example = "30000")
         private Integer price;
+
+        @Schema(type = "string", allowableValues = {"CONFIRMED", "TBC", "DECLINED"}, example = "CONFIRMED")
+        private Status status;
 
         @Schema(type = "boolean", example = "false")
         private Boolean isReviewed = false;
@@ -54,7 +59,7 @@ public class ReservationDTO {
         @Schema(type = "integer", example = "0")
         private Integer kidsCount;
 
-        @Schema(type = "string", example = "24.07.04")
+        @Schema(type = "string", example = "2024-07-04")
         private String date;
 
         @Schema(type = "string", example = "10:00")
@@ -65,6 +70,9 @@ public class ReservationDTO {
 
         @Schema(type = "integer", example = "30000")
         private Integer price;
+
+        @Schema(type = "string", allowableValues = {"CONFIRMED", "TBC", "DECLINED"}, example = "CONFIRMED")
+        private Status status;
 
         @Schema(type = "boolean", example = "false")
         private Boolean isReviewed = false;

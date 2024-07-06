@@ -14,6 +14,7 @@ import tig.server.review.repository.ReviewRepository;
 import tig.server.enums.Category;
 import tig.server.enums.Type;
 import tig.server.enums.MemberRoleEnum;
+import tig.server.enums.Status;
 
 import java.util.Arrays;
 import java.util.List;
@@ -110,6 +111,7 @@ public class DataLoader implements CommandLineRunner {
                 .startTime("10:00")
                 .endTime("12:00")
                 .price(150)
+                .status(Status.CONFIRMED)
                 .isReviewed(false)
                 .member(member1)
                 .club(club1)
@@ -123,6 +125,7 @@ public class DataLoader implements CommandLineRunner {
                 .startTime("14:00")
                 .endTime("16:00")
                 .price(250)
+                .status(Status.TBC)
                 .isReviewed(false)
                 .member(member2)
                 .club(club2)
