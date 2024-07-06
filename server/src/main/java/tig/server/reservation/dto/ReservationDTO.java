@@ -2,7 +2,9 @@ package tig.server.reservation.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import tig.server.club.domain.Club;
 import tig.server.enums.Status;
+import tig.server.member.domain.Member;
 
 public class ReservationDTO {
 
@@ -40,6 +42,12 @@ public class ReservationDTO {
 
         @Schema(type = "boolean", example = "false")
         private Boolean isReviewed = false;
+
+        @Schema(type = "integer", example = "2")
+        private Integer memberId;
+
+        @Schema(type = "integer", example = "3")
+        private Integer clubId;
     }
 
     @Getter

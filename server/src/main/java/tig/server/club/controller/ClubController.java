@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tig.server.club.dto.ClubDTO;
 import tig.server.club.service.ClubService;
+import tig.server.member.service.MemberService;
 
 import java.util.List;
 

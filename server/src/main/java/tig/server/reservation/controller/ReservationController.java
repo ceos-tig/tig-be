@@ -4,10 +4,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import tig.server.club.dto.ClubDTO;
+import tig.server.club.service.ClubService;
+import tig.server.member.service.MemberService;
 import tig.server.reservation.dto.ReservationDTO;
 import tig.server.reservation.service.ReservationService;
 
@@ -20,6 +20,8 @@ import java.util.List;
 public class ReservationController {
 
     private final ReservationService reservationService;
+    private final MemberService memberService;
+    private final ClubService clubService;
 
     @GetMapping("")
     @Operation(summary = "전체 예약 내역 조회")
@@ -34,4 +36,15 @@ public class ReservationController {
         ReservationDTO.Response reservationResponse = reservationService.getReservationById(id);
         return ResponseEntity.ok(reservationResponse);
     }
+
+//    @PostMapping("/{memberId}/{clubId}")
+//    @Operation(summary = "예약")
+//    public ResponseEntity<ClubDTO.Response> createReservation(
+//            @PathVariable Long memberId,
+//            @PathVariable Long clubId,
+//            @RequestBody ReservationDTO.Request reservationRequest
+//    ) {
+//        ReservationDTO.Response createdReservation = clubService.createClub(clubRequest);
+//        return ResponseEntity.status(201).body(createdClub);
+//    }
 }
