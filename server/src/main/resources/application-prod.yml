@@ -1,9 +1,9 @@
-
-spring:
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://${RDS_HOSTNAME}:${RDS_PORT}/${RDS_DB_NAME}?createDatabaseIfNotExist=true
-    username: ${RDS_USERNAME}
-    password: ${RDS_PASSWORD}
-    hikari:
-      maximum-pool-size: 40
+#
+#spring:
+#  datasource:
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#    url: jdbc:mysql://${RDS_HOSTNAME}:${RDS_PORT}/${RDS_DB_NAME}?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useUnicode=true&serverTimezone=Asia/Seoul?useSSL=false
+#    username: ${RDS_USERNAME}
+#    password: ${RDS_PASSWORD}
+#    hikari:
+#      maximum-pool-size: 40

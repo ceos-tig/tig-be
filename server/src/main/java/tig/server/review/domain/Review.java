@@ -10,6 +10,7 @@ import tig.server.reservation.domain.Reservation;
 @Getter
 @Setter
 @Entity
+@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @SQLDelete(sql = "UPDATE review SET is_deleted = true WHERE review_id = ?")
@@ -26,4 +27,7 @@ public class Review extends BaseTimeEntity {
 
     @OneToOne(optional = false)
     private Reservation reservation;
+
+    private Integer rating;
+    private String contents;
 }

@@ -11,6 +11,7 @@ import tig.server.member.domain.Member;
 @Getter
 @Setter
 @Entity
+@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @SQLDelete(sql = "UPDATE reservation SET is_deleted = true WHERE reservation_id = ?")

@@ -1,16 +1,15 @@
 package tig.server.club.mapper;
 
+import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.processing.Generated;
 import org.springframework.stereotype.Component;
 import tig.server.club.domain.Club;
 import tig.server.club.dto.ClubDTO;
-import tig.server.enums.Category;
-import tig.server.enums.Type;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2024-07-03T19:39:32+0900",
+    date = "2024-07-06T22:10:32+0900",
     comments = "version: 1.5.3.Final, compiler: javac, environment: Java 17.0.5 (Oracle Corporation)"
 )
 @Component
@@ -22,37 +21,25 @@ public class ClubMapperImpl implements ClubMapper {
             return null;
         }
 
-        String clubName = null;
-        String address = null;
-        Float rating = null;
-        Integer price = null;
-        String phoneNumber = null;
-        String snsLink = null;
-        String businessHours = null;
-        Category category = null;
-        Type type = null;
-        Float latitude = null;
-        Float longitude = null;
+        Club.ClubBuilder club = Club.builder();
 
-        clubName = clubRequest.getClubName();
-        address = clubRequest.getAddress();
-        rating = clubRequest.getRating();
-        price = clubRequest.getPrice();
-        phoneNumber = clubRequest.getPhoneNumber();
-        snsLink = clubRequest.getSnsLink();
-        businessHours = clubRequest.getBusinessHours();
-        category = clubRequest.getCategory();
-        type = clubRequest.getType();
-        latitude = clubRequest.getLatitude();
-        longitude = clubRequest.getLongitude();
+        club.clubName( clubRequest.getClubName() );
+        club.address( clubRequest.getAddress() );
+        club.rating( clubRequest.getRating() );
+        club.price( clubRequest.getPrice() );
+        club.phoneNumber( clubRequest.getPhoneNumber() );
+        club.snsLink( clubRequest.getSnsLink() );
+        club.businessHours( clubRequest.getBusinessHours() );
+        club.category( clubRequest.getCategory() );
+        club.type( clubRequest.getType() );
+        club.latitude( clubRequest.getLatitude() );
+        club.longitude( clubRequest.getLongitude() );
+        List<String> list = clubRequest.getImageUrls();
+        if ( list != null ) {
+            club.imageUrls( new ArrayList<String>( list ) );
+        }
 
-        Long id = null;
-        List<String> services = null;
-        List<String> imageUrls = null;
-
-        Club club = new Club( id, clubName, address, rating, price, phoneNumber, snsLink, businessHours, category, type, latitude, longitude, services, imageUrls );
-
-        return club;
+        return club.build();
     }
 
     @Override
@@ -74,48 +61,65 @@ public class ClubMapperImpl implements ClubMapper {
         response.longitude( club.getLongitude() );
         response.category( club.getCategory() );
         response.type( club.getType() );
+        List<String> list = club.getImageUrls();
+        if ( list != null ) {
+            response.imageUrls( new ArrayList<String>( list ) );
+        }
 
         return response.build();
     }
 
     @Override
-    public Club updateFromRequest(ClubDTO.Request portfolioRequest, Club club) {
-        if ( portfolioRequest == null ) {
+    public Club updateFromRequest(ClubDTO.Request clubRequest, Club club) {
+        if ( clubRequest == null ) {
             return club;
         }
 
-        if ( portfolioRequest.getClubName() != null ) {
-            club.setClubName( portfolioRequest.getClubName() );
+        if ( clubRequest.getClubName() != null ) {
+            club.setClubName( clubRequest.getClubName() );
         }
-        if ( portfolioRequest.getAddress() != null ) {
-            club.setAddress( portfolioRequest.getAddress() );
+        if ( clubRequest.getAddress() != null ) {
+            club.setAddress( clubRequest.getAddress() );
         }
-        if ( portfolioRequest.getRating() != null ) {
-            club.setRating( portfolioRequest.getRating() );
+        if ( clubRequest.getRating() != null ) {
+            club.setRating( clubRequest.getRating() );
         }
-        if ( portfolioRequest.getPrice() != null ) {
-            club.setPrice( portfolioRequest.getPrice() );
+        if ( clubRequest.getPrice() != null ) {
+            club.setPrice( clubRequest.getPrice() );
         }
-        if ( portfolioRequest.getPhoneNumber() != null ) {
-            club.setPhoneNumber( portfolioRequest.getPhoneNumber() );
+        if ( clubRequest.getPhoneNumber() != null ) {
+            club.setPhoneNumber( clubRequest.getPhoneNumber() );
         }
-        if ( portfolioRequest.getSnsLink() != null ) {
-            club.setSnsLink( portfolioRequest.getSnsLink() );
+        if ( clubRequest.getSnsLink() != null ) {
+            club.setSnsLink( clubRequest.getSnsLink() );
         }
-        if ( portfolioRequest.getBusinessHours() != null ) {
-            club.setBusinessHours( portfolioRequest.getBusinessHours() );
+        if ( clubRequest.getBusinessHours() != null ) {
+            club.setBusinessHours( clubRequest.getBusinessHours() );
         }
-        if ( portfolioRequest.getCategory() != null ) {
-            club.setCategory( portfolioRequest.getCategory() );
+        if ( clubRequest.getCategory() != null ) {
+            club.setCategory( clubRequest.getCategory() );
         }
-        if ( portfolioRequest.getType() != null ) {
-            club.setType( portfolioRequest.getType() );
+        if ( clubRequest.getType() != null ) {
+            club.setType( clubRequest.getType() );
         }
-        if ( portfolioRequest.getLatitude() != null ) {
-            club.setLatitude( portfolioRequest.getLatitude() );
+        if ( clubRequest.getLatitude() != null ) {
+            club.setLatitude( clubRequest.getLatitude() );
         }
-        if ( portfolioRequest.getLongitude() != null ) {
-            club.setLongitude( portfolioRequest.getLongitude() );
+        if ( clubRequest.getLongitude() != null ) {
+            club.setLongitude( clubRequest.getLongitude() );
+        }
+        if ( club.getImageUrls() != null ) {
+            List<String> list = clubRequest.getImageUrls();
+            if ( list != null ) {
+                club.getImageUrls().clear();
+                club.getImageUrls().addAll( list );
+            }
+        }
+        else {
+            List<String> list = clubRequest.getImageUrls();
+            if ( list != null ) {
+                club.setImageUrls( new ArrayList<String>( list ) );
+            }
         }
 
         return club;

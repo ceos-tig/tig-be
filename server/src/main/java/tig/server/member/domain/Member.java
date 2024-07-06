@@ -18,21 +18,6 @@ import java.util.List;
 @Where(clause = "is_deleted = false")
 public class Member {
 
-    public Member(String name,
-                  String email,
-                  String phoneNumber,
-                  String uniqueId,
-                  MemberRoleEnum memberRoleEnum,
-                  String profileImage) {
-        this.name = name;
-        this.email = email;
-        this.phoneNumber = phoneNumber;
-        this.uniqueId = uniqueId;
-        this.memberRoleEnum = memberRoleEnum;
-        this.profileImage = profileImage;
-    }
-
-    // PK
     @Id
     @GeneratedValue
     @Column(name = "member_id")

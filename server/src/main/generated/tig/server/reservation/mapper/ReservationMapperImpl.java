@@ -1,0 +1,89 @@
+package tig.server.reservation.mapper;
+
+import javax.annotation.processing.Generated;
+import org.springframework.stereotype.Component;
+import tig.server.reservation.domain.Reservation;
+import tig.server.reservation.dto.ReservationDTO;
+
+@Generated(
+    value = "org.mapstruct.ap.MappingProcessor",
+    date = "2024-07-06T22:10:31+0900",
+    comments = "version: 1.5.3.Final, compiler: javac, environment: Java 17.0.5 (Oracle Corporation)"
+)
+@Component
+public class ReservationMapperImpl implements ReservationMapper {
+
+    @Override
+    public Reservation requestToEntity(ReservationDTO.Request reservationRequest) {
+        if ( reservationRequest == null ) {
+            return null;
+        }
+
+        Reservation.ReservationBuilder reservation = Reservation.builder();
+
+        reservation.adultCount( reservationRequest.getAdultCount() );
+        reservation.teenagerCount( reservationRequest.getTeenagerCount() );
+        reservation.kidsCount( reservationRequest.getKidsCount() );
+        reservation.date( reservationRequest.getDate() );
+        reservation.startTime( reservationRequest.getStartTime() );
+        reservation.endTime( reservationRequest.getEndTime() );
+        reservation.price( reservationRequest.getPrice() );
+        reservation.isReviewed( reservationRequest.getIsReviewed() );
+
+        return reservation.build();
+    }
+
+    @Override
+    public ReservationDTO.Response entityToResponse(Reservation reservation) {
+        if ( reservation == null ) {
+            return null;
+        }
+
+        ReservationDTO.Response.ResponseBuilder response = ReservationDTO.Response.builder();
+
+        response.adultCount( reservation.getAdultCount() );
+        response.teenagerCount( reservation.getTeenagerCount() );
+        response.kidsCount( reservation.getKidsCount() );
+        response.date( reservation.getDate() );
+        response.startTime( reservation.getStartTime() );
+        response.endTime( reservation.getEndTime() );
+        response.price( reservation.getPrice() );
+        response.isReviewed( reservation.getIsReviewed() );
+
+        return response.build();
+    }
+
+    @Override
+    public Reservation updateFromRequest(ReservationDTO.Request reservationRequest, Reservation reservation) {
+        if ( reservationRequest == null ) {
+            return reservation;
+        }
+
+        if ( reservationRequest.getAdultCount() != null ) {
+            reservation.setAdultCount( reservationRequest.getAdultCount() );
+        }
+        if ( reservationRequest.getTeenagerCount() != null ) {
+            reservation.setTeenagerCount( reservationRequest.getTeenagerCount() );
+        }
+        if ( reservationRequest.getKidsCount() != null ) {
+            reservation.setKidsCount( reservationRequest.getKidsCount() );
+        }
+        if ( reservationRequest.getDate() != null ) {
+            reservation.setDate( reservationRequest.getDate() );
+        }
+        if ( reservationRequest.getStartTime() != null ) {
+            reservation.setStartTime( reservationRequest.getStartTime() );
+        }
+        if ( reservationRequest.getEndTime() != null ) {
+            reservation.setEndTime( reservationRequest.getEndTime() );
+        }
+        if ( reservationRequest.getPrice() != null ) {
+            reservation.setPrice( reservationRequest.getPrice() );
+        }
+        if ( reservationRequest.getIsReviewed() != null ) {
+            reservation.setIsReviewed( reservationRequest.getIsReviewed() );
+        }
+
+        return reservation;
+    }
+}
