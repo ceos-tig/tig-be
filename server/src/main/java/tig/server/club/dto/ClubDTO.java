@@ -5,6 +5,8 @@ import lombok.*;
 import tig.server.enums.Category;
 import tig.server.enums.Type;
 
+import java.util.List;
+
 public class ClubDTO {
     @Getter
     @Setter
@@ -47,6 +49,9 @@ public class ClubDTO {
         @Schema(type = "string", example = "GAME")
         private Type type;
 
+        @Schema(type = "array", example = "[\"src/club/img1.jpg\", \"src/club/img2.jpg\"]")
+        private List<String> imageUrls;
+
     }
 
     @Setter
@@ -88,6 +93,12 @@ public class ClubDTO {
 
         @Schema(type = "string", example = "GAME")
         private Type type;
+
+        @Schema(type = "array", example = "[\"src/club/img1.jpg\", \"src/club/img2.jpg\"]")
+        private List<String> imageUrls;
+
+        @Schema(type = "array", example = "[\"https://s3.amazonaws.com/bucket/club1.jpg\", \"https://s3.amazonaws.com/bucket/club2.jpg\"]", description = "각각 10분동안 유효하며, 보낸 이미지 순서대로 presigned URL이 반환됩니다.")
+        private List<String> presignedImageUrls;
 
     }
 }

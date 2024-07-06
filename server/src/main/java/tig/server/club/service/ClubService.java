@@ -33,5 +33,28 @@ public class ClubService {
         return clubMapper.entityToResponse(club);
     }
 
+    @Transactional
+    public ClubDTO.Response createClub(ClubDTO.Request clubRequest) {
+        //Change image name to be unique
+        clubRequest.setImageUrls(clubRequest.getImageUrls().stream()
+                .map(s3Uploader::getUniqueFilename)
+                .collect(Collectors.toList()));
+
+        //Upload image to s3
+        List<String> presignedUrlList = s3Uploader.uploadFileList(clubRequest.getImageUrls());
+
+        //save club, set presigned url and cloudfront url to response
+        Club club = clubMapper.requestToEntity(clubRequest);
+        club = clubRepository.save(club);
+        ClubDTO.Response response = clubMapper.entityToResponse(club);
+        response.setPresignedImageUrls(presignedUrlList);
+
+        response.setImageUrls(club.getImageUrls().stream()
+                .map(s3Uploader::getImageUrl)
+                .collect(Collectors.toList()));
+
+        return response;
+    }
+
 
 }

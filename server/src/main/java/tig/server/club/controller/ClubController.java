@@ -13,7 +13,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/club")
-@Tag(name = "portfolio", description = "업체 API")
+@Tag(name = "club", description = "업체 API")
 public class ClubController {
 
     private final ClubService clubService;
@@ -27,8 +27,15 @@ public class ClubController {
 
     @GetMapping("/{id}")
     @Operation(summary = "특정 업체 조회")
-    public ResponseEntity<ClubDTO.Response> getPortfolioById(@PathVariable Long id) {
+    public ResponseEntity<ClubDTO.Response> getClubById(@PathVariable Long id) {
         ClubDTO.Response clubResponse = clubService.getClubById(id);
         return ResponseEntity.ok(clubResponse);
+    }
+
+    @PostMapping("")
+    @Operation(summary = "업체 업로드")
+    public ResponseEntity<ClubDTO.Response> createClub(@RequestBody ClubDTO.Request clubRequest) {
+        ClubDTO.Response createdClub = clubService.createClub(clubRequest);
+        return ResponseEntity.status(201).body(createdClub);
     }
 }
