@@ -14,6 +14,8 @@ public interface MemberMapper {
 
     MemberDTO.Response entityToResponse(Member member);
 
+    Member responseToEntity(MemberDTO.Response meberResponse);
+
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)
     Member updateFromRequest(MemberDTO.Request memberRequest, @MappingTarget Member member);

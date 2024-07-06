@@ -3,6 +3,12 @@ package tig.server.reservation.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tig.server.club.domain.Club;
+import tig.server.club.mapper.ClubMapper;
+import tig.server.club.service.ClubService;
+import tig.server.member.domain.Member;
+import tig.server.member.mapper.MemberMapper;
+import tig.server.member.service.MemberService;
 import tig.server.reservation.domain.Reservation;
 import tig.server.reservation.dto.ReservationDTO;
 import tig.server.reservation.mapper.ReservationMapper;
@@ -18,6 +24,12 @@ public class ReservationService {
     private final ReservationRepository reservationRepository;
     private final ReservationMapper reservationMapper;
 
+    private final MemberService memberService;
+    private final ClubService clubService;
+
+    private final MemberMapper memberMapper;
+    private final ClubMapper clubMapper;
+
     public List<ReservationDTO.Response> getAllReservations() {
         return reservationRepository.findAll().stream()
                 .map(reservationMapper::entityToResponse)
@@ -31,8 +43,14 @@ public class ReservationService {
     }
 
     @Transactional
-    public ReservationDTO.Response createReservation(ReservationDTO.Request reservationRequest) {
+    public ReservationDTO.Response createReservation(Long memberId, Long clubId, ReservationDTO.Request reservationRequest) {
+        Member member = memberMapper.responseToEntity(memberService.getMemberById(memberId));
+        Club club = clubMapper.responseToEntity(clubService.getClubById(clubId));
+
         Reservation reservation = reservationMapper.requestToEntity(reservationRequest);
+        reservation.setMember(member);
+        reservation.setClub(club);
+
         reservation = reservationRepository.save(reservation);
         ReservationDTO.Response response = reservationMapper.entityToResponse(reservation);
         return response;

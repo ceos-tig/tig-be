@@ -14,6 +14,8 @@ public interface ClubMapper {
 
     ClubDTO.Response entityToResponse(Club club);
 
+    Club responseToEntity(ClubDTO.Response clubResponse);
+
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)
     Club updateFromRequest(ClubDTO.Request clubRequest, @MappingTarget Club club);

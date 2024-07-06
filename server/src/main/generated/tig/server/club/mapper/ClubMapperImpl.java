@@ -9,7 +9,7 @@ import tig.server.club.dto.ClubDTO;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2024-07-06T22:10:32+0900",
+    date = "2024-07-07T03:42:40+0900",
     comments = "version: 1.5.3.Final, compiler: javac, environment: Java 17.0.5 (Oracle Corporation)"
 )
 @Component
@@ -67,6 +67,33 @@ public class ClubMapperImpl implements ClubMapper {
         }
 
         return response.build();
+    }
+
+    @Override
+    public Club responseToEntity(ClubDTO.Response clubResponse) {
+        if ( clubResponse == null ) {
+            return null;
+        }
+
+        Club.ClubBuilder club = Club.builder();
+
+        club.clubName( clubResponse.getClubName() );
+        club.address( clubResponse.getAddress() );
+        club.rating( clubResponse.getRating() );
+        club.price( clubResponse.getPrice() );
+        club.phoneNumber( clubResponse.getPhoneNumber() );
+        club.snsLink( clubResponse.getSnsLink() );
+        club.businessHours( clubResponse.getBusinessHours() );
+        club.category( clubResponse.getCategory() );
+        club.type( clubResponse.getType() );
+        club.latitude( clubResponse.getLatitude() );
+        club.longitude( clubResponse.getLongitude() );
+        List<String> list = clubResponse.getImageUrls();
+        if ( list != null ) {
+            club.imageUrls( new ArrayList<String>( list ) );
+        }
+
+        return club.build();
     }
 
     @Override

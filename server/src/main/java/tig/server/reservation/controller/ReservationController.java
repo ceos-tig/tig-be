@@ -20,8 +20,6 @@ import java.util.List;
 public class ReservationController {
 
     private final ReservationService reservationService;
-    private final MemberService memberService;
-    private final ClubService clubService;
 
     @GetMapping("")
     @Operation(summary = "전체 예약 내역 조회")
@@ -37,14 +35,14 @@ public class ReservationController {
         return ResponseEntity.ok(reservationResponse);
     }
 
-//    @PostMapping("/{memberId}/{clubId}")
-//    @Operation(summary = "예약")
-//    public ResponseEntity<ClubDTO.Response> createReservation(
-//            @PathVariable Long memberId,
-//            @PathVariable Long clubId,
-//            @RequestBody ReservationDTO.Request reservationRequest
-//    ) {
-//        ReservationDTO.Response createdReservation = clubService.createClub(clubRequest);
-//        return ResponseEntity.status(201).body(createdClub);
-//    }
+    @PostMapping("/{memberId}/{clubId}")
+    @Operation(summary = "예약")
+    public ResponseEntity<ReservationDTO.Response> createReservation(
+            @PathVariable Long memberId,
+            @PathVariable Long clubId,
+            @RequestBody ReservationDTO.Request reservationRequest
+    ) {
+        ReservationDTO.Response createdReservation = reservationService.createReservation(memberId, clubId, reservationRequest);
+        return ResponseEntity.status(201).body(createdReservation);
+    }
 }
