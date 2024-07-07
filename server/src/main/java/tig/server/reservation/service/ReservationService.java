@@ -133,4 +133,11 @@ public class ReservationService {
         reservationRepository.save(reservation);
     }
 
+    public boolean checkReservationIsReviewedById(Long id) {
+        Reservation reservation = reservationRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("reservation not found"));
+
+        return reservation.getStatus() == Status.REVIEWED;
+    }
+
 }
