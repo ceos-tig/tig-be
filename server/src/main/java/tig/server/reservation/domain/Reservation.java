@@ -15,7 +15,6 @@ import tig.server.member.domain.Member;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@SQLDelete(sql = "UPDATE reservation SET is_deleted = true WHERE reservation_id = ?")
 @Where(clause = "is_deleted = false")
 public class Reservation extends BaseTimeEntity {
 
