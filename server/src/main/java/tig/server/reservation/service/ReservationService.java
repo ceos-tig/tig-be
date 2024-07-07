@@ -15,6 +15,7 @@ import tig.server.reservation.dto.ReservationDTO;
 import tig.server.reservation.mapper.ReservationMapper;
 import tig.server.reservation.repository.ReservationRepository;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -65,16 +66,16 @@ public class ReservationService {
     }
 
     public List<ReservationDTO.Response> getProceedingReservationByMemberId(Long memberId) {
-        List<Status> proceedingStatuses = List.of(Status.TBC, Status.CONFIRMED, Status.DECLINED);
-        List<Reservation> reservations = reservationRepository.findReservationsByMemberId(memberId, proceedingStatuses);
+        List<Status> proceedingStatuses = List.of(Status.TBC, Status.CONFIRMED);
+        List<Reservation> reservations = reservationRepository.findReservationsByMemberIdAndStatus(memberId, proceedingStatuses);
         return reservations.stream()
                 .map(reservationMapper::entityToResponse)
                 .collect(Collectors.toList());
     }
 
     public List<ReservationDTO.Response> getTerminatedReservationByMemberId(Long memberId) {
-        List<Status> proceedingStatuses = List.of(Status.DONE, Status.CANCELED, Status.REVIEWED);
-        List<Reservation> reservations = reservationRepository.findReservationsByMemberId(memberId, proceedingStatuses);
+        List<Status> proceedingStatuses = List.of(Status.DECLINED, Status.DONE, Status.CANCELED, Status.REVIEWED);
+        List<Reservation> reservations = reservationRepository.findReservationsByMemberIdAndStatus(memberId, proceedingStatuses);
         return reservations.stream()
                 .map(reservationMapper::entityToResponse)
                 .collect(Collectors.toList());
@@ -85,6 +86,15 @@ public class ReservationService {
     public void cancelReservationById(Long id) {
         Reservation reservation = reservationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("reservation not found"));
+
+        // Define the list of valid statuses
+        List<Status> validStatuses = Arrays.asList(Status.TBC, Status.CONFIRMED);
+
+        // Check if the reservation status is not in the list of valid statuses
+        if (!validStatuses.contains(reservation.getStatus())) {
+            throw new RuntimeException("Cannot cancel a reservation with status " + reservation.getStatus());
+        }
+
         reservation.setStatus(Status.CANCELED);
         reservationRepository.save(reservation);
     }
@@ -93,6 +103,15 @@ public class ReservationService {
     public void confirmReservationById(Long id) {
         Reservation reservation = reservationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("reservation not found"));
+
+        // Define the list of valid statuses
+        List<Status> validStatuses = Arrays.asList(Status.TBC);
+
+        // Check if the reservation status is not in the list of valid statuses
+        if (!validStatuses.contains(reservation.getStatus())) {
+            throw new RuntimeException("Cannot confirm a reservation with status " + reservation.getStatus());
+        }
+
         reservation.setStatus(Status.CONFIRMED);
         reservationRepository.save(reservation);
     }
@@ -101,6 +120,15 @@ public class ReservationService {
     public void declineReservationById(Long id) {
         Reservation reservation = reservationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("reservation not found"));
+
+        // Define the list of valid statuses
+        List<Status> validStatuses = Arrays.asList(Status.TBC);
+
+        // Check if the reservation status is not in the list of valid statuses
+        if (!validStatuses.contains(reservation.getStatus())) {
+            throw new RuntimeException("Cannot decline a reservation with status " + reservation.getStatus());
+        }
+
         reservation.setStatus(Status.DECLINED);
         reservationRepository.save(reservation);
     }
