@@ -131,8 +131,23 @@ public class DataLoader implements CommandLineRunner {
                 .club(club2)
                 .build();
 
+        Reservation reservation3 = Reservation.builder()
+                .adultCount(1)
+                .teenagerCount(1)
+                .kidsCount(1)
+                .date("2024-08-25")
+                .startTime("14:00")
+                .endTime("16:00")
+                .price(250)
+                .status(Status.DECLINED)
+                .isReviewed(false)
+                .member(member1)
+                .club(club2)
+                .build();
+
         reservationRepository.save(reservation1);
         reservationRepository.save(reservation2);
+        reservationRepository.save(reservation3);
 
         // Create Reviews
         Review review1 = Review.builder()
