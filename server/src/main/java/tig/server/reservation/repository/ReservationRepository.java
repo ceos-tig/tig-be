@@ -15,7 +15,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     List<Reservation> findByMemberId(Long memberId);
 
     @Query("SELECT r FROM Reservation r WHERE r.member.id = :memberId AND r.status IN :statuses")
-    List<Reservation> findReservationsByMemberId(@Param("memberId") Long memberId, @Param("statuses") List<Status> statuses);
+    List<Reservation> findReservationsByMemberIdAndStatus(@Param("memberId") Long memberId, @Param("statuses") List<Status> statuses);
 
 
 }

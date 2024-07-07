@@ -5,10 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import tig.server.club.dto.ClubDTO;
-import tig.server.club.service.ClubService;
 import tig.server.enums.Status;
-import tig.server.member.service.MemberService;
 import tig.server.reservation.dto.ReservationDTO;
 import tig.server.reservation.service.ReservationService;
 

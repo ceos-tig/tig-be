@@ -37,11 +37,8 @@ public class ReservationDTO {
         @Schema(type = "integer", example = "30000")
         private Integer price;
 
-        @Schema(type = "string", allowableValues = {"CONFIRMED", "TBC", "DECLINED"}, example = "CONFIRMED")
+        @Schema(type = "string", allowableValues = {"TBC", "CONFIRMED", "CANCELED", "DECLINED", "DONE", "REVIEWED"}, example = "CONFIRMED")
         private Status status;
-
-        @Schema(type = "boolean", example = "false")
-        private Boolean isReviewed = false;
 
         @Schema(type = "integer", example = "2")
         private Integer memberId;
@@ -79,11 +76,9 @@ public class ReservationDTO {
         @Schema(type = "integer", example = "30000")
         private Integer price;
 
-        @Schema(type = "string", allowableValues = {"CONFIRMED", "TBC", "DECLINED"}, example = "CONFIRMED")
+        @Schema(type = "string", allowableValues = {"TBC", "CONFIRMED", "CANCELED", "DECLINED", "DONE", "REVIEWED"}, example = "CONFIRMED")
         private Status status;
 
-        @Schema(type = "boolean", example = "false")
-        private Boolean isReviewed = false;
 
     }
 }
