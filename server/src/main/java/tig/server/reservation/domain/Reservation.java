@@ -37,7 +37,6 @@ public class Reservation extends BaseTimeEntity {
     private Integer price;
 
     private Status status;
-    private Boolean isReviewed = false;
 
     @ManyToOne
     @JoinColumn(name = "member_id")

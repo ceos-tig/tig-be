@@ -112,7 +112,6 @@ public class DataLoader implements CommandLineRunner {
                 .endTime("12:00")
                 .price(150)
                 .status(Status.CONFIRMED)
-                .isReviewed(false)
                 .member(member2)
                 .club(club1)
                 .build();
@@ -126,7 +125,6 @@ public class DataLoader implements CommandLineRunner {
                 .endTime("16:00")
                 .price(250)
                 .status(Status.TBC)
-                .isReviewed(false)
                 .member(member1)
                 .club(club2)
                 .build();
@@ -140,7 +138,6 @@ public class DataLoader implements CommandLineRunner {
                 .endTime("16:00")
                 .price(250)
                 .status(Status.DECLINED)
-                .isReviewed(false)
                 .member(member1)
                 .club(club2)
                 .build();
