@@ -30,11 +30,12 @@ public class Club extends BaseTimeEntity {
 
     private String clubName;
     private String address;
-    private Float rating;
     private Integer price;
     private String phoneNumber;
     private String snsLink;
     private String businessHours;
+
+    private Float avgRating;
 
     // enums
     private Category category;

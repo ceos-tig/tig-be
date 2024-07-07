@@ -23,7 +23,7 @@ public class ClubDTO {
         private String address;
 
         @Schema(type = "float", example = "4.5")
-        private Float rating;
+        private Float avgRating;
 
         @Schema(type = "integer", example = "30000")
         private Integer price;
@@ -68,7 +68,7 @@ public class ClubDTO {
         private String address;
 
         @Schema(type = "float", example = "4.5")
-        private Float rating;
+        private Float avgRating;
 
         @Schema(type = "integer", example = "30000")
         private Integer price;

@@ -2,7 +2,6 @@ package tig.server.review.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 import tig.server.base.BaseTimeEntity;
 import tig.server.reservation.domain.Reservation;
