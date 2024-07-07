@@ -1,9 +1,11 @@
 package tig.server.reservation.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import tig.server.enums.Status;
 import tig.server.reservation.domain.Reservation;
 
@@ -17,5 +19,9 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     @Query("SELECT r FROM Reservation r WHERE r.member.id = :memberId AND r.status IN :statuses")
     List<Reservation> findReservationsByMemberIdAndStatus(@Param("memberId") Long memberId, @Param("statuses") List<Status> statuses);
 
+    @Transactional
+    @Modifying
+    @Query("UPDATE Reservation r SET r.isDeleted = true WHERE r.id = :id")
+    void softDeleteById(@Param("id") Long id);
 
 }

@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import tig.server.club.dto.ClubDTO;
 import tig.server.jwt.TokenProvider;
 import tig.server.member.domain.Member;
 import tig.server.member.dto.MemberDTO;

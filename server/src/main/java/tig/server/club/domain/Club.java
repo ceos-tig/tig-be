@@ -17,7 +17,6 @@ import java.util.List;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@SQLDelete(sql = "UPDATE club SET is_deleted = true WHERE club_id = ?")
 @Where(clause = "is_deleted = false")
 public class Club extends BaseTimeEntity {
 

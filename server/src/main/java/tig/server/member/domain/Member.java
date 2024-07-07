@@ -14,7 +14,6 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-@SQLDelete(sql = "UPDATE member SET is_deleted = true WHERE member_id = ?")
 @Where(clause = "is_deleted = false")
 public class Member {
 
