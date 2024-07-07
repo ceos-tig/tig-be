@@ -41,7 +41,7 @@ public class TokenProvider implements InitializingBean {
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String getLoginId(String token) {
+    public String getUsername(String token) {
         try {
             key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
             Claims claims = Jwts.parserBuilder()
@@ -73,18 +73,24 @@ public class TokenProvider implements InitializingBean {
         return null;
     }
 
-    public String createRefreshToken(String username) {
+    public String getUniqueId(String accessToken) {
+        Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(accessToken).getBody();
+        return claims.get("uniqueId", String.class);
+    }
+
+    public String createRefreshToken(String username, String uniqueId) {
         long now = (new Date()).getTime();
         Date validity = new Date(now + REFRESH_TOKEN_VALIDITY_SECONDS * 1000);
 
         return Jwts.builder()
                 .setSubject(username)
+                .claim("uniqueId", uniqueId) // 커스텀 클레임으로 uniqueId 추가
                 .signWith(key, SignatureAlgorithm.HS512)
                 .setExpiration(validity)
                 .compact();
     }
 
-    public String createAccessToken(String username, Authentication authentication) {
+    public String createAccessToken(String username, String uniqueId, Authentication authentication) {
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
@@ -95,6 +101,7 @@ public class TokenProvider implements InitializingBean {
         return Jwts.builder()
                 .setSubject(username)
                 .claim(AUTHORITIES_KEY, authorities)
+                .claim("uniqueId", uniqueId) // 커스텀 클레임으로 uniqueId 추가
                 .signWith(key, SignatureAlgorithm.HS512)
                 .setExpiration(validity)
                 .compact();
@@ -106,8 +113,8 @@ public class TokenProvider implements InitializingBean {
     }
 
     public Authentication getAuthentication(String token) {
-        System.out.println("hihihi= " + getTokenUserId(token));
-        UserDetails userDetails = userDetailsService.loadUserByUsername(getTokenUserId(token));
+        System.out.println("hihihi= " + getUniqueId(token));
+        UserDetails userDetails = userDetailsService.loadUserByUsername(getUniqueId(token));
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 

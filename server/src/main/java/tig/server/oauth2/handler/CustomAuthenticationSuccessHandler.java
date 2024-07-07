@@ -34,8 +34,8 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         String providerId = principalDetails.getAttributes().get("id").toString();
         String uniqueId = provider + "_" + providerId;
 
-        String accessToken = tokenProvider.createAccessToken(username, authResult);
-        String refreshToken = tokenProvider.createRefreshToken(username);
+        String accessToken = tokenProvider.createAccessToken(username, uniqueId, authResult);
+        String refreshToken = tokenProvider.createRefreshToken(username, uniqueId);
 
         memberService.saveOrUpdateRefreshToken(uniqueId, refreshToken);
 

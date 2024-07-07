@@ -33,7 +33,7 @@ public class MemberService {
 
     public String reissueAccessToken(Member member, RefreshTokenRequestDto refreshTokenRequestDto) {
         Authentication authentication = tokenProvider.getAuthentication(refreshTokenRequestDto.getRefreshToken());
-        return tokenProvider.createAccessToken(member.getName(), authentication);
+        return tokenProvider.createAccessToken(member.getName(), member.getUniqueId(), authentication);
     }
 
     public List<MemberDTO.Response> getAllMembers() {

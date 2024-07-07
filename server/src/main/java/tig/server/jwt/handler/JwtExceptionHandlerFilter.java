@@ -82,9 +82,9 @@ public class JwtExceptionHandlerFilter extends OncePerRequestFilter {
     }
 
     // 인증 객체 생성
-    private Authentication createAuthentication(String username) {
-        System.out.println("username hihi = " + username);
-        UserDetails userDetails = memberDetailsService.loadUserByUsername(username);
+    private Authentication createAuthentication(String uniqueId) {
+        System.out.println("username hihi = " + uniqueId);
+        UserDetails userDetails = memberDetailsService.loadUserByUsername(uniqueId);
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
 }
