@@ -7,8 +7,8 @@ import tig.server.wishlist.dto.WishlistDTO;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2024-07-09T20:33:56+0900",
-    comments = "version: 1.5.3.Final, compiler: javac, environment: Java 17.0.5 (Oracle Corporation)"
+    date = "2024-07-09T23:05:22+0900",
+    comments = "version: 1.5.1.Final, compiler: javac, environment: Java 17.0.5 (Oracle Corporation)"
 )
 @Component
 public class WishlistMapperImpl implements WishlistMapper {

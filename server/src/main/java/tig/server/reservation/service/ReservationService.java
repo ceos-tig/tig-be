@@ -47,7 +47,10 @@ public class ReservationService {
     @Transactional
     public ReservationDTO.Response createReservation(Long memberId, Long clubId, ReservationDTO.Request reservationRequest) {
         Member member = memberMapper.responseToEntity(memberService.getMemberById(memberId));
+        System.out.println(member.getId());
+
         Club club = clubMapper.responseToEntity(clubService.getClubById(clubId));
+        System.out.println(club.getId());
 
         Reservation reservation = reservationMapper.requestToEntity(reservationRequest);
         reservation.setMember(member);

@@ -61,6 +61,9 @@ public class ClubDTO {
     @AllArgsConstructor
     @Builder
     public static class Response {
+
+        private Long id;
+
         @Schema(type = "string", example = "티그볼링장")
         private String clubName;
 

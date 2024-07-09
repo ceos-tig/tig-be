@@ -7,8 +7,8 @@ import tig.server.member.dto.MemberDTO;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2024-07-09T18:55:39+0900",
-    comments = "version: 1.5.3.Final, compiler: javac, environment: Java 17.0.5 (Oracle Corporation)"
+    date = "2024-07-09T23:05:22+0900",
+    comments = "version: 1.5.1.Final, compiler: javac, environment: Java 17.0.5 (Oracle Corporation)"
 )
 @Component
 public class MemberMapperImpl implements MemberMapper {
@@ -39,6 +39,7 @@ public class MemberMapperImpl implements MemberMapper {
 
         MemberDTO.Response.ResponseBuilder response = MemberDTO.Response.builder();
 
+        response.id( member.getId() );
         response.name( member.getName() );
         response.email( member.getEmail() );
         response.phoneNumber( member.getPhoneNumber() );
@@ -57,6 +58,7 @@ public class MemberMapperImpl implements MemberMapper {
 
         Member.MemberBuilder member = Member.builder();
 
+        member.id( meberResponse.getId() );
         member.name( meberResponse.getName() );
         member.email( meberResponse.getEmail() );
         member.phoneNumber( meberResponse.getPhoneNumber() );
@@ -71,6 +73,25 @@ public class MemberMapperImpl implements MemberMapper {
     public Member updateFromRequest(MemberDTO.Request memberRequest, Member member) {
         if ( memberRequest == null ) {
             return member;
+        }
+
+        if ( memberRequest.getName() != null ) {
+            member.setName( memberRequest.getName() );
+        }
+        if ( memberRequest.getEmail() != null ) {
+            member.setEmail( memberRequest.getEmail() );
+        }
+        if ( memberRequest.getPhoneNumber() != null ) {
+            member.setPhoneNumber( memberRequest.getPhoneNumber() );
+        }
+        if ( memberRequest.getProfileImage() != null ) {
+            member.setProfileImage( memberRequest.getProfileImage() );
+        }
+        if ( memberRequest.getRefreshToken() != null ) {
+            member.setRefreshToken( memberRequest.getRefreshToken() );
+        }
+        if ( memberRequest.getMemberRoleEnum() != null ) {
+            member.setMemberRoleEnum( memberRequest.getMemberRoleEnum() );
         }
 
         return member;

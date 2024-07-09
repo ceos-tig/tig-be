@@ -44,6 +44,8 @@ public class MemberDTO {
     @Builder
     public static class Response {
 
+        private Long id;
+
         @Schema(type = "string", example = "kimin")
         private String name;
 
