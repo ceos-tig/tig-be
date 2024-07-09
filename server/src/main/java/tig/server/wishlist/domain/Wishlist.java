@@ -12,6 +12,7 @@ import tig.server.base.BaseTimeEntity;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Where(clause = "is_deleted = false")
+@Table(name = "wishlist", uniqueConstraints = {@UniqueConstraint(columnNames = {"member_id", "club_id"})})
 public class Wishlist extends BaseTimeEntity {
 
     @Id
@@ -22,4 +23,9 @@ public class Wishlist extends BaseTimeEntity {
     @Builder.Default
     private boolean isDeleted = Boolean.FALSE;
 
+    @Column(name = "member_id")
+    private Long memberId;
+
+    @Column(name = "club_id")
+    private Long clubId;
 }
