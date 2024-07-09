@@ -181,4 +181,14 @@ public class GlobalExceptionHandler {
         final ErrorResponse response = ErrorResponse.of(ErrorCode.INTERNAL_SERVER_ERROR, ex.getMessage());
         return new ResponseEntity<>(response, HTTP_STATUS_OK);
     }
+
+    @ExceptionHandler(BusinessExceptionHandler.class)
+    public ResponseEntity<ApiResponse<Void>> handleBusinessException(BusinessExceptionHandler ex) {
+        ApiResponse<Void> response = ApiResponse.of(
+                ex.getErrorCode().getStatus(),
+                ex.getMessage(),
+                null
+        );
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 }

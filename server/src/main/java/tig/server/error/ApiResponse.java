@@ -27,4 +27,8 @@ public class ApiResponse<T> {
         this.resultMsg = resultMsg;
     }
 
+    public static <T> ApiResponse<T> of(int resultCode, String resultMsg, T result) {
+        return new ApiResponse<>(result,resultCode,resultMsg);
+    }
+
 }

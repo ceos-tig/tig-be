@@ -11,6 +11,7 @@ import tig.server.reservation.domain.Reservation;
 import tig.server.wishlist.domain.Wishlist;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface WishlistRepository extends JpaRepository<Wishlist, Long> {
@@ -19,5 +20,9 @@ public interface WishlistRepository extends JpaRepository<Wishlist, Long> {
     @Modifying
     @Query("UPDATE Wishlist w SET w.isDeleted = true WHERE w.id = :id")
     void softDeleteById(@Param("id") Long id);
+
+    List<Wishlist> findAllByMemberId(Long memberId);
+
+    Optional<Wishlist> findByMemberIdAndClubId(Long memberId, Long ClubId);
 
 }
