@@ -23,7 +23,7 @@ public class Review extends BaseTimeEntity {
     @Builder.Default
     private boolean isDeleted = Boolean.FALSE;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "reservation", cascade = CascadeType.ALL)
     private Reservation reservation;
 
     private Integer rating;

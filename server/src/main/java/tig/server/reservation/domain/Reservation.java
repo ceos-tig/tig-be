@@ -46,6 +46,7 @@ public class Reservation extends BaseTimeEntity {
     @JoinColumn(name = "club_id")
     private Club club;
 
-    @OneToOne()
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+
     private Review review;
 }

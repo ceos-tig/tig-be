@@ -48,7 +48,7 @@ public class Member {
         this.refreshToken = refreshToken;
     }
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "member", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "member", cascade = CascadeType.PERSIST)
     private List<Reservation> reservations;
 
 }
