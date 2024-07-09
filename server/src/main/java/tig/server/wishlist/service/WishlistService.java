@@ -1,0 +1,73 @@
+package tig.server.wishlist.service;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import tig.server.club.dto.ClubDTO;
+import tig.server.club.service.ClubService;
+import tig.server.error.BusinessExceptionHandler;
+import tig.server.error.ErrorCode;
+import tig.server.member.domain.Member;
+import tig.server.member.service.MemberService;
+import tig.server.wishlist.domain.Wishlist;
+import tig.server.wishlist.dto.WishlistDTO;
+import tig.server.wishlist.mapper.WishlistMapper;
+import tig.server.wishlist.repository.WishlistRepository;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+public class WishlistService {
+    private final WishlistRepository wishlistRepository;
+    private final ClubService clubService;
+
+    private final WishlistMapper wishlistMapper = WishlistMapper.INSTANCE;
+    private final MemberService memberService;
+
+    //사용자 아이디로 위시리스트 조회
+    public List<ClubDTO.Response> getWishlistByUserId(Member member) {
+        try {
+            List<WishlistDTO.Response> responseList = wishlistRepository.findAllByMemberId(member.getId()).stream()
+                    .map(wishlistMapper::entityToResponse)
+                    .toList();
+
+            List<ClubDTO.Response> result = new ArrayList<>();
+            for (WishlistDTO.Response wishlist : responseList) {
+                ClubDTO.Response clubById = clubService.getClubById(wishlist.getClubId());
+                result.add(clubById);
+            }
+            return result;
+        } catch (Exception e) {
+            throw new BusinessExceptionHandler("위시리스트 조회 중 에러 : " + e.getMessage(), ErrorCode.IO_ERROR);
+        }
+    }
+
+    @Transactional
+    public void addWishlist(WishlistDTO.Request request) { // 클럽아이디 검사가 없구나
+        try {
+            clubService.getClubById(request.getClubId()); // 있는 클럽인지 검사
+            memberService.getMemberById(request.getMemberId()); // 있는 멤버인지 검사
+            Wishlist wishlist = wishlistMapper.requestToEntity(request); // createdAt, updatedAt은 추가해야함.
+            wishlistRepository.save(wishlist);
+        } catch (Exception e){
+            throw new BusinessExceptionHandler("위시리스트에 추가 하는 과정에서 에러 : " + e.getMessage(), ErrorCode.IO_ERROR);
+        }
+    }
+
+    @Transactional
+    public void removeWishlist(WishlistDTO.Request request) {
+        try {
+            clubService.getClubById(request.getClubId()); // 있는 클럽인지 검사
+            memberService.getMemberById(request.getMemberId()); // 있는 멤버인지 검사
+            Wishlist wishlist = wishlistRepository.findByMemberIdAndClubId(request.getMemberId(), request.getClubId())
+                    .orElseThrow(() -> new BusinessExceptionHandler("해당하는 위시리스트 목록이 없습니다", ErrorCode.BAD_REQUEST_ERROR));
+
+            wishlistRepository.softDeleteById(wishlist.getId()); // wishlist에서 soft delete
+        } catch (Exception e) {
+            throw new BusinessExceptionHandler("위시리스트 삭제 과정에서 에러 : " + e.getMessage(), ErrorCode.BAD_REQUEST_ERROR);
+        }
+    }
+}
