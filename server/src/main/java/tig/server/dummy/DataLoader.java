@@ -46,7 +46,7 @@ public class DataLoader implements CommandLineRunner {
         Club club1 = Club.builder()
                 .clubName("Club One")
                 .address("123 Street, City")
-                .rating(4.5f)
+                .avgRating(4.5f)
                 .price(100)
                 .phoneNumber("123-456-7890")
                 .snsLink("http://clubone.com")
@@ -62,7 +62,7 @@ public class DataLoader implements CommandLineRunner {
         Club club2 = Club.builder()
                 .clubName("Club Two")
                 .address("456 Avenue, City")
-                .rating(4.0f)
+                .avgRating(4.0f)
                 .price(200)
                 .phoneNumber("987-654-3210")
                 .snsLink("http://clubtwo.com")
@@ -146,6 +146,12 @@ public class DataLoader implements CommandLineRunner {
         reservationRepository.save(reservation2);
         reservationRepository.save(reservation3);
 
+        member1.setReservations(Arrays.asList(reservation2, reservation3));
+        member2.setReservations(Arrays.asList(reservation1));
+
+        memberRepository.save(member1);
+        memberRepository.save(member2);
+
         // Create Reviews
         Review review1 = Review.builder()
                 .reservation(reservation1)
@@ -161,6 +167,12 @@ public class DataLoader implements CommandLineRunner {
 
         reviewRepository.save(review1);
         reviewRepository.save(review2);
+
+        reservation1.setReview(review1);
+        reservation2.setReview(review2);
+
+        reservationRepository.save(reservation1);
+        reservationRepository.save(reservation2);
 
         System.out.println("Sample data loaded.");
     }

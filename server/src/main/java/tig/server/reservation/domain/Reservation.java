@@ -8,6 +8,7 @@ import tig.server.base.BaseTimeEntity;
 import tig.server.club.domain.Club;
 import tig.server.enums.Status;
 import tig.server.member.domain.Member;
+import tig.server.review.domain.Review;
 
 @Getter
 @Setter
@@ -37,11 +38,14 @@ public class Reservation extends BaseTimeEntity {
 
     private Status status;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "club_id")
     private Club club;
+
+    @OneToOne()
+    private Review review;
 }

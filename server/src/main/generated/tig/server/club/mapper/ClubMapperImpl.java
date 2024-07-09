@@ -9,7 +9,7 @@ import tig.server.club.dto.ClubDTO;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2024-07-07T03:42:40+0900",
+    date = "2024-07-09T18:55:39+0900",
     comments = "version: 1.5.3.Final, compiler: javac, environment: Java 17.0.5 (Oracle Corporation)"
 )
 @Component
@@ -25,11 +25,11 @@ public class ClubMapperImpl implements ClubMapper {
 
         club.clubName( clubRequest.getClubName() );
         club.address( clubRequest.getAddress() );
-        club.rating( clubRequest.getRating() );
         club.price( clubRequest.getPrice() );
         club.phoneNumber( clubRequest.getPhoneNumber() );
         club.snsLink( clubRequest.getSnsLink() );
         club.businessHours( clubRequest.getBusinessHours() );
+        club.avgRating( clubRequest.getAvgRating() );
         club.category( clubRequest.getCategory() );
         club.type( clubRequest.getType() );
         club.latitude( clubRequest.getLatitude() );
@@ -52,7 +52,7 @@ public class ClubMapperImpl implements ClubMapper {
 
         response.clubName( club.getClubName() );
         response.address( club.getAddress() );
-        response.rating( club.getRating() );
+        response.avgRating( club.getAvgRating() );
         response.price( club.getPrice() );
         response.phoneNumber( club.getPhoneNumber() );
         response.snsLink( club.getSnsLink() );
@@ -79,11 +79,11 @@ public class ClubMapperImpl implements ClubMapper {
 
         club.clubName( clubResponse.getClubName() );
         club.address( clubResponse.getAddress() );
-        club.rating( clubResponse.getRating() );
         club.price( clubResponse.getPrice() );
         club.phoneNumber( clubResponse.getPhoneNumber() );
         club.snsLink( clubResponse.getSnsLink() );
         club.businessHours( clubResponse.getBusinessHours() );
+        club.avgRating( clubResponse.getAvgRating() );
         club.category( clubResponse.getCategory() );
         club.type( clubResponse.getType() );
         club.latitude( clubResponse.getLatitude() );
@@ -108,9 +108,6 @@ public class ClubMapperImpl implements ClubMapper {
         if ( clubRequest.getAddress() != null ) {
             club.setAddress( clubRequest.getAddress() );
         }
-        if ( clubRequest.getRating() != null ) {
-            club.setRating( clubRequest.getRating() );
-        }
         if ( clubRequest.getPrice() != null ) {
             club.setPrice( clubRequest.getPrice() );
         }
@@ -122,6 +119,9 @@ public class ClubMapperImpl implements ClubMapper {
         }
         if ( clubRequest.getBusinessHours() != null ) {
             club.setBusinessHours( clubRequest.getBusinessHours() );
+        }
+        if ( clubRequest.getAvgRating() != null ) {
+            club.setAvgRating( clubRequest.getAvgRating() );
         }
         if ( clubRequest.getCategory() != null ) {
             club.setCategory( clubRequest.getCategory() );

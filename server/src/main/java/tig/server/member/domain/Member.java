@@ -10,6 +10,7 @@ import tig.server.reservation.domain.Reservation;
 import java.util.List;
 
 @Getter
+@Setter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
@@ -47,7 +48,7 @@ public class Member {
         this.refreshToken = refreshToken;
     }
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "member")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "member", cascade = CascadeType.ALL)
     private List<Reservation> reservations;
 
 }

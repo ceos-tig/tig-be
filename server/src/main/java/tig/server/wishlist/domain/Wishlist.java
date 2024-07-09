@@ -20,6 +20,6 @@ public class Wishlist extends BaseTimeEntity {
     private Long id;
 
     @Builder.Default
-    private boolean isDeleed = Boolean.FALSE;
+    private boolean isDeleted = Boolean.FALSE;
 
 }

@@ -23,7 +23,7 @@ public class Review extends BaseTimeEntity {
     @Builder.Default
     private boolean isDeleted = Boolean.FALSE;
 
-    @OneToOne(optional = false)
+    @OneToOne
     private Reservation reservation;
 
     private Integer rating;

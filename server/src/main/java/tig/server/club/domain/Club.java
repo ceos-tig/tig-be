@@ -55,7 +55,7 @@ public class Club extends BaseTimeEntity {
     @Column(name = "image_url")
     private List<String> imageUrls;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "club")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "club", cascade = CascadeType.ALL)
     private List<Reservation> reservations;
 
 }
