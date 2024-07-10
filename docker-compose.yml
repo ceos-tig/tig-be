@@ -1,0 +1,29 @@
+version: '3.8'
+services:
+  web:
+    image: nimikgnoej/tig
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    environment:
+      cloud.aws.bucket: ${cloud.aws.bucket}
+      cloud.aws.cloudfront.path: ${cloud.aws.cloudfront.path}
+      cloud.aws.credentials.aws_access_key: ${cloud.aws.credentials.aws_access_key}
+      cloud.aws.credentials.aws_secret_key: ${cloud.aws.credentials.aws_secret_key}
+      cloud.aws.region.static: ${cloud.aws.region.static}
+      JWT_SECRET: ${JWT_SECRET}
+      LOCAL_DB_ID: ${LOCAL_DB_ID}
+      LOCAL_DB_PS: ${LOCAL_DB_PS}
+      LOCAL_DB_URL: ${LOCAL_DB_URL}
+      LOCAL_KAKAO_ID: ${LOCAL_KAKAO_ID}
+      LOCAL_KAKAO_PW: ${LOCAL_KAKAO_PW}
+      RDS_DB_NAME: ${RDS_DB_NAME}
+      RDS_HOSTNAME: ${RDS_HOSTNAME}
+      RDS_PASSWORD: ${RDS_PASSWORD}
+      RDS_PORT: ${RDS_PORT}
+      RDS_USERNAME: ${RDS_USERNAME}
