@@ -22,10 +22,10 @@ public class S3Uploader {
     @Autowired
     private S3Config s3Config;
 
-    @Value("${cloud.aws.bucket}")
+    @Value("${AWS_BUCKET}")
     private String bucket;
 
-    @Value("${cloud.aws.cloudfront.path}")
+    @Value("${AWS_CLOUDFRONT_PATH}")
     private String cloudfrontPath;
 
     private final int PRESIGNED_URL_EXPIRATION = 60 * 1000 * 10; // 10분
