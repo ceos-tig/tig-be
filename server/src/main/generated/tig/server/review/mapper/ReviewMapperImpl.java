@@ -8,13 +8,8 @@ import tig.server.review.dto.ReviewDTO;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-<<<<<<< Updated upstream
-    date = "2024-07-10T14:26:54+0900",
-    comments = "version: 1.5.1.Final, compiler: javac, environment: Java 17.0.7 (Oracle Corporation)"
-=======
-    date = "2024-07-10T16:40:46+0900",
+    date = "2024-07-10T17:13:02+0900",
     comments = "version: 1.5.1.Final, compiler: javac, environment: Java 17.0.5 (Oracle Corporation)"
->>>>>>> Stashed changes
 )
 @Component
 public class ReviewMapperImpl implements ReviewMapper {
