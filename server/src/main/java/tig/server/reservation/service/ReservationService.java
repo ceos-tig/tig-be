@@ -64,9 +64,10 @@ public class ReservationService {
         ReservationDTO.Response response = reservationMapper.entityToResponse(reservation);
 
         // discord-webhook
-        String clubName = club.getClubName();
         String memberName = member.getName();
-        discordMessageProvider.sendApplicationMessage(EventMessage.RESERVATION_APPLICATION, clubName, memberName);
+        String clubName = club.getClubName();
+
+        discordMessageProvider.sendApplicationMessage(EventMessage.RESERVATION_APPLICATION, memberName, clubName);
 
         return response;
     }
@@ -114,8 +115,9 @@ public class ReservationService {
         Club club = reservation.getClub();
 
         // discord-webhook
-        String clubName = club.getClubName();
         String memberName = member.getName();
+        String clubName = club.getClubName();
+
         discordMessageProvider.sendCancelMessage(EventMessage.RESERVATION_CANCEL, memberName, clubName);
 
         reservationRepository.save(reservation);
