@@ -14,6 +14,8 @@ public interface ReservationMapper {
 
     ReservationDTO.Response entityToResponse(Reservation reservation);
 
+    Reservation responseToEntity(ReservationDTO.Response reservationResponse);
+
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)
     Reservation updateFromRequest(ReservationDTO.Request reservationRequest, @MappingTarget Reservation reservation);

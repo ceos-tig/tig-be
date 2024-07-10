@@ -7,8 +7,8 @@ import tig.server.reservation.dto.ReservationDTO;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2024-07-09T23:05:22+0900",
-    comments = "version: 1.5.1.Final, compiler: javac, environment: Java 17.0.5 (Oracle Corporation)"
+    date = "2024-07-10T13:44:03+0900",
+    comments = "version: 1.5.1.Final, compiler: javac, environment: Java 17.0.7 (Oracle Corporation)"
 )
 @Component
 public class ReservationMapperImpl implements ReservationMapper {
@@ -51,6 +51,26 @@ public class ReservationMapperImpl implements ReservationMapper {
         response.status( reservation.getStatus() );
 
         return response.build();
+    }
+
+    @Override
+    public Reservation responseToEntity(ReservationDTO.Response reservationResponse) {
+        if ( reservationResponse == null ) {
+            return null;
+        }
+
+        Reservation.ReservationBuilder reservation = Reservation.builder();
+
+        reservation.adultCount( reservationResponse.getAdultCount() );
+        reservation.teenagerCount( reservationResponse.getTeenagerCount() );
+        reservation.kidsCount( reservationResponse.getKidsCount() );
+        reservation.date( reservationResponse.getDate() );
+        reservation.startTime( reservationResponse.getStartTime() );
+        reservation.endTime( reservationResponse.getEndTime() );
+        reservation.price( reservationResponse.getPrice() );
+        reservation.status( reservationResponse.getStatus() );
+
+        return reservation.build();
     }
 
     @Override
