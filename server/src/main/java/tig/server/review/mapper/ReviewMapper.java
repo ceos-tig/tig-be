@@ -12,6 +12,7 @@ public interface ReviewMapper {
     @Mapping(target = "id", ignore = true)
     Review requestToEntity(ReviewDTO.Request reviewRequest);
 
+    @Mapping(source = "reservation.id", target = "reservationId") // reservationId 타겟팅이 안되어 있었음
     ReviewDTO.Response entityToResponse(Review review);
 
     Review responseToEntity(ReviewDTO.Response reviewResponse);
