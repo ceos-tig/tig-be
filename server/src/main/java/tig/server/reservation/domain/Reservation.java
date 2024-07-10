@@ -10,6 +10,8 @@ import tig.server.enums.Status;
 import tig.server.member.domain.Member;
 import tig.server.review.domain.Review;
 
+import static org.hibernate.annotations.OnDeleteAction.CASCADE;
+
 @Getter
 @Setter
 @Entity

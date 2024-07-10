@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import tig.server.enums.Status;
 import tig.server.reservation.domain.Reservation;
+import tig.server.review.domain.Review;
 
 import java.util.List;
 
@@ -23,5 +24,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     @Modifying
     @Query("UPDATE Reservation r SET r.isDeleted = true WHERE r.id = :id")
     void softDeleteById(@Param("id") Long id);
+
+    List<Reservation> findByReview(Review review);
 
 }
