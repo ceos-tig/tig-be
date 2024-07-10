@@ -3,6 +3,8 @@ package tig.server.review.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tig.server.club.domain.Club;
+import tig.server.club.repository.ClubRepository;
 import tig.server.club.service.ClubService;
 import tig.server.error.BusinessExceptionHandler;
 import tig.server.error.ErrorCode;
@@ -19,12 +21,17 @@ import tig.server.review.dto.ReviewWithReservationDTO;
 import tig.server.review.mapper.ReviewMapper;
 import tig.server.review.repository.ReviewRepository;
 
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final ReservationRepository reservationRepository;
+    private final ClubRepository clubRepository;
 
     private final MemberService memberService;
     private final ReservationService reservationService;
@@ -59,5 +66,19 @@ public class ReviewService {
                 .review(reviewResponse)
                 .reservation(reservationResponse)
                 .build();
+    }
+
+    public List<ReviewDTO.Response> getReviewsByClubId(Long clubId) {
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(() -> new RuntimeException("club not found"));
+
+        List<Reservation> reservations = club.getReservations();
+
+        return reservations.stream()
+                .map(Reservation::getReview) // Get the Review from each Reservation
+                .filter(Objects::nonNull) // Filter out Reservations without a Review
+                .map(reviewMapper::entityToResponse) // Map each Review to ReviewDTO.Response
+                .collect(Collectors.toList());
+
     }
 }
