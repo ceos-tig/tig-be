@@ -35,8 +35,8 @@ spring:
       client:
         registration:
           kakao:
-            client-id: ${LOCAL_KAKAO_ID}
-            client-secret: ${LOCAL_KAKAO_PW}
+            client-id: ${KAKAO_CLIENT_ID}
+            client-secret: ${KAKAO_SECRET_ID}
             scope:
               - profile_nickname
               - profile_image
