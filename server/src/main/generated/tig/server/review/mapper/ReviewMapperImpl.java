@@ -2,13 +2,14 @@ package tig.server.review.mapper;
 
 import javax.annotation.processing.Generated;
 import org.springframework.stereotype.Component;
+import tig.server.reservation.domain.Reservation;
 import tig.server.review.domain.Review;
 import tig.server.review.dto.ReviewDTO;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2024-07-09T23:05:22+0900",
-    comments = "version: 1.5.1.Final, compiler: javac, environment: Java 17.0.5 (Oracle Corporation)"
+    date = "2024-07-10T14:26:54+0900",
+    comments = "version: 1.5.1.Final, compiler: javac, environment: Java 17.0.7 (Oracle Corporation)"
 )
 @Component
 public class ReviewMapperImpl implements ReviewMapper {
@@ -35,6 +36,7 @@ public class ReviewMapperImpl implements ReviewMapper {
 
         ReviewDTO.Response.ResponseBuilder response = ReviewDTO.Response.builder();
 
+        response.reservationId( reviewReservationId( review ) );
         response.rating( review.getRating() );
         response.contents( review.getContents() );
 
@@ -69,5 +71,20 @@ public class ReviewMapperImpl implements ReviewMapper {
         }
 
         return review;
+    }
+
+    private Long reviewReservationId(Review review) {
+        if ( review == null ) {
+            return null;
+        }
+        Reservation reservation = review.getReservation();
+        if ( reservation == null ) {
+            return null;
+        }
+        Long id = reservation.getId();
+        if ( id == null ) {
+            return null;
+        }
+        return id;
     }
 }
