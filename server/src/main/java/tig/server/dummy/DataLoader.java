@@ -139,7 +139,7 @@ public class DataLoader implements CommandLineRunner {
                 .price(250)
                 .status(Status.DECLINED)
                 .member(member1)
-                .club(club2)
+                .club(club1)
                 .build();
 
         reservationRepository.save(reservation1);
@@ -165,14 +165,23 @@ public class DataLoader implements CommandLineRunner {
                 .contents("Excellent service at Club Two!")
                 .build();
 
+        Review review3 = Review.builder()
+                .reservation(reservation3)
+                .rating(3)
+                .contents("Not Bad experience at Club One!")
+                .build();
+
         reviewRepository.save(review1);
         reviewRepository.save(review2);
+        reviewRepository.save(review3);
 
         reservation1.setReview(review1);
         reservation2.setReview(review2);
+        reservation3.setReview(review3);
 
         reservationRepository.save(reservation1);
         reservationRepository.save(reservation2);
+        reservationRepository.save(reservation3);
 
         System.out.println("Sample data loaded.");
     }

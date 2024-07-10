@@ -44,9 +44,6 @@ public class ReviewService {
         try {
             memberService.getMemberById(memberId);// 있는 멤버인지 확인
             Reservation reservation = reservationRepository.findById(reservationId).orElseThrow(() -> new BusinessExceptionHandler("no reservation found", ErrorCode.NOT_FOUND_ERROR));
-//            ReservationDTO.Response reservationReseponse = reservationService.getReservationById(reservationId);// 있는 예약 내역인지 확인
-//
-//            Reservation reservation = reservationMapper.responseToEntity(reservationReseponse);
 
             Review review = reviewMapper.requestToEntity(request);
             review.setReservation(reservation);
@@ -75,10 +72,42 @@ public class ReviewService {
         List<Reservation> reservations = club.getReservations();
 
         return reservations.stream()
-                .map(Reservation::getReview) // Get the Review from each Reservation
-                .filter(Objects::nonNull) // Filter out Reservations without a Review
-                .map(reviewMapper::entityToResponse) // Map each Review to ReviewDTO.Response
+                .map(Reservation::getReview)
+                .filter(Objects::nonNull)
+                .map(reviewMapper::entityToResponse)
                 .collect(Collectors.toList());
+    }
 
+    @Transactional
+    public void modifyReview(Long reviewId, ReviewDTO.Request request) {
+        try {
+            Review review = reviewRepository.findById(reviewId)
+                    .orElseThrow(() -> new BusinessExceptionHandler("review not found", ErrorCode.NOT_FOUND_ERROR));
+
+            review.setRating(request.getRating());
+            review.setContents(request.getContents());
+
+            reviewRepository.save(review);
+        } catch (Exception e) {
+            throw new BusinessExceptionHandler("리뷰 수정 중 에러 : " + e.getMessage(), ErrorCode.IO_ERROR);
+        }
+    }
+
+    @Transactional
+    public void deleteReview(Long reviewId) {
+        try {
+            Review review = reviewRepository.findById(reviewId)
+                    .orElseThrow(() -> new BusinessExceptionHandler("review not found", ErrorCode.NOT_FOUND_ERROR));
+
+            List<Reservation> reservations = reservationRepository.findByReview(review);
+            for (Reservation reservation : reservations) {
+                reservation.setReview(null);
+                reservationRepository.save(reservation);
+            }
+
+            reviewRepository.delete(review);
+        } catch (Exception e) {
+            throw new BusinessExceptionHandler("리뷰 삭제 중 에러 : " + e.getMessage(), ErrorCode.IO_ERROR);
+        }
     }
 }

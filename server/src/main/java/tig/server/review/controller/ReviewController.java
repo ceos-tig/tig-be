@@ -46,4 +46,21 @@ public class ReviewController {
         ApiResponse<List<ReviewDTO.Response>> response = ApiResponse.of(200, "successfully get club's reviews", clubReviews);
         return ResponseEntity.ok(response);
     }
+
+    @PutMapping("/{reviewId}")
+    @Operation(summary = "특정 리뷰 수정")
+    public ResponseEntity<ApiResponse<Void>> modifyReview(@PathVariable("reviewId") Long reviewId,
+                                                          @RequestBody ReviewDTO.Request request) {
+        reviewService.modifyReview(reviewId, request);
+        ApiResponse<Void> response = ApiResponse.of(200, "successfully modified review", null);
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{reviewId}")
+    @Operation(summary = "특정 리뷰 삭제")
+    public ResponseEntity<ApiResponse<Void>> deleteReview(@PathVariable("reviewId") Long reviewId) {
+        reviewService.deleteReview(reviewId);
+        ApiResponse<Void> response = ApiResponse.of(200, "successfully deleted review", null);
+        return ResponseEntity.ok(response);
+    }
 }
