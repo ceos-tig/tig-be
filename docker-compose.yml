@@ -11,11 +11,11 @@ services:
     env_file:
       - .env
     environment:
-      cloud.aws.bucket: ${cloud.aws.bucket}
-      cloud.aws.cloudfront.path: ${cloud.aws.cloudfront.path}
-      cloud.aws.credentials.aws_access_key: ${cloud.aws.credentials.aws_access_key}
-      cloud.aws.credentials.aws_secret_key: ${cloud.aws.credentials.aws_secret_key}
-      cloud.aws.region.static: ${cloud.aws.region.static}
+      AWS_BUCKET: ${AWS_BUCKET}
+      AWS_CLOUDFRONT_PATH: ${AWS_CLOUDFRONT_PATH}
+      AWS_ACCESS_KEY: ${AWS_ACCESS_KEY}
+      AWS_SECRET_KEY: ${AWS_SECRET_KEY}
+      AWS_REGION_STATIC: ${cloud.aws.region.static}
       JWT_SECRET: ${JWT_SECRET}
       LOCAL_DB_ID: ${LOCAL_DB_ID}
       LOCAL_DB_PS: ${LOCAL_DB_PS}
