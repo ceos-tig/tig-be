@@ -1,5 +1,7 @@
 package tig.server.wishlist.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +18,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/wishlist")
+@Tag(name = "wishlist", description = "위시리스트 API")
 public class WishlistController {
     private final WishlistService wishlistService;
 
@@ -23,6 +26,7 @@ public class WishlistController {
      * 현재 로그인한 사용자의 위시리스트 조회
      */
     @GetMapping("")
+    @Operation(summary = "위시리스트 목록 조회")
     public ResponseEntity<ApiResponse<List<ClubDTO.Response>>> getWishlist(@LoginUser Member member) {
         List<ClubDTO.Response> wishlist = wishlistService.getWishlistByUserId(member);
         ApiResponse<List<ClubDTO.Response>> response = ApiResponse.of(200, "successfully retrived wishlist", wishlist);
@@ -30,6 +34,7 @@ public class WishlistController {
     }
 
     @PostMapping("")
+    @Operation(summary = "위시리스트 추가")
     public ResponseEntity<ApiResponse<Void>> addWishlist(@RequestBody WishlistDTO.Request request) {
         wishlistService.addWishlist(request);
         ApiResponse<Void> response = ApiResponse.of(200, "successfully added to wishlist", null);
@@ -37,6 +42,7 @@ public class WishlistController {
     }
 
     @DeleteMapping("")
+    @Operation(summary = "위시리스트 삭제")
     public ResponseEntity<ApiResponse<Void>> removeWishlist(@RequestBody WishlistDTO.Request request) {
         wishlistService.removeWishlist(request);
         ApiResponse<Void> response = ApiResponse.of(200, "successfully deleted from wishlist", null);

@@ -2,6 +2,7 @@ package tig.server.review.controller;
 
 import com.google.protobuf.Api;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +18,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/review")
+@Tag(name = "review", description = "리뷰 API")
 public class ReviewController {
     private final ReviewService reviewService;
 

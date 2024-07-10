@@ -29,6 +29,7 @@ public class MemberController {
      * refresh token을 통한 access token 재발급
      */
     @PostMapping("/reissue")
+    @Operation(summary = "리프레시 토큰 발급")
     public ApiResponse<Object> reissueAccessToken(@LoginUser Member member,
                                                   @RequestBody RefreshTokenRequestDto refreshTokenRequestDto) {
         String newAccessToken = memberService.reissueAccessToken(member, refreshTokenRequestDto);
