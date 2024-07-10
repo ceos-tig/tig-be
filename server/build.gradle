@@ -68,6 +68,11 @@ dependencies {
 	implementation platform('com.amazonaws:aws-java-sdk-bom:1.12.529')
 	implementation 'com.amazonaws:aws-java-sdk-s3'
 
+// 	discord-feign
+	implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '3.1.1'
+	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+
+
 
 	implementation group: 'org.javassist', name: 'javassist', version: '3.15.0-GA'
 }

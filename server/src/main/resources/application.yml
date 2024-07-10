@@ -72,6 +72,16 @@ jwt:
   secret: ${JWT_SECRET}
   token-validity-in-seconds: 86400 # ttl (초)
 
+
+discord:
+  name-join: discord-feign-join
+  name-application: discord-feign-application
+  name-cancel: discord-feign-cancel
+webhooks:
+  webhook-1: ${DISCORD_WEBHOOK_RESERVATION_APPLICATION}
+  webhook-2: ${DISCORD_WEBHOOK_RESERVATION_CANCEL}
+  webhook-3: ${DISCORD_WEBHOOK_JOIN}
+
 ---
 spring:
   profiles:

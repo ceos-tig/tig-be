@@ -7,6 +7,8 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import tig.server.discord.DiscordMessageProvider;
+import tig.server.discord.EventMessage;
 import tig.server.enums.MemberRoleEnum;
 import tig.server.member.domain.Member;
 import tig.server.member.repository.MemberRepository;
@@ -22,6 +24,8 @@ import java.util.Optional;
 public class OAuth2MemberService extends DefaultOAuth2UserService {
 
     private final MemberRepository memberRepository;
+
+    private final DiscordMessageProvider discordMessageProvider;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -52,6 +56,10 @@ public class OAuth2MemberService extends DefaultOAuth2UserService {
         Member saveMember = getOrSave(memberInfo,uniqueId);
 
         String role = "ROLE_USER"; //일반 유저
+
+        // discord-webhook
+        discordMessageProvider.sendJoinMessage(EventMessage.SIGN_UP_EVENT);
+
         return new PrincipalDetails(saveMember, oAuth2User.getAttributes());
     }
 

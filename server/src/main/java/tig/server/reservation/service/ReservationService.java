@@ -6,6 +6,8 @@ import org.springframework.transaction.annotation.Transactional;
 import tig.server.club.domain.Club;
 import tig.server.club.mapper.ClubMapper;
 import tig.server.club.service.ClubService;
+import tig.server.discord.DiscordMessageProvider;
+import tig.server.discord.EventMessage;
 import tig.server.enums.Status;
 import tig.server.member.domain.Member;
 import tig.server.member.mapper.MemberMapper;
@@ -31,6 +33,8 @@ public class ReservationService {
 
     private final MemberMapper memberMapper;
     private final ClubMapper clubMapper;
+
+    private final DiscordMessageProvider discordMessageProvider;
 
     public List<ReservationDTO.Response> getAllReservations() {
         return reservationRepository.findAll().stream()
@@ -58,6 +62,12 @@ public class ReservationService {
 
         reservation = reservationRepository.save(reservation);
         ReservationDTO.Response response = reservationMapper.entityToResponse(reservation);
+
+        // discord-webhook
+        String clubName = club.getClubName();
+        String memberName = member.getName();
+        discordMessageProvider.sendApplicationMessage(EventMessage.RESERVATION_APPLICATION, clubName, memberName);
+
         return response;
     }
 
@@ -99,6 +109,15 @@ public class ReservationService {
         }
 
         reservation.setStatus(Status.CANCELED);
+
+        Member member = reservation.getMember();
+        Club club = reservation.getClub();
+
+        // discord-webhook
+        String clubName = club.getClubName();
+        String memberName = member.getName();
+        discordMessageProvider.sendCancelMessage(EventMessage.RESERVATION_CANCEL, memberName, clubName);
+
         reservationRepository.save(reservation);
     }
 
