@@ -11,6 +11,8 @@ import tig.server.reservation.domain.Reservation;
 import tig.server.reservation.repository.ReservationRepository;
 import tig.server.review.domain.Review;
 import tig.server.review.repository.ReviewRepository;
+import tig.server.wishlist.domain.Wishlist;
+import tig.server.wishlist.repository.WishlistRepository;
 import tig.server.enums.Category;
 import tig.server.enums.Type;
 import tig.server.enums.MemberRoleEnum;
@@ -33,6 +35,9 @@ public class DataLoader implements CommandLineRunner {
 
     @Autowired
     private ReservationRepository reservationRepository;
+
+    @Autowired
+    private WishlistRepository wishlistRepository;
 
     @Override
     public void run(String... args) throws Exception {
@@ -182,6 +187,26 @@ public class DataLoader implements CommandLineRunner {
         reservationRepository.save(reservation1);
         reservationRepository.save(reservation2);
         reservationRepository.save(reservation3);
+
+        // Create Wishlists
+        Wishlist wishlist1 = Wishlist.builder()
+                .memberId(member1.getId())
+                .clubId(club1.getId())
+                .build();
+
+        Wishlist wishlist2 = Wishlist.builder()
+                .memberId(member1.getId())
+                .clubId(club2.getId())
+                .build();
+
+        Wishlist wishlist3 = Wishlist.builder()
+                .memberId(member2.getId())
+                .clubId(club1.getId())
+                .build();
+
+        wishlistRepository.save(wishlist1);
+        wishlistRepository.save(wishlist2);
+        wishlistRepository.save(wishlist3);
 
         System.out.println("Sample data loaded.");
     }
