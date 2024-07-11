@@ -63,6 +63,9 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         response.addHeader(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
         response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
 
+        log.debug("Set-Cookie headers: {}", response.getHeaders(HttpHeaders.SET_COOKIE));
+        log.debug("Response headers: {}", response.getHeaderNames());
+
         // CORS 설정을 위해 헤더 추가
         response.addHeader("Access-Control-Allow-Origin", "https://tigleisure.com");
         response.addHeader("Access-Control-Allow-Credentials", "true");
