@@ -3,6 +3,7 @@ package tig.server.member.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,6 +18,7 @@ import tig.server.member.service.MemberService;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/member")
@@ -51,5 +53,42 @@ public class MemberController {
     public ResponseEntity<MemberResponse> getMemberById(@PathVariable Long id) {
         MemberResponse memberResponse = memberService.getMemberById(id);
         return ResponseEntity.ok(memberResponse);
+    }
+
+    @GetMapping("/member")
+    @Operation(summary = "로그인 된 사용자 조회")
+    public ResponseEntity<Void> getLoginMember(@LoginUser Member member) {
+        log.info("[Member name] : {}", member.getName());
+        log.info("[Member uniqueId] : {}", member.getUniqueId());
+        log.info("[Member email] : {}", member.getEmail());
+
+        return ResponseEntity.ok(null);
+    }
+
+    @PatchMapping("/name")
+    @Operation(summary = "사용자 이름 변경")
+    public ResponseEntity<ApiResponse<MemberDTO.Response>> changeName(@LoginUser Member member,
+                                                         @RequestParam("newName") String newName) {
+        MemberDTO.Response response = memberService.changeName(member.getId(), newName);
+        ApiResponse<MemberDTO.Response> apiResponse = ApiResponse.of(200, "successfully changed name", response);
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    @PatchMapping("/phoneNumber")
+    @Operation(summary = "사용자 전화번호 변경")
+    public ResponseEntity<ApiResponse<MemberDTO.Response>> changePhoneNumber(@LoginUser Member member,
+                                                                @RequestParam("newPhoneNumber") String newPhoneNumber) {
+        MemberDTO.Response response = memberService.changePhoneNumber(member.getId(), newPhoneNumber);
+        ApiResponse<MemberDTO.Response> apiResponse = ApiResponse.of(200, "successfully changed phone number", response);
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    @PatchMapping("/email")
+    @Operation(summary = "사용자 이메일 변경")
+    public ResponseEntity<ApiResponse<MemberDTO.Response>> changeEmail(@LoginUser Member member,
+                                                                       @RequestParam("newEmail") String newEmail) {
+        MemberDTO.Response response = memberService.changeEmail(member.getId(), newEmail);
+        ApiResponse<MemberDTO.Response> apiResponse = ApiResponse.of(200, "successfully changed email", response);
+        return ResponseEntity.ok(apiResponse);
     }
 }
