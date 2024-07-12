@@ -40,6 +40,11 @@ jobs:
         run: ./gradlew clean build -Dspring.profiles.active=prod -x test  # build with Gradle, excluding tests
         shell: bash
 
+      - name: List files for debugging
+        working-directory: server/
+        run: ls -al
+        shell: bash
+
       - name: Generate deployment package
         working-directory: server/
         run: |
