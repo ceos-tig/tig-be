@@ -6,6 +6,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -40,38 +42,34 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         memberService.saveOrUpdateRefreshToken(uniqueId, refreshToken);
 
         // Access Token 쿠키 설정
-        Cookie accessTokenCookie = new Cookie("accessToken", accessToken);
-        accessTokenCookie.setHttpOnly(true);
-        //accessTokenCookie.setSecure(true); // HTTPS를 사용할 경우에만 true로 설정
-        accessTokenCookie.setPath("/");
-        accessTokenCookie.setMaxAge(24 * 60 * 60); // 24시간
+        ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", accessToken)
+                .httpOnly(true)
+                .secure(true) // HTTPS를 사용할 경우에만 true로 설정
+                .maxAge(24 * 60 * 60) // 24시간
+                .sameSite("None")
+                .build();
 
         // Refresh Token 쿠키 설정
-        Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
-        refreshTokenCookie.setHttpOnly(true);
-        //refreshTokenCookie.setSecure(true); // HTTPS를 사용할 경우에만 true로 설정
-        refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setMaxAge(14 * 24 * 60 * 60); // 2주
+        ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", refreshToken)
+                .httpOnly(true)
+                .secure(true) // HTTPS를 사용할 경우에만 true로 설정
+                .maxAge(14 * 24 * 60 * 60) // 2주
+                .sameSite("None")
+                .build();
 
         // 쿠키를 응답 헤더에 추가
-        response.addHeader("Set-Cookie", createSetCookieHeader(accessTokenCookie));
-        response.addHeader("Set-Cookie", createSetCookieHeader(refreshTokenCookie));
+        response.addHeader(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
 
+        log.info("Set-Cookie headers: {}", response.getHeaders(HttpHeaders.SET_COOKIE));
+        log.info("Response headers: {}", response.getHeaderNames());
+
+        // CORS 설정을 위해 헤더 추가
+        response.addHeader("Access-Control-Allow-Origin", "https://main--testtig.netlify.app/");
+        response.addHeader("Access-Control-Allow-Credentials", "true");
+        response.addHeader("Access-Control-Expose-Headers", "Set-Cookie");
         response.addHeader("Access-Control-Expose-Headers", "Authorization");
-    }
 
-    private String createSetCookieHeader(Cookie cookie) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(cookie.getName()).append("=").append(cookie.getValue()).append(";");
-        sb.append("Max-Age=").append(cookie.getMaxAge()).append(";");
-        sb.append("Path=").append(cookie.getPath()).append(";");
-        if (cookie.isHttpOnly()) {
-            sb.append("HttpOnly;");
-        }
-        if (cookie.getSecure()) { // https 뚫으면 SameSite=None; Secure; 설정해주어야 함.
-            sb.append("Secure;");
-            sb.append("SameSite=None");
-        }
-        return sb.toString();
+        response.sendRedirect("https://main--testtig.netlify.app/");
     }
 }
