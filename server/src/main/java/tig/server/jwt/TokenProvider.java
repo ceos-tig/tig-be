@@ -27,7 +27,6 @@ public class TokenProvider implements InitializingBean {
 
     private static final long ACCESS_TOKEN_VALIDITY_SECONDS = 24 * 60 * 60; // access token은 24시간
     private static final long REFRESH_TOKEN_VALIDITY_SECONDS = 24 * 60 * 60 * 14; // refresh token은 2주일
-    private static final String AUTHORITIES_KEY = "auth";
 
     private Key key;
     private final UserDetailsService userDetailsService;
@@ -90,17 +89,12 @@ public class TokenProvider implements InitializingBean {
                 .compact();
     }
 
-    public String createAccessToken(String username, String uniqueId, Authentication authentication) {
-        String authorities = authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(","));
-
+    public String createAccessToken(String username, String uniqueId) {
         long now = (new Date()).getTime();
         Date validity = new Date(now + ACCESS_TOKEN_VALIDITY_SECONDS * 1000);
 
         return Jwts.builder()
                 .setSubject(username)
-                .claim(AUTHORITIES_KEY, authorities)
                 .claim("uniqueId", uniqueId) // 커스텀 클레임으로 uniqueId 추가
                 .signWith(key, SignatureAlgorithm.HS512)
                 .setExpiration(validity)

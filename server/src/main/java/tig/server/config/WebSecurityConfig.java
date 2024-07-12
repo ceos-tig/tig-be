@@ -18,8 +18,6 @@ import tig.server.jwt.TokenProvider;
 import tig.server.jwt.handler.JwtAuthenticationFilter;
 import tig.server.jwt.handler.JwtExceptionHandlerFilter;
 import tig.server.member.service.MemberDetailsServiceImpl;
-import tig.server.oauth2.handler.CustomAuthenticationSuccessHandler;
-import tig.server.oauth2.service.OAuth2MemberService;
 
 import java.util.Arrays;
 import java.util.List;
@@ -28,11 +26,8 @@ import java.util.List;
 @Configuration
 @RequiredArgsConstructor
 public class WebSecurityConfig {
-    private final AuthenticationConfiguration authenticationConfiguration;
     private final TokenProvider tokenProvider;
     private final MemberDetailsServiceImpl userDetailsService;
-    private final OAuth2MemberService oAuth2MemberService;
-    private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
@@ -81,16 +76,10 @@ public class WebSecurityConfig {
                                         ,"/swagger-resources/**"
                                         ,"/v3/api-docs/**"
                                         ,"/**" // 개발 편의를 위해
-                                        ,"/oauth2/authorization/kakao"
                                 ).permitAll()
                                 .anyRequest().hasRole("USER")
                 );
         http.addFilterBefore(jwtExceptionHandlerFilter(), JwtAuthenticationFilter.class);
-
-        http.oauth2Login((oauth2) -> oauth2
-                .userInfoEndpoint(userInfoEndpoint -> userInfoEndpoint.userService(oAuth2MemberService))
-                .successHandler(customAuthenticationSuccessHandler) // 커스텀 성공 핸들러 추가
-        );
 
         return http.build();
     }
