@@ -45,7 +45,6 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", accessToken)
                 .httpOnly(true)
                 .secure(true) // HTTPS를 사용할 경우에만 true로 설정
-                .path("/")
                 .maxAge(24 * 60 * 60) // 24시간
                 .sameSite("None")
                 .build();
@@ -54,7 +53,6 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", refreshToken)
                 .httpOnly(true)
                 .secure(true) // HTTPS를 사용할 경우에만 true로 설정
-                .path("/")
                 .maxAge(14 * 24 * 60 * 60) // 2주
                 .sameSite("None")
                 .build();
@@ -63,15 +61,15 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         response.addHeader(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
         response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
 
-        log.debug("Set-Cookie headers: {}", response.getHeaders(HttpHeaders.SET_COOKIE));
-        log.debug("Response headers: {}", response.getHeaderNames());
+        log.info("Set-Cookie headers: {}", response.getHeaders(HttpHeaders.SET_COOKIE));
+        log.info("Response headers: {}", response.getHeaderNames());
 
         // CORS 설정을 위해 헤더 추가
-        response.addHeader("Access-Control-Allow-Origin", "https://tigleisure.com");
+        response.addHeader("Access-Control-Allow-Origin", "https://main--testtig.netlify.app/");
         response.addHeader("Access-Control-Allow-Credentials", "true");
         response.addHeader("Access-Control-Expose-Headers", "Set-Cookie");
         response.addHeader("Access-Control-Expose-Headers", "Authorization");
 
-        response.sendRedirect("https://tigleisure.com");
+        response.sendRedirect("https://main--testtig.netlify.app/");
     }
 }
