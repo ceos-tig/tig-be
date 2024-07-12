@@ -1,0 +1,54 @@
+package tig.server.wishlist.dto;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.*;
+
+import java.time.LocalDateTime;
+
+public class WishlistDTO {
+
+    @Getter
+    @Setter
+    @ToString
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class Request {
+
+        @Schema(type = "integer", example = "1")
+        private Long memberId;
+
+        @Schema(type = "integer", example = "1")
+        private Long clubId;
+
+        @Schema(type = "string", example = "2024-07-08T10:00:00")
+        private LocalDateTime createdAt;
+
+        @Schema(type = "string", example = "2024-07-08T10:00:00")
+        private LocalDateTime updatedAt;
+    }
+
+    @Getter
+    @Setter
+    @ToString
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class Response {
+
+        @Schema(type = "integer", example = "1")
+        private Long wishlistId;
+
+        @Schema(type = "integer", example = "1")
+        private Long memberId;
+
+        @Schema(type = "integer", example = "1")
+        private Long clubId;
+
+        @Schema(type = "string", example = "2024-07-08T10:00:00")
+        private LocalDateTime createdAt;
+
+        @Schema(type = "string", example = "2024-07-08T10:00:00")
+        private LocalDateTime updatedAt;
+    }
+}

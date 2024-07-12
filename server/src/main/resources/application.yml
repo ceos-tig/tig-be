@@ -1,15 +1,23 @@
 spring:
+  config:
+    import: optional:file:.env[.properties]
+#  datasource:
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#    url: jdbc:mysql://${RDS_HOSTNAME}:${RDS_PORT}/${RDS_DB_NAME}?createDatabaseIfNotExist=True&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+#    username: ${RDS_USERNAME}
+#    password: ${RDS_PASSWORD}
+#    hikari:
+#      maximum-pool-size: 40
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/everytime?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useUnicode=true&serverTimezone=Asia/Seoul?useSSL=false
-  #  url: jdbc:mysql://localhost:8080/everytime?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul?useSSL=false
+    url: jdbc:mysql://localhost:3306/tig?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useUnicode=true&serverTimezone=Asia/Seoul&useSSL=false
     username: root
-    password: Jyh0914@
+    password: ${LOCAL_DB_PS:tigPW}
   jpa:
     database: mysql
     database-platform: org.hibernate.dialect.MySQL8Dialect
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: create-drop # update로 수정 필요
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
@@ -24,11 +32,13 @@ spring:
     pathmatch:
       matching-strategy: ant_path_matcher
 
+kakao:
+  client_id: ${KAKAO_CLIENT_ID}
+  client_secret: ${KAKAO_SECRET_ID}
+  redirect_uri: https://localhost:3000/login/oauth2/code/kakao
 
 server:
   port: 8080
-  servlet:
-    contextPath: /tig
 
 springdoc:
   api-docs:
@@ -42,5 +52,15 @@ springdoc:
 jwt:
   header: Authorization
   #HS512 알고리즘을 사용할 것이기 때문에 512bit, 즉 64byte 이상의 secret key를 사용해야 한다.
-  secret: a2FyaW10b2thcmltdG9rYXJpbXRva2FyaW10b2thcmltdG9rYXJpbXRva2FyaW10b2thcmltdG9rYXJpbXRva2FyaW10b2thcmltdG9rYXJpbXRva2FyaW10b2thcmltdG9rYXJpbXRva2FyaW10b2thcmltdG9rYXJpbXRva2FyaW10b2thcmltdG9rYXJpbQ==
+  secret: ${JWT_SECRET}
   token-validity-in-seconds: 86400 # ttl (초)
+
+
+discord:
+  name-join: discord-feign-join
+  name-application: discord-feign-application
+  name-cancel: discord-feign-cancel
+webhooks:
+  webhook-1: ${DISCORD_WEBHOOK_RESERVATION_APPLICATION}
+  webhook-2: ${DISCORD_WEBHOOK_RESERVATION_CANCEL}
+  webhook-3: ${DISCORD_WEBHOOK_JOIN}
