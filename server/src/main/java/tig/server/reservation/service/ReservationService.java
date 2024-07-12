@@ -49,8 +49,7 @@ public class ReservationService {
     }
 
     @Transactional
-    public ReservationDTO.Response createReservation(Long memberId, Long clubId, ReservationDTO.Request reservationRequest) {
-        Member member = memberMapper.responseToEntity(memberService.getMemberById(memberId));
+    public ReservationDTO.Response createReservation(Member member, Long clubId, ReservationDTO.Request reservationRequest) {
         System.out.println(member.getId());
 
         Club club = clubMapper.responseToEntity(clubService.getClubById(clubId));
@@ -61,6 +60,7 @@ public class ReservationService {
         reservation.setClub(club);
 
         reservation = reservationRepository.save(reservation);
+
         ReservationDTO.Response response = reservationMapper.entityToResponse(reservation);
 
         // discord-webhook

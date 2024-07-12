@@ -2,9 +2,8 @@ package tig.server.reservation.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
-import tig.server.club.domain.Club;
 import tig.server.enums.Status;
-import tig.server.member.domain.Member;
+
 
 public class ReservationDTO {
 

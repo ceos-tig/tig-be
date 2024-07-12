@@ -1,9 +1,7 @@
 package tig.server.review.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.OneToOne;
 import lombok.*;
-import tig.server.reservation.domain.Reservation;
 
 public class ReviewDTO {
 

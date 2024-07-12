@@ -5,7 +5,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import tig.server.annotation.LoginUser;
 import tig.server.enums.Status;
+import tig.server.member.domain.Member;
 import tig.server.reservation.dto.ReservationDTO;
 import tig.server.reservation.service.ReservationService;
 
@@ -33,14 +35,14 @@ public class ReservationController {
         return ResponseEntity.ok(reservationResponse);
     }
 
-    @PostMapping("/{memberId}/{clubId}")
+    @PostMapping("/{clubId}")
     @Operation(summary = "예약")
     public ResponseEntity<ReservationDTO.Response> createReservation(
-            @PathVariable Long memberId,
+            @LoginUser Member member,
             @PathVariable Long clubId,
             @RequestBody ReservationDTO.Request reservationRequest
     ) {
-        ReservationDTO.Response createdReservation = reservationService.createReservation(memberId, clubId, reservationRequest);
+        ReservationDTO.Response createdReservation = reservationService.createReservation(member, clubId, reservationRequest);
         createdReservation.setStatus(Status.TBC);
         return ResponseEntity.status(201).body(createdReservation);
     }
