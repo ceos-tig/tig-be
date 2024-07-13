@@ -4,18 +4,19 @@ import javax.annotation.processing.Generated;
 import org.springframework.stereotype.Component;
 import tig.server.reservation.domain.Reservation;
 import tig.server.review.domain.Review;
-import tig.server.review.dto.ReviewDTO;
+import tig.server.review.dto.ReviewRequest;
+import tig.server.review.dto.ReviewResponse;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2024-07-13T15:56:59+0900",
+    date = "2024-07-13T16:29:08+0900",
     comments = "version: 1.5.1.Final, compiler: javac, environment: Java 17.0.5 (Oracle Corporation)"
 )
 @Component
 public class ReviewMapperImpl implements ReviewMapper {
 
     @Override
-    public Review requestToEntity(ReviewDTO.Request reviewRequest) {
+    public Review requestToEntity(ReviewRequest reviewRequest) {
         if ( reviewRequest == null ) {
             return null;
         }
@@ -29,22 +30,22 @@ public class ReviewMapperImpl implements ReviewMapper {
     }
 
     @Override
-    public ReviewDTO.Response entityToResponse(Review review) {
+    public ReviewResponse entityToResponse(Review review) {
         if ( review == null ) {
             return null;
         }
 
-        ReviewDTO.Response.ResponseBuilder response = ReviewDTO.Response.builder();
+        ReviewResponse.ReviewResponseBuilder reviewResponse = ReviewResponse.builder();
 
-        response.reservationId( reviewReservationId( review ) );
-        response.rating( review.getRating() );
-        response.contents( review.getContents() );
+        reviewResponse.reservationId( reviewReservationId( review ) );
+        reviewResponse.rating( review.getRating() );
+        reviewResponse.contents( review.getContents() );
 
-        return response.build();
+        return reviewResponse.build();
     }
 
     @Override
-    public Review responseToEntity(ReviewDTO.Response reviewResponse) {
+    public Review responseToEntity(ReviewResponse reviewResponse) {
         if ( reviewResponse == null ) {
             return null;
         }
@@ -58,7 +59,7 @@ public class ReviewMapperImpl implements ReviewMapper {
     }
 
     @Override
-    public Review updateFromRequest(ReviewDTO.Request reviewRequest, Review review) {
+    public Review updateFromRequest(ReviewRequest reviewRequest, Review review) {
         if ( reviewRequest == null ) {
             return review;
         }

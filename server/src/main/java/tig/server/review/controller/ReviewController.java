@@ -1,6 +1,5 @@
 package tig.server.review.controller;
 
-import com.google.protobuf.Api;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -9,7 +8,8 @@ import org.springframework.web.bind.annotation.*;
 import tig.server.annotation.LoginUser;
 import tig.server.error.ApiResponse;
 import tig.server.member.domain.Member;
-import tig.server.review.dto.ReviewDTO;
+import tig.server.review.dto.ReviewRequest;
+import tig.server.review.dto.ReviewResponse;
 import tig.server.review.dto.ReviewWithReservationDTO;
 import tig.server.review.service.ReviewService;
 
@@ -26,7 +26,7 @@ public class ReviewController {
     @Operation(summary = "리뷰 작성")
     public ResponseEntity<ApiResponse<Void>> createReview(@LoginUser Member member,
                                                           @PathVariable("reviewId") Long reviewId,
-                                                          @RequestBody ReviewDTO.Request request) {
+                                                          @RequestBody ReviewRequest request) {
         reviewService.createReview(member.getId(), reviewId, request);
         ApiResponse<Void> response = ApiResponse.of(200, "successfully added review", null);
         return ResponseEntity.ok(response);
@@ -43,16 +43,16 @@ public class ReviewController {
 
     @GetMapping("/club/{clubId}")
     @Operation(summary = "특정 업체의 모든 리뷰 조회")
-    public ResponseEntity<ApiResponse<List<ReviewDTO.Response>>> getClubReviews(@PathVariable Long clubId) {
-        List<ReviewDTO.Response> clubReviews = reviewService.getReviewsByClubId(clubId);
-        ApiResponse<List<ReviewDTO.Response>> response = ApiResponse.of(200, "successfully get club's reviews", clubReviews);
+    public ResponseEntity<ApiResponse<List<ReviewResponse>>> getClubReviews(@PathVariable Long clubId) {
+        List<ReviewResponse> clubReviews = reviewService.getReviewsByClubId(clubId);
+        ApiResponse<List<ReviewResponse>> response = ApiResponse.of(200, "successfully get club's reviews", clubReviews);
         return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{reviewId}")
     @Operation(summary = "특정 리뷰 수정")
     public ResponseEntity<ApiResponse<Void>> modifyReview(@PathVariable("reviewId") Long reviewId,
-                                                          @RequestBody ReviewDTO.Request request) {
+                                                          @RequestBody ReviewRequest request) {
         reviewService.modifyReview(reviewId, request);
         ApiResponse<Void> response = ApiResponse.of(200, "successfully modified review", null);
         return ResponseEntity.ok(response);

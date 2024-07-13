@@ -12,6 +12,6 @@ import tig.server.reservation.dto.ReservationResponse;
 @Builder
 public class ReviewWithReservationDTO {
 
-    private ReviewDTO.Response review;
+    private ReviewResponse review;
     private ReservationResponse reservation;
 }
