@@ -35,6 +35,7 @@ public class KakaoController {
         // Access Token 쿠키 설정
         ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", member.getAccessToken())
                 .httpOnly(true)
+                .path("/")
                 .secure(true) // HTTPS를 사용할 경우에만 true로 설정
                 .maxAge(24 * 60 * 60) // 24시간
                 .sameSite("None")
@@ -43,6 +44,7 @@ public class KakaoController {
         // Refresh Token 쿠키 설정
         ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", member.getRefreshToken())
                 .httpOnly(true)
+                .path("/")
                 .secure(true) // HTTPS를 사용할 경우에만 true로 설정
                 .maxAge(14 * 24 * 60 * 60) // 2주
                 .sameSite("None")
@@ -55,11 +57,6 @@ public class KakaoController {
 
         log.info("Set-Cookie headers: {}", response.getHeaders(HttpHeaders.SET_COOKIE));
         log.info("Response headers: {}", response.getHeaderNames());
-
-        // CORS 설정을 위해 헤더 추가
-        response.addHeader("Access-Control-Allow-Credentials", "true");
-        response.addHeader("Access-Control-Expose-Headers", "Set-Cookie");
-        response.addHeader("Access-Control-Expose-Headers", "Authorization");
 
         return ResponseEntity.status(200).body(member.getAccessToken());
     }
