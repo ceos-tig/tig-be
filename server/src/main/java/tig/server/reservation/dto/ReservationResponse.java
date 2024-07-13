@@ -53,4 +53,7 @@ public class ReservationResponse {
 
     @Schema(type = "string", example = "서울시 동교동 14-2")
     private String clubAddress;
+
+    @Schema(type = "integer", example = "3")
+    private Long reservationId;
 }

@@ -71,6 +71,7 @@ public class ReservationService {
         reservation = reservationRepository.save(reservation);
 
         ReservationResponse response = reservationMapper.entityToResponse(reservation);
+        response.setReservationId(reservation.getId());
 
         // discord-webhook
         String memberName = member.getName();
