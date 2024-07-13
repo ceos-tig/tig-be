@@ -13,8 +13,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class WishlistRequest {
-    @Schema(type = "integer", example = "1")
-    private Long memberId;
 
     @Schema(type = "integer", example = "1")
     private Long clubId;
