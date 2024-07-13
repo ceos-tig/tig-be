@@ -3,6 +3,7 @@ package tig.server.jwt.handler;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -34,10 +35,10 @@ public class JwtExceptionHandlerFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
         try {
             String jwt = resolveToken(servletRequest);
+            System.out.println("jwt access token = " + jwt);
             //만약 토큰에 이상이 있다면 오류가 발생한다.
             if (StringUtils.hasText(jwt) && tokenProvider.validateAccessToken(jwt)) {
                 //tokenProvider에서 jwt를 가져가 Authentication 객체생성
-                log.info(jwt);
                 Authentication authentication = this.tokenProvider.getAuthentication(jwt);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
@@ -64,11 +65,25 @@ public class JwtExceptionHandlerFilter extends OncePerRequestFilter {
     }
 
     private String resolveToken(HttpServletRequest request) {
+        // 헤더에서 토큰 추출
         String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
-        if (StringUtils.hasText(bearerToken) && StringUtils.startsWithIgnoreCase(bearerToken,
-                "Bearer ")) {
+        System.out.println("bearerToken = " + bearerToken);
+        if (StringUtils.hasText(bearerToken) && StringUtils.startsWithIgnoreCase(bearerToken, "Bearer ")) {
             return bearerToken.substring(7);
         }
+        // 쿠키에서 토큰 추출
+        Cookie[] cookies = request.getCookies();
+        System.out.println("cookies.length = " + cookies.length);
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("accessToken".equals(cookie.getName())) {
+                    System.out.println("cookie.getName() = " + cookie.getName());
+                    System.out.println("cookie.getValue() = " + cookie.getValue());
+                    return cookie.getValue();
+                }
+            }
+        }
+
         return null;
     }
 
