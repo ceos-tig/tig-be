@@ -3,11 +3,15 @@ package tig.server.wishlist.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tig.server.club.domain.Club;
 import tig.server.club.dto.ClubResponse;
+import tig.server.club.mapper.ClubMapper;
 import tig.server.club.service.ClubService;
 import tig.server.error.BusinessExceptionHandler;
 import tig.server.error.ErrorCode;
 import tig.server.member.domain.Member;
+import tig.server.member.dto.MemberResponse;
+import tig.server.member.mapper.MemberMapper;
 import tig.server.member.service.MemberService;
 import tig.server.wishlist.domain.Wishlist;
 import tig.server.wishlist.dto.WishlistRequest;
@@ -24,9 +28,11 @@ import java.util.List;
 public class WishlistService {
     private final WishlistRepository wishlistRepository;
     private final ClubService clubService;
+    private final MemberService memberService;
 
     private final WishlistMapper wishlistMapper = WishlistMapper.INSTANCE;
-    private final MemberService memberService;
+    private final ClubMapper clubMapper = ClubMapper.INSTANCE;
+    private final MemberMapper memberMapper = MemberMapper.INSTANCE;
 
     //사용자 아이디로 위시리스트 조회
     public List<ClubResponse> getWishlistByUserId(Long memberId) {
@@ -47,10 +53,19 @@ public class WishlistService {
     }
 
     @Transactional
-    public void addWishlist(WishlistRequest request, Long memberId) {
+    public void addWishlist(Long clubId, Long memberId) {
         try {
-            clubService.getClubById(request.getClubId()); // 있는 클럽인지 검사
-            memberService.getMemberById(memberId); // 있는 멤버인지 검사
+            ClubResponse clubResponse = clubService.getClubById(clubId); // 있는 클럽인지 검사
+            Club club = clubMapper.responseToEntity(clubResponse); // createdAt, updatedAt은 추가해야함.
+
+            MemberResponse memberResponse = memberService.getMemberById(memberId); // 있는 멤버인지 검사
+            Member member = memberMapper.responseToEntity(memberResponse); // createdAt, updatedAt은 추가해야함.
+
+            WishlistRequest request = WishlistRequest.builder()
+                    .club(club)
+                    .member(member)
+                    .build();
+
             Wishlist wishlist = wishlistMapper.requestToEntity(request); // createdAt, updatedAt은 추가해야함.
             wishlistRepository.save(wishlist);
         } catch (Exception e){
@@ -59,11 +74,12 @@ public class WishlistService {
     }
 
     @Transactional
-    public void removeWishlist(WishlistRequest request, Long memberId) {
+    public void removeWishlist(Long clubId, Long memberId) {
         try {
-            clubService.getClubById(request.getClubId()); // 있는 클럽인지 검사
+            clubService.getClubById(clubId); // 있는 클럽인지 검사
             memberService.getMemberById(memberId); // 있는 멤버인지 검사
-            Wishlist wishlist = wishlistRepository.findByMemberIdAndClubId(memberId, request.getClubId())
+
+            Wishlist wishlist = wishlistRepository.findByMemberIdAndClubId(memberId, clubId)
                     .orElseThrow(() -> new BusinessExceptionHandler("해당하는 위시리스트 목록이 없습니다", ErrorCode.BAD_REQUEST_ERROR));
 
             wishlistRepository.softDeleteById(wishlist.getId()); // wishlist에서 soft delete

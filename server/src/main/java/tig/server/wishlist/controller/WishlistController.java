@@ -30,27 +30,25 @@ public class WishlistController {
     @Operation(summary = "위시리스트 목록 조회")
     public ResponseEntity<ApiResponse<List<ClubResponse>>> getWishlist(@LoginUser Member member) {
         List<ClubResponse> wishlists = wishlistService.getWishlistByUserId(member.getId());
-//        List<Wishlist> wishlists = member.getWishlist();
-
         ApiResponse<List<ClubResponse>> response = ApiResponse.of(200, "successfully retrived wishlist", wishlists);
 
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("")
+    @PostMapping("{clubId}")
     @Operation(summary = "위시리스트 추가")
     public ResponseEntity<ApiResponse<Void>> addWishlist(@LoginUser Member member,
-                                                         @RequestBody WishlistRequest request) {
-        wishlistService.addWishlist(request, member.getId());
+                                                         @PathVariable Long clubId) {
+        wishlistService.addWishlist(clubId, member.getId());
         ApiResponse<Void> response = ApiResponse.of(200, "successfully added to wishlist", null);
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("")
+    @DeleteMapping("{clubId}")
     @Operation(summary = "위시리스트 삭제")
     public ResponseEntity<ApiResponse<Void>> removeWishlist(@LoginUser Member member,
-                                                            @RequestBody WishlistRequest request) {
-        wishlistService.removeWishlist(request, member.getId());
+                                                            @PathVariable Long clubId) {
+        wishlistService.removeWishlist(clubId, member.getId());
         ApiResponse<Void> response = ApiResponse.of(200, "successfully deleted from wishlist", null);
         return ResponseEntity.ok(response);
     }
