@@ -1,7 +1,6 @@
 package tig.server.member.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tig.server.enums.MemberRoleEnum;
@@ -37,8 +36,12 @@ public class MemberService {
     }
 
     public String reissueAccessToken(Member member, RefreshTokenRequestDto refreshTokenRequestDto) {
-        Authentication authentication = tokenProvider.getAuthentication(refreshTokenRequestDto.getRefreshToken());
-        return tokenProvider.createAccessToken(member.getName(), member.getUniqueId());
+        String uniqueId = tokenProvider.getUniqueId(refreshTokenRequestDto.getRefreshToken());
+        if (member.getUniqueId().equals(uniqueId)) {
+            return tokenProvider.createAccessToken(member.getName(), member.getUniqueId());
+        } else {
+            throw new BusinessExceptionHandler("사용자와 토큰이 일치하지 않음", ErrorCode.BAD_REQUEST_ERROR);
+        }
     }
 
     public List<MemberResponse> getAllMembers() {
@@ -81,7 +84,7 @@ public class MemberService {
     }
 
     @Transactional
-    public MemberDTO.Response changeName(Long memberId, String newName) {
+    public MemberResponse changeName(Long memberId, String newName) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new BusinessExceptionHandler("member not found", ErrorCode.BAD_REQUEST_ERROR));
 
@@ -90,7 +93,7 @@ public class MemberService {
     }
 
     @Transactional
-    public MemberDTO.Response changePhoneNumber(Long memberId, String newPhoneNumber) {
+    public MemberResponse changePhoneNumber(Long memberId, String newPhoneNumber) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new BusinessExceptionHandler("member not found", ErrorCode.BAD_REQUEST_ERROR));
 
@@ -99,7 +102,7 @@ public class MemberService {
     }
 
     @Transactional
-    public MemberDTO.Response changeEmail(Long memberId, String newEmail) {
+    public MemberResponse changeEmail(Long memberId, String newEmail) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new BusinessExceptionHandler("member not found", ErrorCode.BAD_REQUEST_ERROR));
 

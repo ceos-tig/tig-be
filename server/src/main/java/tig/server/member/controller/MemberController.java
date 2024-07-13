@@ -67,28 +67,28 @@ public class MemberController {
 
     @PatchMapping("/name")
     @Operation(summary = "사용자 이름 변경")
-    public ResponseEntity<ApiResponse<MemberDTO.Response>> changeName(@LoginUser Member member,
+    public ResponseEntity<ApiResponse<MemberResponse>> changeName(@LoginUser Member member,
                                                          @RequestParam("newName") String newName) {
-        MemberDTO.Response response = memberService.changeName(member.getId(), newName);
-        ApiResponse<MemberDTO.Response> apiResponse = ApiResponse.of(200, "successfully changed name", response);
+        MemberResponse response = memberService.changeName(member.getId(), newName);
+        ApiResponse<MemberResponse> apiResponse = ApiResponse.of(200, "successfully changed name", response);
         return ResponseEntity.ok(apiResponse);
     }
 
     @PatchMapping("/phoneNumber")
     @Operation(summary = "사용자 전화번호 변경")
-    public ResponseEntity<ApiResponse<MemberDTO.Response>> changePhoneNumber(@LoginUser Member member,
+    public ResponseEntity<ApiResponse<MemberResponse>> changePhoneNumber(@LoginUser Member member,
                                                                 @RequestParam("newPhoneNumber") String newPhoneNumber) {
-        MemberDTO.Response response = memberService.changePhoneNumber(member.getId(), newPhoneNumber);
-        ApiResponse<MemberDTO.Response> apiResponse = ApiResponse.of(200, "successfully changed phone number", response);
+        MemberResponse response = memberService.changePhoneNumber(member.getId(), newPhoneNumber);
+        ApiResponse<MemberResponse> apiResponse = ApiResponse.of(200, "successfully changed phone number", response);
         return ResponseEntity.ok(apiResponse);
     }
 
     @PatchMapping("/email")
     @Operation(summary = "사용자 이메일 변경")
-    public ResponseEntity<ApiResponse<MemberDTO.Response>> changeEmail(@LoginUser Member member,
+    public ResponseEntity<ApiResponse<MemberResponse>> changeEmail(@LoginUser Member member,
                                                                        @RequestParam("newEmail") String newEmail) {
-        MemberDTO.Response response = memberService.changeEmail(member.getId(), newEmail);
-        ApiResponse<MemberDTO.Response> apiResponse = ApiResponse.of(200, "successfully changed email", response);
+        MemberResponse response = memberService.changeEmail(member.getId(), newEmail);
+        ApiResponse<MemberResponse> apiResponse = ApiResponse.of(200, "successfully changed email", response);
         return ResponseEntity.ok(apiResponse);
     }
 }
