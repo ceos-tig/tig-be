@@ -29,18 +29,18 @@ public class WishlistService {
     private final MemberService memberService;
 
     //사용자 아이디로 위시리스트 조회
-    public List<ClubResponse> getWishlistByUserId(Member member) {
+    public List<ClubResponse> getWishlistByUserId(Long memberId) {
         try {
-            List<WishlistResponse> responseList = wishlistRepository.findAllByMemberId(member.getId()).stream()
+            List<WishlistResponse> responseList = wishlistRepository.findAllByMemberId(memberId).stream()
                     .map(wishlistMapper::entityToResponse)
                     .toList();
 
-            List<ClubResponse> result = new ArrayList<>();
+            List<ClubResponse> reponseList = new ArrayList<>();
             for (WishlistResponse wishlist : responseList) {
-                ClubResponse clubById = clubService.getClubById(wishlist.getClubId());
-                result.add(clubById);
+                ClubResponse club = clubService.getClubById(wishlist.getClub().getId());
+                reponseList.add(club);
             }
-            return result;
+            return reponseList;
         } catch (Exception e) {
             throw new BusinessExceptionHandler("위시리스트 조회 중 에러 : " + e.getMessage(), ErrorCode.IO_ERROR);
         }

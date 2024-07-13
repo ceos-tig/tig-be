@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Where;
 import tig.server.base.BaseTimeEntity;
+import tig.server.club.domain.Club;
+import tig.server.member.domain.Member;
 
 @Getter
 @Setter
@@ -23,9 +25,11 @@ public class Wishlist extends BaseTimeEntity {
     @Builder.Default
     private boolean isDeleted = Boolean.FALSE;
 
-    @Column(name = "member_id")
-    private Long memberId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
+    private Member member;
 
-    @Column(name = "club_id")
-    private Long clubId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "club_id")
+    private Club club;
 }

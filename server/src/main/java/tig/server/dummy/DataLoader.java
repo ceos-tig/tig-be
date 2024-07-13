@@ -190,19 +190,21 @@ public class DataLoader implements CommandLineRunner {
 
         // Create Wishlists
         Wishlist wishlist1 = Wishlist.builder()
-                .memberId(member1.getId())
-                .clubId(club1.getId())
+                .member(member1)
+                .club(club1)
                 .build();
 
         Wishlist wishlist2 = Wishlist.builder()
-                .memberId(member1.getId())
-                .clubId(club2.getId())
+                .member(member1)
+                .club(club2)
                 .build();
 
+
         Wishlist wishlist3 = Wishlist.builder()
-                .memberId(member2.getId())
-                .clubId(club1.getId())
+                .member(member2)
+                .club(club1)
                 .build();
+
 
         wishlistRepository.save(wishlist1);
         wishlistRepository.save(wishlist2);

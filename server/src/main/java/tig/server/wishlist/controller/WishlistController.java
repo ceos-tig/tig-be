@@ -9,6 +9,7 @@ import tig.server.annotation.LoginUser;
 import tig.server.club.dto.ClubResponse;
 import tig.server.error.ApiResponse;
 import tig.server.member.domain.Member;
+import tig.server.wishlist.domain.Wishlist;
 import tig.server.wishlist.dto.WishlistRequest;
 import tig.server.wishlist.service.WishlistService;
 
@@ -28,8 +29,11 @@ public class WishlistController {
     @GetMapping("")
     @Operation(summary = "위시리스트 목록 조회")
     public ResponseEntity<ApiResponse<List<ClubResponse>>> getWishlist(@LoginUser Member member) {
-        List<ClubResponse> wishlist = wishlistService.getWishlistByUserId(member);
-        ApiResponse<List<ClubResponse>> response = ApiResponse.of(200, "successfully retrived wishlist", wishlist);
+        List<ClubResponse> wishlists = wishlistService.getWishlistByUserId(member.getId());
+//        List<Wishlist> wishlists = member.getWishlist();
+
+        ApiResponse<List<ClubResponse>> response = ApiResponse.of(200, "successfully retrived wishlist", wishlists);
+
         return ResponseEntity.ok(response);
     }
 

@@ -6,6 +6,7 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 import tig.server.enums.MemberRoleEnum;
 import tig.server.reservation.domain.Reservation;
+import tig.server.wishlist.domain.Wishlist;
 
 import java.util.List;
 
@@ -62,5 +63,8 @@ public class Member {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "member")
     private List<Reservation> reservations;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "member")
+    private List<Wishlist> wishlist;
 
 }

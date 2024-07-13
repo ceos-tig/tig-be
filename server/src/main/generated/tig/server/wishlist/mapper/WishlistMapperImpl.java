@@ -8,7 +8,7 @@ import tig.server.wishlist.dto.WishlistResponse;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2024-07-13T17:58:20+0900",
+    date = "2024-07-13T21:44:39+0900",
     comments = "version: 1.5.1.Final, compiler: javac, environment: Java 17.0.5 (Oracle Corporation)"
 )
 @Component
@@ -22,9 +22,6 @@ public class WishlistMapperImpl implements WishlistMapper {
 
         Wishlist.WishlistBuilder wishlist = Wishlist.builder();
 
-        wishlist.memberId( wishlistRequest.getMemberId() );
-        wishlist.clubId( wishlistRequest.getClubId() );
-
         return wishlist.build();
     }
 
@@ -36,8 +33,8 @@ public class WishlistMapperImpl implements WishlistMapper {
 
         WishlistResponse.WishlistResponseBuilder wishlistResponse = WishlistResponse.builder();
 
-        wishlistResponse.memberId( wishlist.getMemberId() );
-        wishlistResponse.clubId( wishlist.getClubId() );
+        wishlistResponse.member( wishlist.getMember() );
+        wishlistResponse.club( wishlist.getClub() );
         wishlistResponse.createdAt( wishlist.getCreatedAt() );
         wishlistResponse.updatedAt( wishlist.getUpdatedAt() );
 
@@ -48,13 +45,6 @@ public class WishlistMapperImpl implements WishlistMapper {
     public Wishlist updateFromRequest(WishlistRequest wishlistRequest, Wishlist wishlist) {
         if ( wishlistRequest == null ) {
             return wishlist;
-        }
-
-        if ( wishlistRequest.getMemberId() != null ) {
-            wishlist.setMemberId( wishlistRequest.getMemberId() );
-        }
-        if ( wishlistRequest.getClubId() != null ) {
-            wishlist.setClubId( wishlistRequest.getClubId() );
         }
 
         return wishlist;
