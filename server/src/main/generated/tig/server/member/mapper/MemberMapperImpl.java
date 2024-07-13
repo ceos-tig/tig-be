@@ -3,18 +3,19 @@ package tig.server.member.mapper;
 import javax.annotation.processing.Generated;
 import org.springframework.stereotype.Component;
 import tig.server.member.domain.Member;
-import tig.server.member.dto.MemberDTO;
+import tig.server.member.dto.MemberRequest;
+import tig.server.member.dto.MemberResponse;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2024-07-13T15:56:59+0900",
+    date = "2024-07-13T16:34:41+0900",
     comments = "version: 1.5.1.Final, compiler: javac, environment: Java 17.0.5 (Oracle Corporation)"
 )
 @Component
 public class MemberMapperImpl implements MemberMapper {
 
     @Override
-    public Member requestToEntity(MemberDTO.Request memberRequest) {
+    public Member requestToEntity(MemberRequest memberRequest) {
         if ( memberRequest == null ) {
             return null;
         }
@@ -32,26 +33,26 @@ public class MemberMapperImpl implements MemberMapper {
     }
 
     @Override
-    public MemberDTO.Response entityToResponse(Member member) {
+    public MemberResponse entityToResponse(Member member) {
         if ( member == null ) {
             return null;
         }
 
-        MemberDTO.Response.ResponseBuilder response = MemberDTO.Response.builder();
+        MemberResponse.MemberResponseBuilder memberResponse = MemberResponse.builder();
 
-        response.id( member.getId() );
-        response.name( member.getName() );
-        response.email( member.getEmail() );
-        response.phoneNumber( member.getPhoneNumber() );
-        response.profileImage( member.getProfileImage() );
-        response.refreshToken( member.getRefreshToken() );
-        response.memberRoleEnum( member.getMemberRoleEnum() );
+        memberResponse.id( member.getId() );
+        memberResponse.name( member.getName() );
+        memberResponse.email( member.getEmail() );
+        memberResponse.phoneNumber( member.getPhoneNumber() );
+        memberResponse.profileImage( member.getProfileImage() );
+        memberResponse.refreshToken( member.getRefreshToken() );
+        memberResponse.memberRoleEnum( member.getMemberRoleEnum() );
 
-        return response.build();
+        return memberResponse.build();
     }
 
     @Override
-    public Member responseToEntity(MemberDTO.Response meberResponse) {
+    public Member responseToEntity(MemberResponse meberResponse) {
         if ( meberResponse == null ) {
             return null;
         }
@@ -70,7 +71,7 @@ public class MemberMapperImpl implements MemberMapper {
     }
 
     @Override
-    public Member updateFromRequest(MemberDTO.Request memberRequest, Member member) {
+    public Member updateFromRequest(MemberRequest memberRequest, Member member) {
         if ( memberRequest == null ) {
             return member;
         }

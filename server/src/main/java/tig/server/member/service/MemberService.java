@@ -9,7 +9,7 @@ import tig.server.jwt.TokenProvider;
 import tig.server.kakao.dto.KakaoUserInfoResponseDto;
 import tig.server.kakao.dto.LoginMemberResponseDto;
 import tig.server.member.domain.Member;
-import tig.server.member.dto.MemberDTO;
+import tig.server.member.dto.MemberResponse;
 import tig.server.member.dto.RefreshTokenRequestDto;
 import tig.server.member.mapper.MemberMapper;
 import tig.server.member.repository.MemberRepository;
@@ -39,12 +39,12 @@ public class MemberService {
         return tokenProvider.createAccessToken(member.getName(), member.getUniqueId());
     }
 
-    public List<MemberDTO.Response> getAllMembers() {
+    public List<MemberResponse> getAllMembers() {
         return memberRepository.findAll().stream()
                 .map(memberMapper::entityToResponse)
                 .collect(Collectors.toList());
     }
-    public MemberDTO.Response getMemberById(Long id) {
+    public MemberResponse getMemberById(Long id) {
         Member member = memberRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("member not found"));
 

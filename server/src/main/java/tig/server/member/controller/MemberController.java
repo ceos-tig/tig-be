@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tig.server.error.ApiResponse;
 import tig.server.member.domain.Member;
-import tig.server.member.dto.MemberDTO;
+import tig.server.member.dto.MemberResponse;
 import tig.server.member.dto.RefreshTokenRequestDto;
 import tig.server.member.service.MemberService;
 
@@ -41,15 +41,15 @@ public class MemberController {
 
     @GetMapping("")
     @Operation(summary = "전체 유저 조회")
-    public ResponseEntity<List<MemberDTO.Response>> getAllMembers() {
-        List<MemberDTO.Response> memberResponses = memberService.getAllMembers();
+    public ResponseEntity<List<MemberResponse>> getAllMembers() {
+        List<MemberResponse> memberResponses = memberService.getAllMembers();
         return ResponseEntity.ok(memberResponses);
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "특정 유저 조회")
-    public ResponseEntity<MemberDTO.Response> getMemberById(@PathVariable Long id) {
-        MemberDTO.Response memberResponse = memberService.getMemberById(id);
+    public ResponseEntity<MemberResponse> getMemberById(@PathVariable Long id) {
+        MemberResponse memberResponse = memberService.getMemberById(id);
         return ResponseEntity.ok(memberResponse);
     }
 }
