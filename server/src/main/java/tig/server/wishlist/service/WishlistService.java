@@ -67,7 +67,6 @@ public class WishlistService {
                     .build();
 
             Wishlist wishlist = wishlistMapper.requestToEntity(request); // createdAt, updatedAt은 추가해야함.
-            wishlistRepository.save(wishlist);
         } catch (Exception e){
             throw new BusinessExceptionHandler("위시리스트에 추가 하는 과정에서 에러 : " + e.getMessage(), ErrorCode.IO_ERROR);
         }
