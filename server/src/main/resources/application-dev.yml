@@ -1,0 +1,20 @@
+spring:
+  config:
+    import: optional:file:.env[.properties]
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/tig?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useUnicode=true&serverTimezone=Asia/Seoul&useSSL=false
+    username: root
+    password: ${LOCAL_DB_PS:tigPW}
+  jpa:
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: create-drop # update로 수정 필요
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        database-platform: org.hibernate.dialect.MySQL8Dialect
+        show_sql: true
+        format_sql: false
+    defer-datasource-initialization: true
