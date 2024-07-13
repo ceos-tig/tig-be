@@ -39,16 +39,18 @@ public class WishlistController {
 
     @PostMapping("")
     @Operation(summary = "위시리스트 추가")
-    public ResponseEntity<ApiResponse<Void>> addWishlist(@RequestBody WishlistRequest request) {
-        wishlistService.addWishlist(request);
+    public ResponseEntity<ApiResponse<Void>> addWishlist(@LoginUser Member member,
+                                                         @RequestBody WishlistRequest request) {
+        wishlistService.addWishlist(request,member.getId());
         ApiResponse<Void> response = ApiResponse.of(200, "successfully added to wishlist", null);
         return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("")
     @Operation(summary = "위시리스트 삭제")
-    public ResponseEntity<ApiResponse<Void>> removeWishlist(@RequestBody WishlistRequest request) {
-        wishlistService.removeWishlist(request);
+    public ResponseEntity<ApiResponse<Void>> removeWishlist(@LoginUser Member member,
+                                                            @RequestBody WishlistRequest request) {
+        wishlistService.removeWishlist(request,member.getId());
         ApiResponse<Void> response = ApiResponse.of(200, "successfully deleted from wishlist", null);
         return ResponseEntity.ok(response);
     }

@@ -47,10 +47,10 @@ public class WishlistService {
     }
 
     @Transactional
-    public void addWishlist(WishlistRequest request) { // 클럽아이디 검사가 없구나
+    public void addWishlist(WishlistRequest request,Long memberId) {
         try {
             clubService.getClubById(request.getClubId()); // 있는 클럽인지 검사
-            memberService.getMemberById(request.getMemberId()); // 있는 멤버인지 검사
+            memberService.getMemberById(memberId); // 있는 멤버인지 검사
             Wishlist wishlist = wishlistMapper.requestToEntity(request); // createdAt, updatedAt은 추가해야함.
             wishlistRepository.save(wishlist);
         } catch (Exception e){
@@ -59,11 +59,11 @@ public class WishlistService {
     }
 
     @Transactional
-    public void removeWishlist(WishlistRequest request) {
+    public void removeWishlist(WishlistRequest request,Long memberId) {
         try {
             clubService.getClubById(request.getClubId()); // 있는 클럽인지 검사
-            memberService.getMemberById(request.getMemberId()); // 있는 멤버인지 검사
-            Wishlist wishlist = wishlistRepository.findByMemberIdAndClubId(request.getMemberId(), request.getClubId())
+            memberService.getMemberById(memberId); // 있는 멤버인지 검사
+            Wishlist wishlist = wishlistRepository.findByMemberIdAndClubId(memberId, request.getClubId())
                     .orElseThrow(() -> new BusinessExceptionHandler("해당하는 위시리스트 목록이 없습니다", ErrorCode.BAD_REQUEST_ERROR));
 
             wishlistRepository.softDeleteById(wishlist.getId()); // wishlist에서 soft delete
