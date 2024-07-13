@@ -10,6 +10,9 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class ReviewRequest {
+    @Schema(type = "integer", example = "1")
+    private Long reservationId;
+
     @Schema(type = "integer", example = "4")
     private Integer rating;
 

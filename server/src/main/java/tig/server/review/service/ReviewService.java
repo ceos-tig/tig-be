@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tig.server.club.domain.Club;
 import tig.server.club.repository.ClubRepository;
+import tig.server.club.service.ClubService;
 import tig.server.error.BusinessExceptionHandler;
 import tig.server.error.ErrorCode;
 import tig.server.member.service.MemberService;
@@ -34,22 +35,60 @@ public class ReviewService {
 
     private final MemberService memberService;
     private final ReservationService reservationService;
+    private final ClubService clubService;
 
     private final ReviewMapper reviewMapper = ReviewMapper.INSTANCE;
     private final ReservationMapper reservationMapper = ReservationMapper.INSTANCE;
 
     @Transactional
-    public void createReview(Long memberId, Long reservationId, ReviewRequest request) {
+    public ReviewWithReservationDTO createReview(Long memberId, Long reservationId, ReviewRequest reviewRequest) {
         try {
             memberService.getMemberById(memberId);// 있는 멤버인지 확인
-            Reservation reservation = reservationRepository.findById(reservationId).orElseThrow(() -> new BusinessExceptionHandler("no reservation found", ErrorCode.NOT_FOUND_ERROR));
+            Reservation reservation = reservationRepository.findById(reservationId)
+                    .orElseThrow(() -> new BusinessExceptionHandler("no reservation found", ErrorCode.NOT_FOUND_ERROR));
 
-            Review review = reviewMapper.requestToEntity(request);
+            Review review = reviewMapper.requestToEntity(reviewRequest);
             review.setReservation(reservation);
 
+            Club club = clubService.reflectNewReview(reviewRequest);
+            reservation.setClub(club);
+
             reviewRepository.save(review);
+            reservationRepository.save(reservation);
+
+            return ReviewWithReservationDTO.builder()
+                    .review(reviewMapper.entityToResponse(review))
+                    .reservation(reservationMapper.entityToResponse(reservation))
+                    .build();
+
         } catch (Exception e) {
             throw new BusinessExceptionHandler("리뷰 작성 중 에러 : " + e.getMessage(), ErrorCode.IO_ERROR);
+        }
+    }
+
+    @Transactional
+    public void modifyReview(Long reviewId, ReviewRequest reviewRequest) {
+        try {
+            Review existingReview = reviewRepository.findById(reviewId)
+                    .orElseThrow(() -> new BusinessExceptionHandler("review not found", ErrorCode.NOT_FOUND_ERROR));
+
+            Review updatedReview = reviewMapper.updateFromRequest(reviewRequest, existingReview);
+
+            updatedReview.setRating(reviewRequest.getRating());
+            updatedReview.setContents(reviewRequest.getContents());
+
+            Club club = clubService.reflectModifiedReview(reviewRequest, existingReview);
+            Reservation reservation = updatedReview.getReservation();
+
+            updatedReview.setReservation(reservation);
+            reservation.setClub(club);
+
+            reviewRepository.save(updatedReview);
+            reservationRepository.save(reservation);
+
+
+        } catch (Exception e) {
+            throw new BusinessExceptionHandler("리뷰 수정 중 에러 : " + e.getMessage(), ErrorCode.IO_ERROR);
         }
     }
 
@@ -77,20 +116,7 @@ public class ReviewService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional
-    public void modifyReview(Long reviewId, ReviewRequest request) {
-        try {
-            Review review = reviewRepository.findById(reviewId)
-                    .orElseThrow(() -> new BusinessExceptionHandler("review not found", ErrorCode.NOT_FOUND_ERROR));
 
-            review.setRating(request.getRating());
-            review.setContents(request.getContents());
-
-            reviewRepository.save(review);
-        } catch (Exception e) {
-            throw new BusinessExceptionHandler("리뷰 수정 중 에러 : " + e.getMessage(), ErrorCode.IO_ERROR);
-        }
-    }
 
     @Transactional
     public void deleteReview(Long reviewId) {

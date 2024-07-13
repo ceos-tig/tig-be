@@ -8,6 +8,10 @@ import tig.server.club.dto.ClubResponse;
 import tig.server.club.mapper.ClubMapper;
 import tig.server.club.repository.ClubRepository;
 import tig.server.config.S3Uploader;
+import tig.server.reservation.domain.Reservation;
+import tig.server.reservation.repository.ReservationRepository;
+import tig.server.review.domain.Review;
+import tig.server.review.dto.ReviewRequest;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,6 +21,8 @@ import java.util.stream.Collectors;
 public class ClubService {
 
     private final ClubRepository clubRepository;
+    private final ReservationRepository reservationRepository;
+
     private final ClubMapper clubMapper = ClubMapper.INSTANCE;
 
     private final S3Uploader s3Uploader;
@@ -58,5 +64,45 @@ public class ClubService {
         return response;
     }
 
+    @Transactional
+    public Club reflectNewReview(ReviewRequest reviewRequest) {
+        Long reservationId = reviewRequest.getReservationId();
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new RuntimeException("Portfolio not found"));
+
+        Club club = clubRepository.findById(reservation.getClub().getId())
+                .orElseThrow(() -> new RuntimeException("Portfolio not found"));
+
+        Integer rating = reviewRequest.getRating();
+
+        club.accumulateRatingSum(rating);
+        club.increaseRatingCount(rating);
+
+        clubRepository.save(club);
+
+        return club;
+    }
+
+    @Transactional
+    public Club reflectModifiedReview(ReviewRequest reviewRequest, Review existingReview) {
+        Long reservationId = reviewRequest.getReservationId();
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new RuntimeException("Portfolio not found"));
+
+        Club club = clubRepository.findById(reservation.getClub().getId())
+                .orElseThrow(() -> new RuntimeException("Portfolio not found"));
+
+
+        Integer existingRating = existingReview.getRating();
+        club.reduceRatingSum(existingRating);
+
+        Integer newRating = reviewRequest.getRating();
+        club.accumulateRatingSum(newRating);
+
+        clubRepository.save(club);
+
+        return club;
+
+    }
 
 }

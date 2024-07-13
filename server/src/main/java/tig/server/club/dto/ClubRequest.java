@@ -21,8 +21,11 @@ public class ClubRequest {
     @Schema(type = "string", example = "서울시 서대문구 52-15")
     private String address;
 
-    @Schema(type = "float", example = "4.5")
-    private Float avgRating;
+    @Schema(type = "float", example = "13123.23")
+    private Float ratingSum;
+
+    @Schema(type = "integer", example = "320")
+    private Integer ratingCount;
 
     @Schema(type = "integer", example = "30000")
     private Integer price;
