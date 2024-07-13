@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tig.server.annotation.LoginUser;
 import tig.server.club.dto.ClubDTO;
+import tig.server.club.dto.ClubResponse;
 import tig.server.error.ApiResponse;
 import tig.server.member.domain.Member;
 import tig.server.wishlist.dto.WishlistDTO;
@@ -27,9 +28,9 @@ public class WishlistController {
      */
     @GetMapping("")
     @Operation(summary = "위시리스트 목록 조회")
-    public ResponseEntity<ApiResponse<List<ClubDTO.Response>>> getWishlist(@LoginUser Member member) {
-        List<ClubDTO.Response> wishlist = wishlistService.getWishlistByUserId(member);
-        ApiResponse<List<ClubDTO.Response>> response = ApiResponse.of(200, "successfully retrived wishlist", wishlist);
+    public ResponseEntity<ApiResponse<List<ClubResponse>>> getWishlist(@LoginUser Member member) {
+        List<ClubResponse> wishlist = wishlistService.getWishlistByUserId(member);
+        ApiResponse<List<ClubResponse>> response = ApiResponse.of(200, "successfully retrived wishlist", wishlist);
         return ResponseEntity.ok(response);
     }
 

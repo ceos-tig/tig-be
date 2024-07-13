@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tig.server.club.dto.ClubDTO;
+import tig.server.club.dto.ClubResponse;
 import tig.server.club.service.ClubService;
 import tig.server.error.BusinessExceptionHandler;
 import tig.server.error.ErrorCode;
@@ -28,15 +29,15 @@ public class WishlistService {
     private final MemberService memberService;
 
     //사용자 아이디로 위시리스트 조회
-    public List<ClubDTO.Response> getWishlistByUserId(Member member) {
+    public List<ClubResponse> getWishlistByUserId(Member member) {
         try {
             List<WishlistDTO.Response> responseList = wishlistRepository.findAllByMemberId(member.getId()).stream()
                     .map(wishlistMapper::entityToResponse)
                     .toList();
 
-            List<ClubDTO.Response> result = new ArrayList<>();
+            List<ClubResponse> result = new ArrayList<>();
             for (WishlistDTO.Response wishlist : responseList) {
-                ClubDTO.Response clubById = clubService.getClubById(wishlist.getClubId());
+                ClubResponse clubById = clubService.getClubById(wishlist.getClubId());
                 result.add(clubById);
             }
             return result;
