@@ -36,9 +36,6 @@ public class ReservationRequest {
     @Schema(type = "string", allowableValues = {"TBC", "CONFIRMED", "CANCELED", "DECLINED", "DONE", "REVIEWED"}, example = "CONFIRMED")
     private Status status;
 
-    @Schema(type = "integer", example = "2")
-    private Integer memberId;
-
     @Schema(type = "integer", example = "3")
     private Integer clubId;
 }

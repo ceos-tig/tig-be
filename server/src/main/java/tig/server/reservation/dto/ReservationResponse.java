@@ -3,6 +3,7 @@ package tig.server.reservation.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import tig.server.enums.Status;
+import tig.server.enums.Type;
 
 @Getter
 @Setter
@@ -40,4 +41,16 @@ public class ReservationResponse {
 
     @Schema(type = "integer", example = "3")
     private Integer clubId;
+
+    @Schema(type = "string", example = "GAME")
+    private Type type;
+
+    @Schema(type = "string", example = "10:00 - 3:00")
+    private String businessHours;
+
+    @Schema(type = "string", example = "티그볼링장")
+    private String clubName;
+
+    @Schema(type = "string", example = "서울시 동교동 14-2")
+    private String clubAddress;
 }

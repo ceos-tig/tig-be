@@ -46,7 +46,15 @@ public class ReservationService {
     public ReservationResponse getReservationById(Long id) {
         Reservation reservation = reservationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("reservation not found"));
-        return reservationMapper.entityToResponse(reservation);
+        ReservationResponse response = reservationMapper.entityToResponse(reservation);
+        Club club = clubMapper.responseToEntity(clubService.getClubById(id));
+
+        response.setType(club.getType());
+        response.setBusinessHours(club.getBusinessHours());
+        response.setClubName(club.getClubName());
+        response.setClubAddress(club.getAddress());
+
+        return response;
     }
 
     @Transactional
