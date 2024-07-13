@@ -5,7 +5,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import tig.server.club.dto.ClubDTO;
+import tig.server.club.dto.ClubRequest;
+import tig.server.club.dto.ClubResponse;
 import tig.server.club.service.ClubService;
 
 import java.util.List;
@@ -20,22 +21,22 @@ public class ClubController {
 
     @GetMapping("")
     @Operation(summary = "전체 업체 조회")
-    public ResponseEntity<List<ClubDTO.Response>> getAllClubs() {
-        List<ClubDTO.Response> clubResponses = clubService.getAllClubs();
+    public ResponseEntity<List<ClubResponse>> getAllClubs() {
+        List<ClubResponse> clubResponses = clubService.getAllClubs();
         return ResponseEntity.ok(clubResponses);
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "특정 업체 조회")
-    public ResponseEntity<ClubDTO.Response> getClubById(@PathVariable Long id) {
-        ClubDTO.Response clubResponse = clubService.getClubById(id);
+    public ResponseEntity<ClubResponse> getClubById(@PathVariable Long id) {
+        ClubResponse clubResponse = clubService.getClubById(id);
         return ResponseEntity.ok(clubResponse);
     }
 
     @PostMapping("")
     @Operation(summary = "업체 업로드")
-    public ResponseEntity<ClubDTO.Response> createClub(@RequestBody ClubDTO.Request clubRequest) {
-        ClubDTO.Response createdClub = clubService.createClub(clubRequest);
+    public ResponseEntity<ClubResponse> createClub(@RequestBody ClubRequest clubRequest) {
+        ClubResponse createdClub = clubService.createClub(clubRequest);
         return ResponseEntity.status(201).body(createdClub);
     }
 }

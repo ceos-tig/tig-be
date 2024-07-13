@@ -3,14 +3,15 @@ package tig.server.wishlist.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import tig.server.club.dto.ClubDTO;
+import tig.server.club.dto.ClubResponse;
 import tig.server.club.service.ClubService;
 import tig.server.error.BusinessExceptionHandler;
 import tig.server.error.ErrorCode;
 import tig.server.member.domain.Member;
 import tig.server.member.service.MemberService;
 import tig.server.wishlist.domain.Wishlist;
-import tig.server.wishlist.dto.WishlistDTO;
+import tig.server.wishlist.dto.WishlistRequest;
+import tig.server.wishlist.dto.WishlistResponse;
 import tig.server.wishlist.mapper.WishlistMapper;
 import tig.server.wishlist.repository.WishlistRepository;
 
@@ -28,15 +29,15 @@ public class WishlistService {
     private final MemberService memberService;
 
     //사용자 아이디로 위시리스트 조회
-    public List<ClubDTO.Response> getWishlistByUserId(Member member) {
+    public List<ClubResponse> getWishlistByUserId(Member member) {
         try {
-            List<WishlistDTO.Response> responseList = wishlistRepository.findAllByMemberId(member.getId()).stream()
+            List<WishlistResponse> responseList = wishlistRepository.findAllByMemberId(member.getId()).stream()
                     .map(wishlistMapper::entityToResponse)
                     .toList();
 
-            List<ClubDTO.Response> result = new ArrayList<>();
-            for (WishlistDTO.Response wishlist : responseList) {
-                ClubDTO.Response clubById = clubService.getClubById(wishlist.getClubId());
+            List<ClubResponse> result = new ArrayList<>();
+            for (WishlistResponse wishlist : responseList) {
+                ClubResponse clubById = clubService.getClubById(wishlist.getClubId());
                 result.add(clubById);
             }
             return result;
@@ -46,7 +47,7 @@ public class WishlistService {
     }
 
     @Transactional
-    public void addWishlist(WishlistDTO.Request request) { // 클럽아이디 검사가 없구나
+    public void addWishlist(WishlistRequest request) { // 클럽아이디 검사가 없구나
         try {
             clubService.getClubById(request.getClubId()); // 있는 클럽인지 검사
             memberService.getMemberById(request.getMemberId()); // 있는 멤버인지 검사
@@ -58,7 +59,7 @@ public class WishlistService {
     }
 
     @Transactional
-    public void removeWishlist(WishlistDTO.Request request) {
+    public void removeWishlist(WishlistRequest request) {
         try {
             clubService.getClubById(request.getClubId()); // 있는 클럽인지 검사
             memberService.getMemberById(request.getMemberId()); // 있는 멤버인지 검사

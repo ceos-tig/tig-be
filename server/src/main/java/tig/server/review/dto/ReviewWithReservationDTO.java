@@ -1,7 +1,8 @@
 package tig.server.review.dto;
 
 import lombok.*;
-import tig.server.reservation.dto.ReservationDTO;
+import tig.server.dummy.DummyDto;
+import tig.server.reservation.dto.ReservationResponse;
 
 @Getter
 @Setter
@@ -11,6 +12,6 @@ import tig.server.reservation.dto.ReservationDTO;
 @Builder
 public class ReviewWithReservationDTO {
 
-    private ReviewDTO.Response review;
-    private ReservationDTO.Response reservation;
+    private ReviewResponse review;
+    private ReservationResponse reservation;
 }

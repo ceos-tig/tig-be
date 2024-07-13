@@ -5,18 +5,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tig.server.club.domain.Club;
 import tig.server.club.repository.ClubRepository;
-import tig.server.club.service.ClubService;
 import tig.server.error.BusinessExceptionHandler;
 import tig.server.error.ErrorCode;
-import tig.server.member.dto.MemberDTO;
 import tig.server.member.service.MemberService;
 import tig.server.reservation.domain.Reservation;
-import tig.server.reservation.dto.ReservationDTO;
+import tig.server.reservation.dto.ReservationResponse;
 import tig.server.reservation.mapper.ReservationMapper;
 import tig.server.reservation.repository.ReservationRepository;
 import tig.server.reservation.service.ReservationService;
 import tig.server.review.domain.Review;
-import tig.server.review.dto.ReviewDTO;
+import tig.server.review.dto.ReviewRequest;
+import tig.server.review.dto.ReviewResponse;
 import tig.server.review.dto.ReviewWithReservationDTO;
 import tig.server.review.mapper.ReviewMapper;
 import tig.server.review.repository.ReviewRepository;
@@ -40,7 +39,7 @@ public class ReviewService {
     private final ReservationMapper reservationMapper = ReservationMapper.INSTANCE;
 
     @Transactional
-    public void createReview(Long memberId, Long reservationId, ReviewDTO.Request request) {
+    public void createReview(Long memberId, Long reservationId, ReviewRequest request) {
         try {
             memberService.getMemberById(memberId);// 있는 멤버인지 확인
             Reservation reservation = reservationRepository.findById(reservationId).orElseThrow(() -> new BusinessExceptionHandler("no reservation found", ErrorCode.NOT_FOUND_ERROR));
@@ -56,8 +55,8 @@ public class ReviewService {
 
     public ReviewWithReservationDTO getReviewById(Long reviewId) {
         Review review = reviewRepository.findById(reviewId).orElseThrow(() -> new BusinessExceptionHandler("review not found", ErrorCode.BAD_REQUEST_ERROR));
-        ReviewDTO.Response reviewResponse = reviewMapper.entityToResponse(review);
-        ReservationDTO.Response reservationResponse = reservationService.getReservationById(review.getReservation().getId());
+        ReviewResponse reviewResponse = reviewMapper.entityToResponse(review);
+        ReservationResponse reservationResponse = reservationService.getReservationById(review.getReservation().getId());
 
         return ReviewWithReservationDTO.builder()
                 .review(reviewResponse)
@@ -65,7 +64,7 @@ public class ReviewService {
                 .build();
     }
 
-    public List<ReviewDTO.Response> getReviewsByClubId(Long clubId) {
+    public List<ReviewResponse> getReviewsByClubId(Long clubId) {
         Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new RuntimeException("club not found"));
 
@@ -79,7 +78,7 @@ public class ReviewService {
     }
 
     @Transactional
-    public void modifyReview(Long reviewId, ReviewDTO.Request request) {
+    public void modifyReview(Long reviewId, ReviewRequest request) {
         try {
             Review review = reviewRepository.findById(reviewId)
                     .orElseThrow(() -> new BusinessExceptionHandler("review not found", ErrorCode.NOT_FOUND_ERROR));

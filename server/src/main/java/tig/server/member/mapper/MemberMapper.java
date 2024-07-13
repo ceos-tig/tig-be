@@ -3,20 +3,21 @@ package tig.server.member.mapper;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 import tig.server.member.domain.Member;
-import tig.server.member.dto.MemberDTO;
+import tig.server.member.dto.MemberRequest;
+import tig.server.member.dto.MemberResponse;
 
 @Mapper(componentModel = "spring")
 public interface MemberMapper {
     tig.server.member.mapper.MemberMapper INSTANCE = Mappers.getMapper(tig.server.member.mapper.MemberMapper.class);
 
     @Mapping(target = "id", ignore = true)
-    Member requestToEntity(MemberDTO.Request memberRequest);
+    Member requestToEntity(MemberRequest memberRequest);
 
-    MemberDTO.Response entityToResponse(Member member);
+    MemberResponse entityToResponse(Member member);
 
-    Member responseToEntity(MemberDTO.Response meberResponse);
+    Member responseToEntity(MemberResponse meberResponse);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)
-    Member updateFromRequest(MemberDTO.Request memberRequest, @MappingTarget Member member);
+    Member updateFromRequest(MemberRequest memberRequest, @MappingTarget Member member);
 }
