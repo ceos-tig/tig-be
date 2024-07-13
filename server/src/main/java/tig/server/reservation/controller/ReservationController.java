@@ -8,7 +8,8 @@ import org.springframework.web.bind.annotation.*;
 import tig.server.annotation.LoginUser;
 import tig.server.enums.Status;
 import tig.server.member.domain.Member;
-import tig.server.reservation.dto.ReservationDTO;
+import tig.server.reservation.dto.ReservationRequest;
+import tig.server.reservation.dto.ReservationResponse;
 import tig.server.reservation.service.ReservationService;
 
 import java.util.List;
@@ -23,48 +24,48 @@ public class ReservationController {
 
     @GetMapping("")
     @Operation(summary = "전체 예약 내역 조회")
-    public ResponseEntity<List<ReservationDTO.Response>> getAllReservations() {
-        List<ReservationDTO.Response> reservationResponses = reservationService.getAllReservations();
+    public ResponseEntity<List<ReservationResponse>> getAllReservations() {
+        List<ReservationResponse> reservationResponses = reservationService.getAllReservations();
         return ResponseEntity.ok(reservationResponses);
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "특정 예약 내역 조회")
-    public ResponseEntity<ReservationDTO.Response> getReservationById(@PathVariable Long id) {
-        ReservationDTO.Response reservationResponse = reservationService.getReservationById(id);
+    public ResponseEntity<ReservationResponse> getReservationById(@PathVariable Long id) {
+        ReservationResponse reservationResponse = reservationService.getReservationById(id);
         return ResponseEntity.ok(reservationResponse);
     }
 
     @PostMapping("/{clubId}")
     @Operation(summary = "예약")
-    public ResponseEntity<ReservationDTO.Response> createReservation(
+    public ResponseEntity<ReservationResponse> createReservation(
             @LoginUser Member member,
             @PathVariable Long clubId,
-            @RequestBody ReservationDTO.Request reservationRequest
+            @RequestBody ReservationRequest reservationRequest
     ) {
-        ReservationDTO.Response createdReservation = reservationService.createReservation(member, clubId, reservationRequest);
+        ReservationResponse createdReservation = reservationService.createReservation(member, clubId, reservationRequest);
         createdReservation.setStatus(Status.TBC);
         return ResponseEntity.status(201).body(createdReservation);
     }
 
     @GetMapping("all/{memberId}")
     @Operation(summary = "특정 유저의 모든 예약 내역 조회")
-    public ResponseEntity<List<ReservationDTO.Response>> getReservationByMemberId(@PathVariable Long memberId) {
-        List<ReservationDTO.Response> reservationResponses = reservationService.getReservationByMemberId(memberId);
+    public ResponseEntity<List<ReservationResponse>> getReservationByMemberId(@PathVariable Long memberId) {
+        List<ReservationResponse> reservationResponses = reservationService.getReservationByMemberId(memberId);
         return ResponseEntity.ok(reservationResponses);
     }
 
     @GetMapping("proceeding/{memberId}")
     @Operation(summary = "특정 유저의 진행중 예약 내역 조회")
-    public ResponseEntity<List<ReservationDTO.Response>> getProceedingReservationByMemberId(@PathVariable Long memberId) {
-        List<ReservationDTO.Response> reservationResponses = reservationService.getProceedingReservationByMemberId(memberId);
+    public ResponseEntity<List<ReservationResponse>> getProceedingReservationByMemberId(@PathVariable Long memberId) {
+        List<ReservationResponse> reservationResponses = reservationService.getProceedingReservationByMemberId(memberId);
         return ResponseEntity.ok(reservationResponses);
     }
 
     @GetMapping("terminated/{memberId}")
     @Operation(summary = "특정 유저의 종료된 예약 내역 조회")
-    public ResponseEntity<List<ReservationDTO.Response>> getTerminatedReservationByMemberId(@PathVariable Long memberId) {
-        List<ReservationDTO.Response> reservationResponses = reservationService.getTerminatedReservationByMemberId(memberId);
+    public ResponseEntity<List<ReservationResponse>> getTerminatedReservationByMemberId(@PathVariable Long memberId) {
+        List<ReservationResponse> reservationResponses = reservationService.getTerminatedReservationByMemberId(memberId);
         return ResponseEntity.ok(reservationResponses);
     }
 

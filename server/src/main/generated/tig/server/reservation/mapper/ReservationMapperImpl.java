@@ -3,18 +3,19 @@ package tig.server.reservation.mapper;
 import javax.annotation.processing.Generated;
 import org.springframework.stereotype.Component;
 import tig.server.reservation.domain.Reservation;
-import tig.server.reservation.dto.ReservationDTO;
+import tig.server.reservation.dto.ReservationRequest;
+import tig.server.reservation.dto.ReservationResponse;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2024-07-13T15:56:59+0900",
+    date = "2024-07-13T16:22:33+0900",
     comments = "version: 1.5.1.Final, compiler: javac, environment: Java 17.0.5 (Oracle Corporation)"
 )
 @Component
 public class ReservationMapperImpl implements ReservationMapper {
 
     @Override
-    public Reservation requestToEntity(ReservationDTO.Request reservationRequest) {
+    public Reservation requestToEntity(ReservationRequest reservationRequest) {
         if ( reservationRequest == null ) {
             return null;
         }
@@ -34,27 +35,27 @@ public class ReservationMapperImpl implements ReservationMapper {
     }
 
     @Override
-    public ReservationDTO.Response entityToResponse(Reservation reservation) {
+    public ReservationResponse entityToResponse(Reservation reservation) {
         if ( reservation == null ) {
             return null;
         }
 
-        ReservationDTO.Response.ResponseBuilder response = ReservationDTO.Response.builder();
+        ReservationResponse.ReservationResponseBuilder reservationResponse = ReservationResponse.builder();
 
-        response.adultCount( reservation.getAdultCount() );
-        response.teenagerCount( reservation.getTeenagerCount() );
-        response.kidsCount( reservation.getKidsCount() );
-        response.date( reservation.getDate() );
-        response.startTime( reservation.getStartTime() );
-        response.endTime( reservation.getEndTime() );
-        response.price( reservation.getPrice() );
-        response.status( reservation.getStatus() );
+        reservationResponse.adultCount( reservation.getAdultCount() );
+        reservationResponse.teenagerCount( reservation.getTeenagerCount() );
+        reservationResponse.kidsCount( reservation.getKidsCount() );
+        reservationResponse.date( reservation.getDate() );
+        reservationResponse.startTime( reservation.getStartTime() );
+        reservationResponse.endTime( reservation.getEndTime() );
+        reservationResponse.price( reservation.getPrice() );
+        reservationResponse.status( reservation.getStatus() );
 
-        return response.build();
+        return reservationResponse.build();
     }
 
     @Override
-    public Reservation responseToEntity(ReservationDTO.Response reservationResponse) {
+    public Reservation responseToEntity(ReservationResponse reservationResponse) {
         if ( reservationResponse == null ) {
             return null;
         }
@@ -74,7 +75,7 @@ public class ReservationMapperImpl implements ReservationMapper {
     }
 
     @Override
-    public Reservation updateFromRequest(ReservationDTO.Request reservationRequest, Reservation reservation) {
+    public Reservation updateFromRequest(ReservationRequest reservationRequest, Reservation reservation) {
         if ( reservationRequest == null ) {
             return reservation;
         }

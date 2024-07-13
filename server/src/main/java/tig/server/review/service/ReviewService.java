@@ -5,13 +5,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tig.server.club.domain.Club;
 import tig.server.club.repository.ClubRepository;
-import tig.server.club.service.ClubService;
 import tig.server.error.BusinessExceptionHandler;
 import tig.server.error.ErrorCode;
-import tig.server.member.dto.MemberDTO;
 import tig.server.member.service.MemberService;
 import tig.server.reservation.domain.Reservation;
-import tig.server.reservation.dto.ReservationDTO;
+import tig.server.reservation.dto.ReservationResponse;
 import tig.server.reservation.mapper.ReservationMapper;
 import tig.server.reservation.repository.ReservationRepository;
 import tig.server.reservation.service.ReservationService;
@@ -57,7 +55,7 @@ public class ReviewService {
     public ReviewWithReservationDTO getReviewById(Long reviewId) {
         Review review = reviewRepository.findById(reviewId).orElseThrow(() -> new BusinessExceptionHandler("review not found", ErrorCode.BAD_REQUEST_ERROR));
         ReviewDTO.Response reviewResponse = reviewMapper.entityToResponse(review);
-        ReservationDTO.Response reservationResponse = reservationService.getReservationById(review.getReservation().getId());
+        ReservationResponse reservationResponse = reservationService.getReservationById(review.getReservation().getId());
 
         return ReviewWithReservationDTO.builder()
                 .review(reviewResponse)

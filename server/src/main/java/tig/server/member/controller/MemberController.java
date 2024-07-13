@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RestController;
 import tig.server.annotation.LoginUser;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import tig.server.club.dto.ClubDTO;
 import tig.server.error.ApiResponse;
 import tig.server.member.domain.Member;
 import tig.server.member.dto.MemberDTO;

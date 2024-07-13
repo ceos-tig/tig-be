@@ -3,7 +3,6 @@ package tig.server.club.mapper;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 import tig.server.club.domain.Club;
-import tig.server.club.dto.ClubDTO;
 import tig.server.club.dto.ClubRequest;
 import tig.server.club.dto.ClubResponse;
 

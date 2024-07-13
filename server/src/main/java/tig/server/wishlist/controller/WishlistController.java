@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tig.server.annotation.LoginUser;
-import tig.server.club.dto.ClubDTO;
 import tig.server.club.dto.ClubResponse;
 import tig.server.error.ApiResponse;
 import tig.server.member.domain.Member;

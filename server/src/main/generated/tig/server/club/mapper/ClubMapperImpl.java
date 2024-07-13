@@ -10,7 +10,7 @@ import tig.server.club.dto.ClubResponse;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2024-07-13T16:13:56+0900",
+    date = "2024-07-13T16:15:10+0900",
     comments = "version: 1.5.1.Final, compiler: javac, environment: Java 17.0.5 (Oracle Corporation)"
 )
 @Component

@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import tig.server.club.dto.ClubDTO;
 import tig.server.club.dto.ClubRequest;
 import tig.server.club.dto.ClubResponse;
 import tig.server.club.service.ClubService;

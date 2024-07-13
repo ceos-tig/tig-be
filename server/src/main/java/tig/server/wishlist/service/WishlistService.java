@@ -3,7 +3,6 @@ package tig.server.wishlist.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import tig.server.club.dto.ClubDTO;
 import tig.server.club.dto.ClubResponse;
 import tig.server.club.service.ClubService;
 import tig.server.error.BusinessExceptionHandler;

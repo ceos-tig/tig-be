@@ -13,7 +13,8 @@ import tig.server.member.domain.Member;
 import tig.server.member.mapper.MemberMapper;
 import tig.server.member.service.MemberService;
 import tig.server.reservation.domain.Reservation;
-import tig.server.reservation.dto.ReservationDTO;
+import tig.server.reservation.dto.ReservationRequest;
+import tig.server.reservation.dto.ReservationResponse;
 import tig.server.reservation.mapper.ReservationMapper;
 import tig.server.reservation.repository.ReservationRepository;
 
@@ -36,20 +37,20 @@ public class ReservationService {
 
     private final DiscordMessageProvider discordMessageProvider;
 
-    public List<ReservationDTO.Response> getAllReservations() {
+    public List<ReservationResponse> getAllReservations() {
         return reservationRepository.findAll().stream()
                 .map(reservationMapper::entityToResponse)
                 .collect(Collectors.toList());
     }
 
-    public ReservationDTO.Response getReservationById(Long id) {
+    public ReservationResponse getReservationById(Long id) {
         Reservation reservation = reservationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("reservation not found"));
         return reservationMapper.entityToResponse(reservation);
     }
 
     @Transactional
-    public ReservationDTO.Response createReservation(Member member, Long clubId, ReservationDTO.Request reservationRequest) {
+    public ReservationResponse createReservation(Member member, Long clubId, ReservationRequest reservationRequest) {
         System.out.println(member.getId());
 
         Club club = clubMapper.responseToEntity(clubService.getClubById(clubId));
@@ -61,7 +62,7 @@ public class ReservationService {
 
         reservation = reservationRepository.save(reservation);
 
-        ReservationDTO.Response response = reservationMapper.entityToResponse(reservation);
+        ReservationResponse response = reservationMapper.entityToResponse(reservation);
 
         // discord-webhook
         String memberName = member.getName();
@@ -72,14 +73,14 @@ public class ReservationService {
         return response;
     }
 
-    public List<ReservationDTO.Response> getReservationByMemberId(Long memberId) {
+    public List<ReservationResponse> getReservationByMemberId(Long memberId) {
         List<Reservation> reservations = reservationRepository.findByMemberId(memberId);
         return reservations.stream()
                 .map(reservationMapper::entityToResponse)
                 .collect(Collectors.toList());
     }
 
-    public List<ReservationDTO.Response> getProceedingReservationByMemberId(Long memberId) {
+    public List<ReservationResponse> getProceedingReservationByMemberId(Long memberId) {
         List<Status> proceedingStatuses = List.of(Status.TBC, Status.CONFIRMED);
         List<Reservation> reservations = reservationRepository.findReservationsByMemberIdAndStatus(memberId, proceedingStatuses);
         return reservations.stream()
@@ -87,7 +88,7 @@ public class ReservationService {
                 .collect(Collectors.toList());
     }
 
-    public List<ReservationDTO.Response> getTerminatedReservationByMemberId(Long memberId) {
+    public List<ReservationResponse> getTerminatedReservationByMemberId(Long memberId) {
         List<Status> proceedingStatuses = List.of(Status.DECLINED, Status.DONE, Status.CANCELED, Status.REVIEWED);
         List<Reservation> reservations = reservationRepository.findReservationsByMemberIdAndStatus(memberId, proceedingStatuses);
         return reservations.stream()
