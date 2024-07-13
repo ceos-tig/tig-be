@@ -9,7 +9,7 @@ import tig.server.annotation.LoginUser;
 import tig.server.club.dto.ClubResponse;
 import tig.server.error.ApiResponse;
 import tig.server.member.domain.Member;
-import tig.server.wishlist.dto.WishlistDTO;
+import tig.server.wishlist.dto.WishlistRequest;
 import tig.server.wishlist.service.WishlistService;
 
 import java.util.List;
@@ -35,7 +35,7 @@ public class WishlistController {
 
     @PostMapping("")
     @Operation(summary = "위시리스트 추가")
-    public ResponseEntity<ApiResponse<Void>> addWishlist(@RequestBody WishlistDTO.Request request) {
+    public ResponseEntity<ApiResponse<Void>> addWishlist(@RequestBody WishlistRequest request) {
         wishlistService.addWishlist(request);
         ApiResponse<Void> response = ApiResponse.of(200, "successfully added to wishlist", null);
         return ResponseEntity.ok(response);
@@ -43,7 +43,7 @@ public class WishlistController {
 
     @DeleteMapping("")
     @Operation(summary = "위시리스트 삭제")
-    public ResponseEntity<ApiResponse<Void>> removeWishlist(@RequestBody WishlistDTO.Request request) {
+    public ResponseEntity<ApiResponse<Void>> removeWishlist(@RequestBody WishlistRequest request) {
         wishlistService.removeWishlist(request);
         ApiResponse<Void> response = ApiResponse.of(200, "successfully deleted from wishlist", null);
         return ResponseEntity.ok(response);

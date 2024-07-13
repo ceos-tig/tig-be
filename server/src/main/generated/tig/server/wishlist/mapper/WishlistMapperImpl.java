@@ -3,18 +3,19 @@ package tig.server.wishlist.mapper;
 import javax.annotation.processing.Generated;
 import org.springframework.stereotype.Component;
 import tig.server.wishlist.domain.Wishlist;
-import tig.server.wishlist.dto.WishlistDTO;
+import tig.server.wishlist.dto.WishlistRequest;
+import tig.server.wishlist.dto.WishlistResponse;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2024-07-13T15:56:59+0900",
+    date = "2024-07-13T16:32:17+0900",
     comments = "version: 1.5.1.Final, compiler: javac, environment: Java 17.0.5 (Oracle Corporation)"
 )
 @Component
 public class WishlistMapperImpl implements WishlistMapper {
 
     @Override
-    public Wishlist requestToEntity(WishlistDTO.Request wishlistRequest) {
+    public Wishlist requestToEntity(WishlistRequest wishlistRequest) {
         if ( wishlistRequest == null ) {
             return null;
         }
@@ -28,23 +29,23 @@ public class WishlistMapperImpl implements WishlistMapper {
     }
 
     @Override
-    public WishlistDTO.Response entityToResponse(Wishlist wishlist) {
+    public WishlistResponse entityToResponse(Wishlist wishlist) {
         if ( wishlist == null ) {
             return null;
         }
 
-        WishlistDTO.Response.ResponseBuilder response = WishlistDTO.Response.builder();
+        WishlistResponse.WishlistResponseBuilder wishlistResponse = WishlistResponse.builder();
 
-        response.memberId( wishlist.getMemberId() );
-        response.clubId( wishlist.getClubId() );
-        response.createdAt( wishlist.getCreatedAt() );
-        response.updatedAt( wishlist.getUpdatedAt() );
+        wishlistResponse.memberId( wishlist.getMemberId() );
+        wishlistResponse.clubId( wishlist.getClubId() );
+        wishlistResponse.createdAt( wishlist.getCreatedAt() );
+        wishlistResponse.updatedAt( wishlist.getUpdatedAt() );
 
-        return response.build();
+        return wishlistResponse.build();
     }
 
     @Override
-    public Wishlist updateFromRequest(WishlistDTO.Request wishlistRequest, Wishlist wishlist) {
+    public Wishlist updateFromRequest(WishlistRequest wishlistRequest, Wishlist wishlist) {
         if ( wishlistRequest == null ) {
             return wishlist;
         }
