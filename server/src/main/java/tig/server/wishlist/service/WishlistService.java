@@ -47,7 +47,7 @@ public class WishlistService {
     }
 
     @Transactional
-    public void addWishlist(WishlistRequest request,Long memberId) {
+    public void addWishlist(WishlistRequest request, Long memberId) {
         try {
             clubService.getClubById(request.getClubId()); // 있는 클럽인지 검사
             memberService.getMemberById(memberId); // 있는 멤버인지 검사
@@ -59,7 +59,7 @@ public class WishlistService {
     }
 
     @Transactional
-    public void removeWishlist(WishlistRequest request,Long memberId) {
+    public void removeWishlist(WishlistRequest request, Long memberId) {
         try {
             clubService.getClubById(request.getClubId()); // 있는 클럽인지 검사
             memberService.getMemberById(memberId); // 있는 멤버인지 검사
