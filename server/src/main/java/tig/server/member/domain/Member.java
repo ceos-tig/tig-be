@@ -48,6 +48,18 @@ public class Member {
         this.refreshToken = refreshToken;
     }
 
+    public void updateName(String newName) {
+        this.name = newName;
+    }
+
+    public void updatePhoneNumber(String newPhoneNumber) {
+        this.phoneNumber = newPhoneNumber;
+    }
+
+    public void updateEmail(String newEmail) {
+        this.email = newEmail;
+    }
+
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "member")
     private List<Reservation> reservations;
 
