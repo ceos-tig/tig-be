@@ -61,6 +61,11 @@ public class WishlistService {
             MemberResponse memberResponse = memberService.getMemberById(memberId); // 있는 멤버인지 검사
             Member member = memberMapper.responseToEntity(memberResponse); // createdAt, updatedAt은 추가해야함.
 
+            // 중복 체크 로직 추가
+            if (wishlistRepository.existsByClubIdAndMemberId(clubId, memberId)) {
+                throw new BusinessExceptionHandler("이미 위시리스트에 존재하는 항목입니다.", ErrorCode.BAD_REQUEST_ERROR);
+            }
+
             WishlistRequest request = WishlistRequest.builder()
                     .club(club)
                     .member(member)
