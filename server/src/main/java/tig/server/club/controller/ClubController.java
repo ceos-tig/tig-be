@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tig.server.club.dto.ClubRequest;
 import tig.server.club.dto.ClubResponse;
+import tig.server.club.dto.HomeRequest;
+import tig.server.club.dto.HomeResponse;
 import tig.server.club.service.ClubService;
 import tig.server.error.ApiResponse;
 
@@ -42,5 +44,13 @@ public class ClubController {
         ClubResponse createdClub = clubService.createClub(clubRequest);
         ApiResponse<ClubResponse> response = ApiResponse.of(200, "successfully added club", createdClub);
         return ResponseEntity.status(201).body(response);
+    }
+
+    @GetMapping("/home")
+    @Operation(summary = "홈 화면")
+    public ResponseEntity<ApiResponse<List<HomeResponse>>> getHomecClubs(@RequestBody HomeRequest homeRequest) {
+        HomeResponse homeResponse = clubService.getHomeClubs(homeRequest);
+        ApiResponse<List<HomeResponse>> response = ApiResponse.of(200, "successfully retrieved home clubs", List.of(homeResponse));
+        return ResponseEntity.ok(response);
     }
 }
