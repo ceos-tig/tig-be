@@ -30,6 +30,7 @@ public class ClubService {
     public List<ClubResponse> getAllClubs() {
         return clubRepository.findAll().stream()
                 .map(clubMapper::entityToResponse)
+                .map(this::calculateAvgRating)
                 .collect(Collectors.toList());
     }
 
@@ -38,8 +39,10 @@ public class ClubService {
                 .orElseThrow(() -> new RuntimeException("club not found"));
         List<String> CloudFrontImageUrl = s3Uploader.getImageUrls(club.getImageUrls());
         club.setImageUrls(CloudFrontImageUrl);
-        return clubMapper.entityToResponse(club);
+        ClubResponse clubResponse = clubMapper.entityToResponse(club);
+        return calculateAvgRating(clubResponse);
     }
+
 
     @Transactional
     public ClubResponse createClub(ClubRequest clubRequest) {
@@ -62,6 +65,14 @@ public class ClubService {
                 .collect(Collectors.toList()));
 
         return response;
+    }
+
+    private ClubResponse calculateAvgRating(ClubResponse clubResponse) {
+        if (clubResponse.getRatingCount() != 0) {
+            float avgRating = (float) clubResponse.getRatingSum() / clubResponse.getRatingCount();
+            clubResponse.setAvgRating(avgRating);
+        }
+        return clubResponse;
     }
 
     @Transactional
@@ -102,7 +113,6 @@ public class ClubService {
         clubRepository.save(club);
 
         return club;
-
     }
 
 }

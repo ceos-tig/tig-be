@@ -29,6 +29,9 @@ public class ClubResponse {
     @Schema(type = "integer", example = "320")
     private Integer ratingCount;
 
+    @Schema(type = "integer", example = "4.2")
+    private Float avgRating;
+
     @Schema(type = "integer", example = "30000")
     private Integer price;
 
