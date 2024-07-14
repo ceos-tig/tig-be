@@ -37,10 +37,10 @@ public class ReservationResponse {
     private Status status;
 
     @Schema(type = "integer", example = "2")
-    private Integer memberId;
+    private Long memberId;
 
     @Schema(type = "integer", example = "3")
-    private Integer clubId;
+    private Long clubId;
 
     @Schema(type = "string", example = "GAME")
     private Type type;

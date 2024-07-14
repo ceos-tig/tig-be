@@ -43,16 +43,23 @@ public class ReservationService {
                 .collect(Collectors.toList());
     }
 
-    public ReservationResponse getReservationById(Long id) {
-        Reservation reservation = reservationRepository.findById(id)
+    public ReservationResponse getReservationById(Long reservationId) {
+        Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new RuntimeException("reservation not found"));
         ReservationResponse response = reservationMapper.entityToResponse(reservation);
-        Club club = clubMapper.responseToEntity(clubService.getClubById(id));
+        Club club = clubMapper.responseToEntity(clubService.getClubById(reservationId));
 
         response.setType(club.getType());
         response.setBusinessHours(club.getBusinessHours());
         response.setClubName(club.getClubName());
         response.setClubAddress(club.getAddress());
+
+        response.setReservationId(reservation.getId());
+        response.setClubId(club.getId());
+        response.setType(club.getType());
+        response.setBusinessHours(club.getBusinessHours());
+        response.setClubName(club.getClubName());
+
 
         return response;
     }
@@ -72,6 +79,11 @@ public class ReservationService {
 
         ReservationResponse response = reservationMapper.entityToResponse(reservation);
         response.setReservationId(reservation.getId());
+        response.setMemberId(member.getId());
+        response.setClubId(clubId);
+        response.setType(club.getType());
+        response.setBusinessHours(club.getBusinessHours());
+        response.setClubName(club.getClubName());
 
         // discord-webhook
         String memberName = member.getName();
