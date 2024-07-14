@@ -67,14 +67,14 @@ public class JwtExceptionHandlerFilter extends OncePerRequestFilter {
     private String resolveToken(HttpServletRequest request) {
         // 헤더에서 토큰 추출
         String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
-        System.out.println("bearerToken = " + bearerToken);
         if (StringUtils.hasText(bearerToken) && StringUtils.startsWithIgnoreCase(bearerToken, "Bearer ")) {
+            System.out.println("bearerToken = " + bearerToken);
             return bearerToken.substring(7);
         }
         // 쿠키에서 토큰 추출
         Cookie[] cookies = request.getCookies();
-        System.out.println("cookies.length = " + cookies.length);
         if (cookies != null) {
+            System.out.println("cookies.length = " + cookies.length);
             for (Cookie cookie : cookies) {
                 if ("accessToken".equals(cookie.getName())) {
                     System.out.println("cookie.getName() = " + cookie.getName());
