@@ -46,7 +46,7 @@ public class ClubController {
         return ResponseEntity.status(201).body(response);
     }
 
-    @GetMapping("/home")
+    @PostMapping("/home")
     @Operation(summary = "홈 화면")
     public ResponseEntity<ApiResponse<List<HomeResponse>>> getHomecClubs(@RequestBody HomeRequest homeRequest) {
         HomeResponse homeResponse = clubService.getHomeClubs(homeRequest);
