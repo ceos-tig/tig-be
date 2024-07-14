@@ -2,8 +2,11 @@ package tig.server.member.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -14,6 +17,7 @@ import tig.server.error.ApiResponse;
 import tig.server.member.domain.Member;
 import tig.server.member.dto.MemberResponse;
 import tig.server.member.dto.RefreshTokenRequestDto;
+import tig.server.member.dto.RefreshTokenResponseDto;
 import tig.server.member.service.MemberService;
 
 import java.util.List;
@@ -31,14 +35,33 @@ public class MemberController {
      */
     @PostMapping("/reissue")
     @Operation(summary = "리프레시 토큰 발급")
-    public ApiResponse<Object> reissueAccessToken(@LoginUser Member member,
-                                                  @RequestBody RefreshTokenRequestDto refreshTokenRequestDto) {
-        String newAccessToken = memberService.reissueAccessToken(member, refreshTokenRequestDto);
-        return ApiResponse.builder()
-                .result(newAccessToken)
-                .resultMsg("Access token 재발급")
-                .resultCode(200)
+    public ResponseEntity<ApiResponse<RefreshTokenResponseDto>> reissueAccessToken(@LoginUser Member member,
+                                                                                   @RequestBody RefreshTokenRequestDto refreshTokenRequestDto,
+                                                                                   HttpServletResponse response) {
+        RefreshTokenResponseDto refreshTokenResponseDto = memberService.reissueAccessToken(member, refreshTokenRequestDto);
+        ApiResponse<RefreshTokenResponseDto> resultResponse = ApiResponse.of(200, "successfully reissued Access Token & Refresh Token", refreshTokenResponseDto);
+        // Access Token 쿠키 설정
+        ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", refreshTokenResponseDto.getAccessToken())
+                .httpOnly(true)
+                .path("/")
+                .secure(true) // HTTPS를 사용할 경우에만 true로 설정
+                .maxAge(24 * 60 * 60) // 24시간
+                .sameSite("None")
                 .build();
+
+        // Refresh Token 쿠키 설정
+        ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", refreshTokenResponseDto.getRefreshToken())
+                .httpOnly(true)
+                .path("/")
+                .secure(true) // HTTPS를 사용할 경우에만 true로 설정
+                .maxAge(14 * 24 * 60 * 60) // 2주
+                .sameSite("None")
+                .build();
+
+        // 쿠키를 응답 헤더에 추가
+        response.addHeader(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
+        return ResponseEntity.ok(resultResponse);
     }
 
     @GetMapping("")

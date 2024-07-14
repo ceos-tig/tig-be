@@ -12,6 +12,7 @@ import tig.server.kakao.dto.LoginMemberResponseDto;
 import tig.server.member.domain.Member;
 import tig.server.member.dto.MemberResponse;
 import tig.server.member.dto.RefreshTokenRequestDto;
+import tig.server.member.dto.RefreshTokenResponseDto;
 import tig.server.member.mapper.MemberMapper;
 import tig.server.member.repository.MemberRepository;
 
@@ -35,10 +36,16 @@ public class MemberService {
         member.updateRefreshToken(refreshToken);
     }
 
-    public String reissueAccessToken(Member member, RefreshTokenRequestDto refreshTokenRequestDto) {
+    @Transactional
+    public RefreshTokenResponseDto reissueAccessToken(Member member, RefreshTokenRequestDto refreshTokenRequestDto) {
+        // TODO : 레디스 반영시 access token 을 블랙리스트에 넣는?
         String uniqueId = tokenProvider.getUniqueId(refreshTokenRequestDto.getRefreshToken());
         if (member.getUniqueId().equals(uniqueId)) {
-            return tokenProvider.createAccessToken(member.getName(), member.getUniqueId());
+            String accessToken = tokenProvider.createAccessToken(member.getName(), member.getUniqueId());
+            String refreshToken = tokenProvider.createRefreshToken(member.getName(), member.getUniqueId());
+            member.updateRefreshToken(refreshToken);
+
+            return RefreshTokenResponseDto.fromRefreshToken(accessToken, refreshToken);
         } else {
             throw new BusinessExceptionHandler("사용자와 토큰이 일치하지 않음", ErrorCode.BAD_REQUEST_ERROR);
         }
