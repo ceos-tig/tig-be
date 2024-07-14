@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import tig.server.club.dto.ClubRequest;
 import tig.server.club.dto.ClubResponse;
 import tig.server.club.service.ClubService;
+import tig.server.error.ApiResponse;
 
 import java.util.List;
 
@@ -21,22 +22,25 @@ public class ClubController {
 
     @GetMapping("")
     @Operation(summary = "전체 업체 조회")
-    public ResponseEntity<List<ClubResponse>> getAllClubs() {
+    public ResponseEntity<ApiResponse<List<ClubResponse>>> getAllClubs() {
         List<ClubResponse> clubResponses = clubService.getAllClubs();
-        return ResponseEntity.ok(clubResponses);
+        ApiResponse<List<ClubResponse>> response = ApiResponse.of(200, "successfully retrieved all clubs", clubResponses);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "특정 업체 조회")
-    public ResponseEntity<ClubResponse> getClubById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<ClubResponse>> getClubById(@PathVariable Long id) {
         ClubResponse clubResponse = clubService.getClubById(id);
-        return ResponseEntity.ok(clubResponse);
+        ApiResponse<ClubResponse> response = ApiResponse.of(200, "successfully retrieved club", clubResponse);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("")
     @Operation(summary = "업체 업로드")
-    public ResponseEntity<ClubResponse> createClub(@RequestBody ClubRequest clubRequest) {
+    public ResponseEntity<ApiResponse<ClubResponse>> createClub(@RequestBody ClubRequest clubRequest) {
         ClubResponse createdClub = clubService.createClub(clubRequest);
-        return ResponseEntity.status(201).body(createdClub);
+        ApiResponse<ClubResponse> response = ApiResponse.of(200, "successfully added club", createdClub);
+        return ResponseEntity.status(201).body(response);
     }
 }
