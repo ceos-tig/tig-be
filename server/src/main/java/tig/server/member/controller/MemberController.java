@@ -14,6 +14,7 @@ import tig.server.error.ApiResponse;
 import tig.server.member.domain.Member;
 import tig.server.member.dto.MemberResponse;
 import tig.server.member.dto.RefreshTokenRequestDto;
+import tig.server.member.dto.RefreshTokenResponseDto;
 import tig.server.member.service.MemberService;
 
 import java.util.List;
@@ -31,14 +32,11 @@ public class MemberController {
      */
     @PostMapping("/reissue")
     @Operation(summary = "리프레시 토큰 발급")
-    public ApiResponse<Object> reissueAccessToken(@LoginUser Member member,
+    public ResponseEntity<ApiResponse<RefreshTokenResponseDto>> reissueAccessToken(@LoginUser Member member,
                                                   @RequestBody RefreshTokenRequestDto refreshTokenRequestDto) {
-        String newAccessToken = memberService.reissueAccessToken(member, refreshTokenRequestDto);
-        return ApiResponse.builder()
-                .result(newAccessToken)
-                .resultMsg("Access token 재발급")
-                .resultCode(200)
-                .build();
+        RefreshTokenResponseDto refreshTokenResponseDto = memberService.reissueAccessToken(member, refreshTokenRequestDto);
+        ApiResponse<RefreshTokenResponseDto> response = ApiResponse.of(200, "successfully reissued Access Token & Refresh Token", refreshTokenResponseDto);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("")
