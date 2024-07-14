@@ -18,6 +18,7 @@ import tig.server.member.domain.Member;
 import tig.server.member.dto.MemberResponse;
 import tig.server.member.dto.RefreshTokenRequestDto;
 import tig.server.member.dto.RefreshTokenResponseDto;
+import tig.server.member.mapper.MemberMapper;
 import tig.server.member.service.MemberService;
 
 import java.util.List;
@@ -29,6 +30,7 @@ import java.util.List;
 @Tag(name = "member", description = "유저(멤버) API")
 public class MemberController {
     private final MemberService memberService;
+    private final MemberMapper memberMapper = MemberMapper.INSTANCE;
 
     /**
      * refresh token을 통한 access token 재발급
@@ -66,26 +68,30 @@ public class MemberController {
 
     @GetMapping("")
     @Operation(summary = "전체 유저 조회")
-    public ResponseEntity<List<MemberResponse>> getAllMembers() {
+    public ResponseEntity<ApiResponse<List<MemberResponse>>> getAllMembers() {
         List<MemberResponse> memberResponses = memberService.getAllMembers();
-        return ResponseEntity.ok(memberResponses);
+        ApiResponse<List<MemberResponse>> response = ApiResponse.of(200, "successfully retrieved all members", memberResponses);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "특정 유저 조회")
-    public ResponseEntity<MemberResponse> getMemberById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<MemberResponse>> getMemberById(@PathVariable Long id) {
         MemberResponse memberResponse = memberService.getMemberById(id);
-        return ResponseEntity.ok(memberResponse);
+        ApiResponse<MemberResponse> response = ApiResponse.of(200, "successfully retrieved member", memberResponse);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/member")
     @Operation(summary = "로그인 된 사용자 조회")
-    public ResponseEntity<Void> getLoginMember(@LoginUser Member member) {
+    public ResponseEntity<ApiResponse<MemberResponse>> getLoginMember(@LoginUser Member member) {
         log.info("[Member name] : {}", member.getName());
         log.info("[Member uniqueId] : {}", member.getUniqueId());
         log.info("[Member email] : {}", member.getEmail());
+        MemberResponse memberResponse = memberMapper.entityToResponse(member);
+        ApiResponse<MemberResponse> response = ApiResponse.of(200, "Current logged in member info", memberResponse);
 
-        return ResponseEntity.ok(null);
+        return ResponseEntity.ok(response);
     }
 
     @PatchMapping("/name")
