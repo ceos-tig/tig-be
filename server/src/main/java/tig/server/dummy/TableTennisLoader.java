@@ -30,8 +30,8 @@ public class TableTennisLoader implements CommandLineRunner {
                 .businessHours("무인 운영")
                 .category(Category.TABLE_TENNIS)
                 .type(Type.TIME)
-                .latitude(0f)
-                .longitude(0f)
+                .latitude(37.53817f)
+                .longitude(126.9478f)
                 .imageUrls(Arrays.asList("https://d18ut5azw2xe70.cloudfront.net/1/1.jpeg", "https://d18ut5azw2xe70.cloudfront.net/1/2.jpeg"))
                 .build();
 
@@ -46,8 +46,8 @@ public class TableTennisLoader implements CommandLineRunner {
                 .businessHours("12:00 - 22:30")
                 .category(Category.TABLE_TENNIS)
                 .type(Type.TIME)
-                .latitude(0f)
-                .longitude(0f)
+                .latitude(37.53840f)
+                .longitude(126.9476f)
                 .build();
 
         Club club3 = Club.builder()
@@ -61,8 +61,8 @@ public class TableTennisLoader implements CommandLineRunner {
                 .businessHours("12:00 - 22:30")
                 .category(Category.TABLE_TENNIS)
                 .type(Type.TIME)
-                .latitude(0f)
-                .longitude(0f)
+                .latitude(37.52424f)
+                .longitude(126.9299f)
                 .build();
 
         Club club4 = Club.builder()
@@ -76,8 +76,8 @@ public class TableTennisLoader implements CommandLineRunner {
                 .businessHours("10:00 - 23:00")
                 .category(Category.TABLE_TENNIS)
                 .type(Type.TIME)
-                .latitude(0f)
-                .longitude(0f)
+                .latitude(37.54687f)
+                .longitude(126.9562f)
                 .build();
 
         Club club5 = Club.builder()
@@ -91,8 +91,8 @@ public class TableTennisLoader implements CommandLineRunner {
                 .businessHours("10:00 - 23:00")
                 .category(Category.TABLE_TENNIS)
                 .type(Type.TIME)
-                .latitude(0f)
-                .longitude(0f)
+                .latitude(37.56434f)
+                .longitude(126.9041f)
                 .build();
 
         Club club6 = Club.builder()
@@ -106,8 +106,8 @@ public class TableTennisLoader implements CommandLineRunner {
                 .businessHours("09:00 - 23:00")
                 .category(Category.TABLE_TENNIS)
                 .type(Type.TIME)
-                .latitude(0f)
-                .longitude(0f)
+                .latitude(37.55549f)
+                .longitude(126.9389f)
                 .build();
 
         Club club7 = Club.builder()
@@ -121,8 +121,8 @@ public class TableTennisLoader implements CommandLineRunner {
                 .businessHours("11:00 - 23:00")
                 .category(Category.TABLE_TENNIS)
                 .type(Type.TIME)
-                .latitude(0f)
-                .longitude(0f)
+                .latitude(37.57744f)
+                .longitude(126.9355f)
                 .build();
 
         Club club8 = Club.builder()
@@ -136,8 +136,8 @@ public class TableTennisLoader implements CommandLineRunner {
                 .businessHours("09:00 - 23:00")
                 .category(Category.TABLE_TENNIS)
                 .type(Type.TIME)
-                .latitude(0f)
-                .longitude(0f)
+                .latitude(37.58117f)
+                .longitude(126.9348f)
                 .build();
 
         clubRepository.save(club1);
