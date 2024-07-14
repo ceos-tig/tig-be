@@ -8,6 +8,8 @@ import tig.server.club.repository.ClubRepository;
 import tig.server.enums.Category;
 import tig.server.enums.Type;
 
+import java.util.Arrays;
+
 @Component
 public class TableTennisLoader implements CommandLineRunner {
 
@@ -30,6 +32,7 @@ public class TableTennisLoader implements CommandLineRunner {
                 .type(Type.TIME)
                 .latitude(0f)
                 .longitude(0f)
+                .imageUrls(Arrays.asList("https://d18ut5azw2xe70.cloudfront.net/1/1.jpeg", "https://d18ut5azw2xe70.cloudfront.net/1/2.jpeg"))
                 .build();
 
         Club club2 = Club.builder()
