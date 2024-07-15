@@ -30,10 +30,10 @@ public class ClubController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{clubId}")
     @Operation(summary = "특정 업체 조회")
-    public ResponseEntity<ApiResponse<ClubResponse>> getClubById(@PathVariable Long id) {
-        ClubResponse clubResponse = clubService.getClubById(id);
+    public ResponseEntity<ApiResponse<ClubResponse>> getClubById(@PathVariable Long clubId) {
+        ClubResponse clubResponse = clubService.getClubById(clubId);
         ApiResponse<ClubResponse> response = ApiResponse.of(200, "successfully retrieved club", clubResponse);
         return ResponseEntity.ok(response);
     }

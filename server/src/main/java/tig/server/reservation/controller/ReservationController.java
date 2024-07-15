@@ -77,10 +77,10 @@ public class ReservationController {
     }
 
 
-    @PostMapping("/cancel/{id}")
+    @PostMapping("/cancel/{reservationId}")
     @Operation(summary = "특정 예약 취소")
-    public ResponseEntity<ApiResponse<Void>> cancelReservation(@PathVariable Long id) {
-        reservationService.cancelReservationById(id);
+    public ResponseEntity<ApiResponse<Void>> cancelReservation(@PathVariable Long reservationId) {
+        reservationService.cancelReservationById(reservationId);
         ApiResponse<Void> response = ApiResponse.of(200, "successfully canceled reservation", null);
         return ResponseEntity.ok(response);
     }

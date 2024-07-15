@@ -74,10 +74,10 @@ public class MemberController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/{id}")
-    @Operation(summary = "특정 유저 조회")
-    public ResponseEntity<ApiResponse<MemberResponse>> getMemberById(@PathVariable Long id) {
-        MemberResponse memberResponse = memberService.getMemberById(id);
+    @GetMapping("/{memberId}")
+    @Operation(summary = "admin : 특정 유저 조회")
+    public ResponseEntity<ApiResponse<MemberResponse>> getMemberById(@PathVariable Long memberId) {
+        MemberResponse memberResponse = memberService.getMemberById(memberId);
         ApiResponse<MemberResponse> response = ApiResponse.of(200, "successfully retrieved member", memberResponse);
         return ResponseEntity.ok(response);
     }
