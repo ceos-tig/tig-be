@@ -24,17 +24,17 @@ public class ReservationController {
     private final ReservationService reservationService;
 
     @GetMapping("")
-    @Operation(summary = "전체 예약 내역 조회")
+    @Operation(summary = "admin : 전체 예약 내역 조회")
     public ResponseEntity<ApiResponse<List<ReservationResponse>>> getAllReservations() {
         List<ReservationResponse> reservationResponses = reservationService.getAllReservations();
         ApiResponse<List<ReservationResponse>> response = ApiResponse.of(200, "successfully retrieved all reservations", reservationResponses);
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{reservationId}")
     @Operation(summary = "특정 예약 내역 조회")
-    public ResponseEntity<ApiResponse<ReservationResponse>> getReservationById(@PathVariable Long id) {
-        ReservationResponse reservationResponse = reservationService.getReservationById(id);
+    public ResponseEntity<ApiResponse<ReservationResponse>> getReservationById(@PathVariable Long reservationId) {
+        ReservationResponse reservationResponse = reservationService.getReservationById(reservationId);
         ApiResponse<ReservationResponse> response = ApiResponse.of(200, "successfully retrieved reservation by id", reservationResponse);
         return ResponseEntity.ok(response);
     }
@@ -52,26 +52,26 @@ public class ReservationController {
         return ResponseEntity.status(201).body(response);
     }
 
-    @GetMapping("all/{memberId}")
-    @Operation(summary = "특정 유저의 모든 예약 내역 조회")
-    public ResponseEntity<ApiResponse<List<ReservationResponse>>> getReservationByMemberId(@PathVariable Long memberId) {
-        List<ReservationResponse> reservationResponses = reservationService.getReservationByMemberId(memberId);
+    @GetMapping("/all")
+    @Operation(summary = "현재 유저의 모든 예약 내역 조회")
+    public ResponseEntity<ApiResponse<List<ReservationResponse>>> getReservationByMemberId(@LoginUser Member member) {
+        List<ReservationResponse> reservationResponses = reservationService.getReservationByMemberId(member.getId());
         ApiResponse<List<ReservationResponse>> response = ApiResponse.of(200, "successfully retrieved member's ALL reservation", reservationResponses);
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("proceeding/{memberId}")
-    @Operation(summary = "특정 유저의 진행중 예약 내역 조회")
-    public ResponseEntity<ApiResponse<List<ReservationResponse>>> getProceedingReservationByMemberId(@PathVariable Long memberId) {
-        List<ReservationResponse> reservationResponses = reservationService.getProceedingReservationByMemberId(memberId);
+    @GetMapping("/proceeding")
+    @Operation(summary = "현재 유저의 진행중 예약 내역 조회")
+    public ResponseEntity<ApiResponse<List<ReservationResponse>>> getProceedingReservationByMemberId(@LoginUser Member member) {
+        List<ReservationResponse> reservationResponses = reservationService.getProceedingReservationByMemberId(member.getId());
         ApiResponse<List<ReservationResponse>> response = ApiResponse.of(200, "successfully retrieved member's PROCEEDING reservation", reservationResponses);
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("terminated/{memberId}")
-    @Operation(summary = "특정 유저의 종료된 예약 내역 조회")
-    public ResponseEntity<ApiResponse<List<ReservationResponse>>> getTerminatedReservationByMemberId(@PathVariable Long memberId) {
-        List<ReservationResponse> reservationResponses = reservationService.getTerminatedReservationByMemberId(memberId);
+    @GetMapping("/terminated")
+    @Operation(summary = "현재 유저의 종료된 예약 내역 조회")
+    public ResponseEntity<ApiResponse<List<ReservationResponse>>> getTerminatedReservationByMemberId(@LoginUser Member member) {
+        List<ReservationResponse> reservationResponses = reservationService.getTerminatedReservationByMemberId(member.getId());
         ApiResponse<List<ReservationResponse>> response = ApiResponse.of(200, "successfully retrieved member's TERMINATED reservation", reservationResponses);
         return ResponseEntity.ok(response);
     }
@@ -85,18 +85,26 @@ public class ReservationController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/confirm/{id}")
+    @GetMapping("/canceled")
+    @Operation(summary = "optional : 현재 유저의 취소된 예약 조회")
+    public ResponseEntity<ApiResponse<Void>> getCanceledReservation(@LoginUser Member member) {
+        reservationService.getCanceledReservationByMemberId(member.getId());
+        ApiResponse<Void> response = ApiResponse.of(200, "successfully get canceled reservation", null);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/confirm/{reservationId}")
     @Operation(summary = "admin : 대기 중인 특정 예약 확정으로 전환")
-    public ResponseEntity<ApiResponse<Void>> confirmReservation(@PathVariable Long id) {
-        reservationService.confirmReservationById(id);
+    public ResponseEntity<ApiResponse<Void>> confirmReservation(@PathVariable Long reservationId) {
+        reservationService.confirmReservationById(reservationId);
         ApiResponse<Void> response = ApiResponse.of(200, "대기중인 특정 예약을 확정으로 전환 성공", null);
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/decline/{id}")
+    @PostMapping("/decline/{reservationId}")
     @Operation(summary = "admin : 대기 중인 특정 예약 거절로 전환")
-    public ResponseEntity<ApiResponse<Void>> declineReservation(@PathVariable Long id) {
-        reservationService.declineReservationById(id);
+    public ResponseEntity<ApiResponse<Void>> declineReservation(@PathVariable Long reservationId) {
+        reservationService.declineReservationById(reservationId);
         ApiResponse<Void> response = ApiResponse.of(200, "대기 중인 특정 예약 거절로 전환 성공", null);
         return ResponseEntity.ok(response);
     }

@@ -117,6 +117,14 @@ public class ReservationService {
                 .collect(Collectors.toList());
     }
 
+    public List<ReservationResponse> getCanceledReservationByMemberId(Long memberId) {
+        List<Status> proceedingStatuses = List.of(Status.CANCELED);
+        List<Reservation> reservations = reservationRepository.findReservationsByMemberIdAndStatus(memberId, proceedingStatuses);
+        return reservations.stream()
+                .map(reservationMapper::entityToResponse)
+                .collect(Collectors.toList());
+    }
+
 
     @Transactional
     public void cancelReservationById(Long id) {
