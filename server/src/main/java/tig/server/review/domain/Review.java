@@ -26,6 +26,6 @@ public class Review extends BaseTimeEntity {
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     private Reservation reservation;
 
-    private Integer rating;
+    private Float rating;
     private String contents;
 }

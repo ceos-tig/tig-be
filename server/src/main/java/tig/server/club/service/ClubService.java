@@ -88,7 +88,7 @@ public class ClubService {
         Club club = clubRepository.findById(reservation.getClub().getId())
                 .orElseThrow(() -> new RuntimeException("Portfolio not found"));
 
-        Integer rating = reviewRequest.getRating();
+        Float rating = reviewRequest.getRating();
 
         club.accumulateRatingSum(rating);
         club.increaseRatingCount(rating);
@@ -108,10 +108,10 @@ public class ClubService {
                 .orElseThrow(() -> new RuntimeException("Portfolio not found"));
 
 
-        Integer existingRating = existingReview.getRating();
+        Float existingRating = existingReview.getRating();
         club.reduceRatingSum(existingRating);
 
-        Integer newRating = reviewRequest.getRating();
+        Float newRating = reviewRequest.getRating();
         club.accumulateRatingSum(newRating);
 
         clubRepository.save(club);

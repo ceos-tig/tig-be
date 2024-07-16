@@ -15,7 +15,7 @@ public class ReviewResponse {
     private Long reservationId;
 
     @Schema(type = "integer", example = "4")
-    private Integer rating;
+    private Float rating;
 
     @Schema(type = "string", example = "재미있어요. 티그볼링장 추천합니다.")
     private String contents;

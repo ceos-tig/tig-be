@@ -35,7 +35,7 @@ public class Club extends BaseTimeEntity {
     private String snsLink;
     private String businessHours;
 
-    private float ratingSum = 0f;
+    private Float ratingSum = 0f;
     private Integer ratingCount = 0;
 
     // enums
@@ -59,7 +59,7 @@ public class Club extends BaseTimeEntity {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "club")
     private List<Reservation> reservations;
 
-    public void increaseRatingCount(Integer rating) {
+    public void increaseRatingCount(Float rating) {
         if (this.ratingCount == null) {
             this.ratingCount = 0;
         }
@@ -68,17 +68,17 @@ public class Club extends BaseTimeEntity {
         }
     }
 
-    public void accumulateRatingSum(Integer addition) {
+    public void accumulateRatingSum(Float addition) {
         if (this.ratingSum == null) {
-            this.ratingSum = 0;
+            this.ratingSum = 0f;
         }
         if (addition == null) {
-            addition = 0;
+            addition = 0f;
         }
         this.ratingSum += addition;
     }
 
-    public void reduceRatingSum(Integer subtraction) {
+    public void reduceRatingSum(Float subtraction) {
         if (this.ratingSum != null) {
             this.ratingSum -= subtraction;
         }
