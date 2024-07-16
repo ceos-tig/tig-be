@@ -10,7 +10,11 @@ import tig.server.member.repository.MemberRepository;
 import tig.server.reservation.domain.Reservation;
 import tig.server.reservation.repository.ReservationRepository;
 import tig.server.review.domain.Review;
+import tig.server.review.dto.ReviewRequest;
+import tig.server.review.dto.ReviewResponse;
+import tig.server.review.mapper.ReviewMapper;
 import tig.server.review.repository.ReviewRepository;
+import tig.server.review.service.ReviewService;
 import tig.server.wishlist.domain.Wishlist;
 import tig.server.wishlist.repository.WishlistRepository;
 import tig.server.enums.Category;
@@ -38,6 +42,9 @@ public class DataLoader implements CommandLineRunner {
 
     @Autowired
     private WishlistRepository wishlistRepository;
+
+    @Autowired
+    private ReviewService reviewService;
 
     @Override
     public void run(String... args) throws Exception {
@@ -178,13 +185,30 @@ public class DataLoader implements CommandLineRunner {
                 .contents("Not Bad experience at Club One!")
                 .build();
 
-        reviewRepository.save(review1);
-        reviewRepository.save(review2);
-        reviewRepository.save(review3);
 
         reservation1.setReview(review1);
         reservation2.setReview(review2);
         reservation3.setReview(review3);
+
+        // review1 to request
+        reviewService.createReview(member1.getId(), reservation1.getId(), ReviewRequest.builder()
+                .rating(4)
+                .contents("Great experience at Club One!")
+                .build());
+
+        reviewService.createReview(member2.getId(), reservation2.getId(), ReviewRequest.builder()
+                .rating(5)
+                .contents("Excellent service at Club Two!")
+                .build());
+
+        reviewService.createReview(member1.getId(), reservation3.getId(), ReviewRequest.builder()
+                .rating(3)
+                .contents("Not Bad experience at Club One!")
+                .build());
+
+        reviewRepository.save(review1);
+        reviewRepository.save(review2);
+        reviewRepository.save(review3);
 
         reservationRepository.save(reservation1);
         reservationRepository.save(reservation2);
