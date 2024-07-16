@@ -35,7 +35,7 @@ public class Club extends BaseTimeEntity {
     private String snsLink;
     private String businessHours;
 
-    private Integer ratingSum = 0;
+    private float ratingSum = 0f;
     private Integer ratingCount = 0;
 
     // enums
