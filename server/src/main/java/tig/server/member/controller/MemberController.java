@@ -42,14 +42,6 @@ public class MemberController {
                                                                                    HttpServletResponse response) {
         RefreshTokenResponseDto refreshTokenResponseDto = memberService.reissueAccessToken(member, refreshTokenRequestDto);
         ApiResponse<RefreshTokenResponseDto> resultResponse = ApiResponse.of(200, "successfully reissued Access Token & Refresh Token", refreshTokenResponseDto);
-        // Access Token 쿠키 설정
-        ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", refreshTokenResponseDto.getAccessToken())
-                .httpOnly(true)
-                .path("/")
-                .secure(true) // HTTPS를 사용할 경우에만 true로 설정
-                .maxAge(24 * 60 * 60) // 24시간
-                .sameSite("None")
-                .build();
 
         // Refresh Token 쿠키 설정
         ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", refreshTokenResponseDto.getRefreshToken())
@@ -61,7 +53,6 @@ public class MemberController {
                 .build();
 
         // 쿠키를 응답 헤더에 추가
-        response.addHeader(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
         response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
         return ResponseEntity.ok(resultResponse);
     }
