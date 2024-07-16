@@ -19,6 +19,7 @@ configurations {
 
 repositories {
 	mavenCentral()
+	maven { url 'https://jitpack.io' }
 }
 
 dependencies {
@@ -75,6 +76,8 @@ dependencies {
 	//Webflux
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
+	// payment
+	implementation 'com.github.iamport:iamport-rest-client-java:0.2.21'
 
 
 	implementation group: 'org.javassist', name: 'javassist', version: '3.15.0-GA'
@@ -91,3 +94,4 @@ tasks.named('test') {
 jar {
 	enabled = false
 }
+
