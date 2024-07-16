@@ -14,6 +14,8 @@ import tig.server.annotation.LoginUser;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tig.server.error.ApiResponse;
+import tig.server.error.BusinessExceptionHandler;
+import tig.server.error.ErrorCode;
 import tig.server.member.domain.Member;
 import tig.server.member.dto.MemberResponse;
 import tig.server.member.dto.RefreshTokenRequestDto;
@@ -38,9 +40,12 @@ public class MemberController {
     @PostMapping("/reissue")
     @Operation(summary = "리프레시 토큰 발급")
     public ResponseEntity<ApiResponse<RefreshTokenResponseDto>> reissueAccessToken(@LoginUser Member member,
-                                                                                   @RequestBody RefreshTokenRequestDto refreshTokenRequestDto,
+                                                                                   @CookieValue(value = "refreshToken", required = false) String refreshToken,
                                                                                    HttpServletResponse response) {
-        RefreshTokenResponseDto refreshTokenResponseDto = memberService.reissueAccessToken(member, refreshTokenRequestDto);
+        if (refreshToken == null) {
+            throw new BusinessExceptionHandler("No refresh token found in cookies", ErrorCode.BAD_REQUEST_ERROR);
+        }
+        RefreshTokenResponseDto refreshTokenResponseDto = memberService.reissueAccessToken(member, refreshToken);
         ApiResponse<RefreshTokenResponseDto> resultResponse = ApiResponse.of(200, "successfully reissued Access Token & Refresh Token", refreshTokenResponseDto);
 
         // Refresh Token 쿠키 설정

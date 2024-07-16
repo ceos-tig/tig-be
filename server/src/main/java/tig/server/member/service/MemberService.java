@@ -37,15 +37,15 @@ public class MemberService {
     }
 
     @Transactional
-    public RefreshTokenResponseDto reissueAccessToken(Member member, RefreshTokenRequestDto refreshTokenRequestDto) {
+    public RefreshTokenResponseDto reissueAccessToken(Member member, String refreshToken) {
         // TODO : 레디스 반영시 access token 을 블랙리스트에 넣는?
-        String uniqueId = tokenProvider.getUniqueId(refreshTokenRequestDto.getRefreshToken());
+        String uniqueId = tokenProvider.getUniqueId(refreshToken);
         if (member.getUniqueId().equals(uniqueId)) {
             String accessToken = tokenProvider.createAccessToken(member.getName(), member.getUniqueId());
-            String refreshToken = tokenProvider.createRefreshToken(member.getName(), member.getUniqueId());
-            member.updateRefreshToken(refreshToken);
+            String newRefreshToken = tokenProvider.createRefreshToken(member.getName(), member.getUniqueId());
+            member.updateRefreshToken(newRefreshToken);
 
-            return RefreshTokenResponseDto.fromRefreshToken(accessToken, refreshToken);
+            return RefreshTokenResponseDto.fromRefreshToken(accessToken, newRefreshToken);
         } else {
             throw new BusinessExceptionHandler("사용자와 토큰이 일치하지 않음", ErrorCode.BAD_REQUEST_ERROR);
         }
