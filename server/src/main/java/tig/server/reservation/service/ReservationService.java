@@ -101,7 +101,7 @@ public class ReservationService {
         List<Reservation> reservations = reservationRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new BusinessExceptionHandler("reservation not found", ErrorCode.BAD_REQUEST_ERROR));
         return reservations.stream()
-                .map(reservationMapper::entityToResponse)
+                .map(entity -> ensureNonNullFields(reservationMapper.entityToResponse(entity), entity))
                 .collect(Collectors.toList());
     }
 
@@ -109,7 +109,7 @@ public class ReservationService {
         List<Status> proceedingStatuses = List.of(Status.TBC, Status.CONFIRMED);
         List<Reservation> reservations = reservationRepository.findReservationsByMemberIdAndStatus(memberId, proceedingStatuses);
         return reservations.stream()
-                .map(reservationMapper::entityToResponse)
+                .map(entity -> ensureNonNullFields(reservationMapper.entityToResponse(entity), entity))
                 .collect(Collectors.toList());
     }
 
@@ -117,9 +117,10 @@ public class ReservationService {
         List<Status> proceedingStatuses = List.of(Status.DECLINED, Status.DONE, Status.CANCELED, Status.REVIEWED);
         List<Reservation> reservations = reservationRepository.findReservationsByMemberIdAndStatus(memberId, proceedingStatuses);
         return reservations.stream()
-                .map(reservationMapper::entityToResponse)
+                .map(entity -> ensureNonNullFields(reservationMapper.entityToResponse(entity), entity))
                 .collect(Collectors.toList());
     }
+
 
     public List<ReservationResponse> getCanceledReservationByMemberId(Long memberId) {
         List<Status> proceedingStatuses = List.of(Status.CANCELED);
@@ -196,6 +197,31 @@ public class ReservationService {
                 .orElseThrow(() -> new RuntimeException("reservation not found"));
 
         return reservation.getStatus() == Status.REVIEWED;
+    }
+
+    private ReservationResponse ensureNonNullFields(ReservationResponse response, Reservation entity) {
+        if (response.getMemberId() == null) {
+            response.setMemberId(entity.getMember().getId());
+        }
+        if (response.getClubId() == null) {
+            response.setClubId(entity.getClub().getId());
+        }
+        if (response.getType() == null) {
+            response.setType(entity.getClub().getType());
+        }
+        if (response.getBusinessHours() == null) {
+            response.setBusinessHours(entity.getClub().getBusinessHours());
+        }
+        if (response.getClubName() == null) {
+            response.setClubName(entity.getClub().getClubName());
+        }
+        if (response.getClubAddress() == null) {
+            response.setClubAddress(entity.getClub().getAddress());
+        }
+        if (response.getReservationId() == null) {
+            response.setReservationId(entity.getId());
+        }
+        return response;
     }
 
 }
