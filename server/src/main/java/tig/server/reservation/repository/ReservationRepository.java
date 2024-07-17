@@ -11,11 +11,12 @@ import tig.server.reservation.domain.Reservation;
 import tig.server.review.domain.Review;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
 
-    List<Reservation> findByMemberId(Long memberId);
+    Optional<List<Reservation>> findByMemberId(Long memberId);
 
     @Query("SELECT r FROM Reservation r WHERE r.member.id = :memberId AND r.status IN :statuses")
     List<Reservation> findReservationsByMemberIdAndStatus(@Param("memberId") Long memberId, @Param("statuses") List<Status> statuses);
