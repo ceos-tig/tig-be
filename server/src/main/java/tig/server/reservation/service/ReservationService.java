@@ -9,6 +9,8 @@ import tig.server.club.service.ClubService;
 import tig.server.discord.DiscordMessageProvider;
 import tig.server.discord.EventMessage;
 import tig.server.enums.Status;
+import tig.server.error.BusinessExceptionHandler;
+import tig.server.error.ErrorCode;
 import tig.server.member.domain.Member;
 import tig.server.member.mapper.MemberMapper;
 import tig.server.member.service.MemberService;
@@ -18,6 +20,7 @@ import tig.server.reservation.dto.ReservationResponse;
 import tig.server.reservation.mapper.ReservationMapper;
 import tig.server.reservation.repository.ReservationRepository;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -95,7 +98,8 @@ public class ReservationService {
     }
 
     public List<ReservationResponse> getReservationByMemberId(Long memberId) {
-        List<Reservation> reservations = reservationRepository.findByMemberId(memberId);
+        List<Reservation> reservations = reservationRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new BusinessExceptionHandler("reservation not found", ErrorCode.BAD_REQUEST_ERROR));
         return reservations.stream()
                 .map(reservationMapper::entityToResponse)
                 .collect(Collectors.toList());
