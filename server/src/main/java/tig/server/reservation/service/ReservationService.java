@@ -56,15 +56,15 @@ public class ReservationService {
         response.setClubName(club.getClubName());
         response.setClubAddress(club.getAddress());
         response.setMemberName(reservation.getMember().getName());
-        response.setReviewed(!reservation.getReview().isDeleted());
-
         response.setReservationId(reservation.getId());
         response.setClubId(club.getId());
         response.setType(club.getType());
         response.setBusinessHours(club.getBusinessHours());
         response.setClubName(club.getClubName());
 
-
+        // check is review null
+        response.setReviewed(reservation.getReview() != null);
+        
         return response;
     }
 
@@ -221,6 +221,9 @@ public class ReservationService {
         }
         if (response.getReservationId() == null) {
             response.setReservationId(entity.getId());
+        }
+        if (response.getMemberName() == null) {
+            response.setMemberName(entity.getMember().getName());
         }
         return response;
     }
