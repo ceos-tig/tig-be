@@ -87,9 +87,9 @@ public class ReservationController {
 
     @GetMapping("/canceled")
     @Operation(summary = "optional : 현재 유저의 취소된 예약 조회")
-    public ResponseEntity<ApiResponse<Void>> getCanceledReservation(@LoginUser Member member) {
-        reservationService.getCanceledReservationByMemberId(member.getId());
-        ApiResponse<Void> response = ApiResponse.of(200, "successfully get canceled reservation", null);
+    public ResponseEntity<ApiResponse<List<ReservationResponse>>> getCanceledReservation(@LoginUser Member member) {
+        List<ReservationResponse> responseList = reservationService.getCanceledReservationByMemberId(member.getId());
+        ApiResponse<List<ReservationResponse>> response = ApiResponse.of(200, "successfully get canceled reservation", responseList);
         return ResponseEntity.ok(response);
     }
 
