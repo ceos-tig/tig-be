@@ -32,7 +32,6 @@ public class Reservation extends BaseTimeEntity {
     private Integer adultCount;
     private Integer teenagerCount;
     private Integer kidsCount;
-
     private String date;
     private Integer price;
 
@@ -40,8 +39,8 @@ public class Reservation extends BaseTimeEntity {
     private String endTime;
     private Integer gameCount;
 
-
     private Status status;
+    private String paymentId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")

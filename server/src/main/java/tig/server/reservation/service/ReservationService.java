@@ -64,6 +64,7 @@ public class ReservationService {
 
         // check is review null
         response.setReviewed(reservation.getReview() != null);
+        response.setPaymentId(reservation.getPaymentId());
         
         return response;
     }
@@ -88,6 +89,7 @@ public class ReservationService {
         response.setType(club.getType());
         response.setBusinessHours(club.getBusinessHours());
         response.setClubName(club.getClubName());
+        response.setPaymentId(reservation.getPaymentId());
 
         // discord-webhook
         String memberName = member.getName();
@@ -127,7 +129,7 @@ public class ReservationService {
         List<Status> proceedingStatuses = List.of(Status.CANCELED);
         List<Reservation> reservations = reservationRepository.findReservationsByMemberIdAndStatus(memberId, proceedingStatuses);
         return reservations.stream()
-                .map(reservationMapper::entityToResponse)
+                .map(entity -> ensureNonNullFields(reservationMapper.entityToResponse(entity), entity))
                 .collect(Collectors.toList());
     }
 
@@ -242,6 +244,9 @@ public class ReservationService {
         }
         if (response.getGameCount() == null) {
             response.setGameCount(entity.getGameCount());
+        }
+        if (response.getPaymentId() == null) {
+            response.setPaymentId(entity.getPaymentId());
         }
         return response;
     }

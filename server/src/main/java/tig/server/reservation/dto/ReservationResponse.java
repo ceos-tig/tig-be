@@ -65,4 +65,7 @@ public class ReservationResponse {
 
     @Schema(type = "boolean", example = "true")
     private boolean isReviewed;
+
+    @Schema(type = "string", example = "2313dasd2asasd7d8as7d")
+    private String paymentId;
 }

@@ -41,4 +41,7 @@ public class ReservationRequest {
 
     @Schema(type = "integer", example = "3")
     private Integer clubId;
+
+    @Schema(type = "string", example = "2313dasd2asasd7d8as7d")
+    private String paymentId;
 }
