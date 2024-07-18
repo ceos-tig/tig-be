@@ -48,14 +48,15 @@ public class ReservationService {
 
     public ReservationResponse getReservationById(Long reservationId) {
         Reservation reservation = reservationRepository.findById(reservationId)
-                .orElseThrow(() -> new RuntimeException("reservation not found"));
+                .orElseThrow(() -> new BusinessExceptionHandler("reservation not found",ErrorCode.NOT_FOUND_ERROR));
         ReservationResponse response = reservationMapper.entityToResponse(reservation);
         Club club = clubMapper.responseToEntity(clubService.getClubById(reservationId));
-
         response.setType(club.getType());
         response.setBusinessHours(club.getBusinessHours());
         response.setClubName(club.getClubName());
         response.setClubAddress(club.getAddress());
+        response.setMemberName(reservation.getMember().getName());
+        response.setReviewed(!reservation.getReview().isDeleted());
 
         response.setReservationId(reservation.getId());
         response.setClubId(club.getId());
@@ -133,14 +134,14 @@ public class ReservationService {
     @Transactional
     public void cancelReservationById(Long id) {
         Reservation reservation = reservationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("reservation not found"));
+                .orElseThrow(() -> new BusinessExceptionHandler("reservation not found",ErrorCode.NOT_FOUND_ERROR));
 
         // Define the list of valid statuses
         List<Status> validStatuses = Arrays.asList(Status.TBC, Status.CONFIRMED);
 
         // Check if the reservation status is not in the list of valid statuses
         if (!validStatuses.contains(reservation.getStatus())) {
-            throw new RuntimeException("Cannot cancel a reservation with status " + reservation.getStatus());
+            throw new BusinessExceptionHandler("Cannot cancel a reservation with status " + reservation.getStatus(),ErrorCode.BAD_REQUEST_ERROR);
         }
 
         reservation.setStatus(Status.CANCELED);
@@ -160,14 +161,14 @@ public class ReservationService {
     @Transactional
     public void confirmReservationById(Long id) {
         Reservation reservation = reservationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("reservation not found"));
+                .orElseThrow(() -> new BusinessExceptionHandler("reservation not found",ErrorCode.NOT_FOUND_ERROR));
 
         // Define the list of valid statuses
         List<Status> validStatuses = Arrays.asList(Status.TBC);
 
         // Check if the reservation status is not in the list of valid statuses
         if (!validStatuses.contains(reservation.getStatus())) {
-            throw new RuntimeException("Cannot confirm a reservation with status " + reservation.getStatus());
+            throw new BusinessExceptionHandler("Cannot confirm a reservation with status " + reservation.getStatus(),ErrorCode.BAD_REQUEST_ERROR);
         }
 
         reservation.setStatus(Status.CONFIRMED);
@@ -177,14 +178,14 @@ public class ReservationService {
     @Transactional
     public void declineReservationById(Long id) {
         Reservation reservation = reservationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("reservation not found"));
+                .orElseThrow(() -> new BusinessExceptionHandler("reservation not found",ErrorCode.NOT_FOUND_ERROR));
 
         // Define the list of valid statuses
         List<Status> validStatuses = Arrays.asList(Status.TBC);
 
         // Check if the reservation status is not in the list of valid statuses
         if (!validStatuses.contains(reservation.getStatus())) {
-            throw new RuntimeException("Cannot decline a reservation with status " + reservation.getStatus());
+            throw new BusinessExceptionHandler("Cannot decline a reservation with status " + reservation.getStatus(),ErrorCode.BAD_REQUEST_ERROR);
         }
 
         reservation.setStatus(Status.DECLINED);
@@ -193,7 +194,7 @@ public class ReservationService {
 
     public boolean checkReservationIsReviewedById(Long id) {
         Reservation reservation = reservationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("reservation not found"));
+                .orElseThrow(() -> new BusinessExceptionHandler("reservation not found",ErrorCode.NOT_FOUND_ERROR));
 
         return reservation.getStatus() == Status.REVIEWED;
     }

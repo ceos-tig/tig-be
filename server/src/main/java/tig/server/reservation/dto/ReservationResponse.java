@@ -56,4 +56,10 @@ public class ReservationResponse {
 
     @Schema(type = "integer", example = "3")
     private Long reservationId;
+
+    @Schema(type = "string", example = "홍길동")
+    private String memberName;
+
+    @Schema(type = "boolean", example = "true")
+    private boolean isReviewed;
 }
