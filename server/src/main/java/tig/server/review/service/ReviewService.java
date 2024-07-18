@@ -49,6 +49,7 @@ public class ReviewService {
 
             Review review = reviewMapper.requestToEntity(reviewRequest);
             review.setReservation(reservation);
+            reservation.setReview(review);
 
             Club club = clubService.reflectNewReview(reviewRequest);
             reservation.setClub(club);
