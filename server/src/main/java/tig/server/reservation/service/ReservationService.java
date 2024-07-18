@@ -220,7 +220,7 @@ public class ReservationService {
             response.setClubAddress(entity.getClub().getAddress());
         }
         if (response.getReservationId() == null) {
-            response.setReservationId(entity.getId());
+            response.setReservationId(entity.getClub().getId());
         }
         if (response.getMemberName() == null) {
             response.setMemberName(entity.getMember().getName());
