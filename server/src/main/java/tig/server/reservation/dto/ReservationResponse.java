@@ -5,6 +5,8 @@ import lombok.*;
 import tig.server.enums.Status;
 import tig.server.enums.Type;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @ToString
@@ -21,13 +23,13 @@ public class ReservationResponse {
     @Schema(type = "integer", example = "0")
     private Integer kidsCount;
 
-    @Schema(type = "string", example = "2024-07-04")
+    @Schema(type = "string", example = "2007-12-03T10:15:30")
     private String date;
 
-    @Schema(type = "string", example = "10:00")
+    @Schema(type = "string", example = "2007-12-03T10:15:30")
     private String startTime;
 
-    @Schema(type = "string", example = "11:00")
+    @Schema(type = "string", example = "2007-12-03T10:15:30")
     private String endTime;
 
     @Schema(type = "integer", example = "3")

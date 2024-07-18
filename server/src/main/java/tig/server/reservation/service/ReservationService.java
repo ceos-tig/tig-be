@@ -1,6 +1,7 @@
 package tig.server.reservation.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tig.server.club.domain.Club;
@@ -20,7 +21,8 @@ import tig.server.reservation.dto.ReservationResponse;
 import tig.server.reservation.mapper.ReservationMapper;
 import tig.server.reservation.repository.ReservationRepository;
 
-import java.util.ArrayList;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -79,6 +81,15 @@ public class ReservationService {
         Reservation reservation = reservationMapper.requestToEntity(reservationRequest);
         reservation.setMember(member);
         reservation.setClub(club);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+        LocalDateTime date = LocalDateTime.parse(reservationRequest.getDate(), formatter);
+        LocalDateTime startTime = LocalDateTime.parse(reservationRequest.getStartTime(), formatter);
+        LocalDateTime endTime = LocalDateTime.parse(reservationRequest.getEndTime(), formatter);
+
+        reservation.setDate(date);
+        reservation.setStartTime(startTime);
+        reservation.setEndTime(endTime);
 
         reservation = reservationRepository.save(reservation);
 

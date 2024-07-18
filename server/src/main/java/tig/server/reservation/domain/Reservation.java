@@ -10,6 +10,8 @@ import tig.server.enums.Status;
 import tig.server.member.domain.Member;
 import tig.server.review.domain.Review;
 
+import java.time.LocalDateTime;
+
 import static org.hibernate.annotations.OnDeleteAction.CASCADE;
 
 @Getter
@@ -32,12 +34,13 @@ public class Reservation extends BaseTimeEntity {
     private Integer adultCount;
     private Integer teenagerCount;
     private Integer kidsCount;
-    private String date;
     private Integer price;
-
-    private String startTime;
-    private String endTime;
     private Integer gameCount;
+
+
+    private LocalDateTime date;
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
 
     private Status status;
     private String paymentId;
