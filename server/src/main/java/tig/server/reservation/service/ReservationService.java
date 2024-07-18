@@ -82,10 +82,15 @@ public class ReservationService {
         reservation.setMember(member);
         reservation.setClub(club);
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
-        LocalDateTime date = LocalDateTime.parse(reservationRequest.getDate(), formatter);
-        LocalDateTime startTime = LocalDateTime.parse(reservationRequest.getStartTime(), formatter);
-        LocalDateTime endTime = LocalDateTime.parse(reservationRequest.getEndTime(), formatter);
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+//        LocalDateTime date = LocalDateTime.parse(reservationRequest.getDate(), formatter);
+//        LocalDateTime startTime = LocalDateTime.parse(reservationRequest.getStartTime(), formatter);
+//        LocalDateTime endTime = LocalDateTime.parse(reservationRequest.getEndTime(), formatter);
+
+        LocalDateTime date = LocalDateTime.parse(reservationRequest.getDate());
+        LocalDateTime startTime = LocalDateTime.parse(reservationRequest.getStartTime());
+        LocalDateTime endTime = LocalDateTime.parse(reservationRequest.getEndTime());
+
 
         reservation.setDate(date);
         reservation.setStartTime(startTime);
