@@ -133,8 +133,8 @@ public class ReservationService {
 
 
     @Transactional
-    public void cancelReservationById(Long id) {
-        Reservation reservation = reservationRepository.findById(id)
+    public void cancelReservationById(Long reservationId) {
+        Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new BusinessExceptionHandler("reservation not found",ErrorCode.NOT_FOUND_ERROR));
 
         // Define the list of valid statuses
@@ -160,8 +160,8 @@ public class ReservationService {
     }
 
     @Transactional
-    public void confirmReservationById(Long id) {
-        Reservation reservation = reservationRepository.findById(id)
+    public void confirmReservationById(Long reservationId) {
+        Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new BusinessExceptionHandler("reservation not found",ErrorCode.NOT_FOUND_ERROR));
 
         // Define the list of valid statuses
@@ -177,8 +177,8 @@ public class ReservationService {
     }
 
     @Transactional
-    public void declineReservationById(Long id) {
-        Reservation reservation = reservationRepository.findById(id)
+    public void declineReservationById(Long reservationId) {
+        Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new BusinessExceptionHandler("reservation not found",ErrorCode.NOT_FOUND_ERROR));
 
         // Define the list of valid statuses
@@ -193,8 +193,23 @@ public class ReservationService {
         reservationRepository.save(reservation);
     }
 
-    public boolean checkReservationIsReviewedById(Long id) {
-        Reservation reservation = reservationRepository.findById(id)
+    @Transactional
+    public void reviewReservationById(Long reservationId) {
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new BusinessExceptionHandler("reservation not found",ErrorCode.NOT_FOUND_ERROR));
+
+        List<Status> validStatuses = Arrays.asList(Status.REVIEWED);
+
+        if(!validStatuses.contains(reservation.getStatus())) {
+            throw new BusinessExceptionHandler("Cannot review a reservation with status " + reservation.getStatus(), ErrorCode.BAD_REQUEST_ERROR);
+        }
+
+        reservation.setStatus(Status.REVIEWED);
+        reservationRepository.save(reservation);
+    }
+
+    public boolean checkReservationIsReviewedById(Long reservationId) {
+        Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new BusinessExceptionHandler("reservation not found",ErrorCode.NOT_FOUND_ERROR));
 
         return reservation.getStatus() == Status.REVIEWED;
@@ -224,6 +239,9 @@ public class ReservationService {
         }
         if (response.getMemberName() == null) {
             response.setMemberName(entity.getMember().getName());
+        }
+        if (response.getGameCount() == null) {
+            response.setGameCount(entity.getGameCount());
         }
         return response;
     }

@@ -30,6 +30,9 @@ public class ReservationResponse {
     @Schema(type = "string", example = "11:00")
     private String endTime;
 
+    @Schema(type = "integer", example = "3")
+    private Integer gameCount;
+
     @Schema(type = "integer", example = "30000")
     private Integer price;
 

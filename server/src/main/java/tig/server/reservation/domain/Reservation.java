@@ -34,9 +34,12 @@ public class Reservation extends BaseTimeEntity {
     private Integer kidsCount;
 
     private String date;
+    private Integer price;
+
     private String startTime;
     private String endTime;
-    private Integer price;
+    private Integer gameCount;
+
 
     private Status status;
 

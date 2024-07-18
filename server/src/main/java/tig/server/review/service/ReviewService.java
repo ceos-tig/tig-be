@@ -48,6 +48,8 @@ public class ReviewService {
                     .orElseThrow(() -> new BusinessExceptionHandler("no reservation found", ErrorCode.NOT_FOUND_ERROR));
 
             Review review = reviewMapper.requestToEntity(reviewRequest);
+            reservationService.reviewReservationById(reservationId);
+
             review.setReservation(reservation);
             reservation.setReview(review);
 
