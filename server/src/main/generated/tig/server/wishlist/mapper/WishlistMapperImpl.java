@@ -8,8 +8,8 @@ import tig.server.wishlist.dto.WishlistResponse;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2024-07-13T21:44:39+0900",
-    comments = "version: 1.5.1.Final, compiler: javac, environment: Java 17.0.5 (Oracle Corporation)"
+    date = "2024-07-17T00:17:45+0900",
+    comments = "version: 1.5.1.Final, compiler: javac, environment: Java 17.0.7 (Oracle Corporation)"
 )
 @Component
 public class WishlistMapperImpl implements WishlistMapper {
@@ -21,6 +21,9 @@ public class WishlistMapperImpl implements WishlistMapper {
         }
 
         Wishlist.WishlistBuilder wishlist = Wishlist.builder();
+
+        wishlist.member( wishlistRequest.getMember() );
+        wishlist.club( wishlistRequest.getClub() );
 
         return wishlist.build();
     }
@@ -45,6 +48,13 @@ public class WishlistMapperImpl implements WishlistMapper {
     public Wishlist updateFromRequest(WishlistRequest wishlistRequest, Wishlist wishlist) {
         if ( wishlistRequest == null ) {
             return wishlist;
+        }
+
+        if ( wishlistRequest.getMember() != null ) {
+            wishlist.setMember( wishlistRequest.getMember() );
+        }
+        if ( wishlistRequest.getClub() != null ) {
+            wishlist.setClub( wishlistRequest.getClub() );
         }
 
         return wishlist;
