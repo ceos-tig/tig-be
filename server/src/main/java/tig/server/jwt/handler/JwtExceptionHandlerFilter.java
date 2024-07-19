@@ -85,8 +85,7 @@ public class JwtExceptionHandlerFilter extends OncePerRequestFilter {
                 }
             }
         }
-
-        throw new BusinessExceptionHandler("No AccessToken Found", ErrorCode.BAD_REQUEST_ERROR);
+        return null;
     }
 
     // 인증 처리
