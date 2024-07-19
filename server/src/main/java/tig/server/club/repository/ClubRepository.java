@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import tig.server.club.domain.Club;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ClubRepository extends JpaRepository<Club, Long> {
@@ -19,4 +20,6 @@ public interface ClubRepository extends JpaRepository<Club, Long> {
     void softDeleteById(@Param("id") Long id);
 
     List<Club> findTop5ByOrderByRatingCountDesc();
+
+    List<Club> findByAddressContaining(String request);
 }
