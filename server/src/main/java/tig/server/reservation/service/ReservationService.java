@@ -109,6 +109,8 @@ public class ReservationService {
         response.setPaymentId(reservation.getPaymentId());
         response.setGameCount(reservation.getGameCount());
 
+        response.setReviewId(checkReviewed(reservation.getReview()));
+
         // discord-webhook
         String memberName = member.getName();
         String clubName = club.getClubName();
