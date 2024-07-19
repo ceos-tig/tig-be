@@ -119,8 +119,6 @@ public class ReviewService {
                 .collect(Collectors.toList());
     }
 
-
-
     @Transactional
     public void deleteReview(Long reviewId) {
         try {

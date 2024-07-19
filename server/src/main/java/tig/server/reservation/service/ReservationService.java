@@ -21,6 +21,7 @@ import tig.server.reservation.dto.ReservationRequest;
 import tig.server.reservation.dto.ReservationResponse;
 import tig.server.reservation.mapper.ReservationMapper;
 import tig.server.reservation.repository.ReservationRepository;
+import tig.server.review.domain.Review;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -115,11 +116,26 @@ public class ReservationService {
         return response;
     }
 
+    @Transactional
     public List<ReservationResponse> getReservationByMemberId(Long memberId) {
         List<Reservation> reservations = reservationRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new BusinessExceptionHandler("reservation not found", ErrorCode.BAD_REQUEST_ERROR));
+
+        for (Reservation reservation : reservations) {
+            try {
+                doneReservationById(reservation.getId());
+            } catch (BusinessExceptionHandler e) {
+                // Handle the exception or log it as needed
+                System.out.println("Exception updating reservation: " + e.getMessage());
+            }
+        }
+
         return reservations.stream()
-                .map(entity -> entity.getReview() == null ? null : ensureNonNullFields(reservationMapper.entityToResponse(entity), entity))
+                .map(entity -> {
+                    ReservationResponse response = reservationMapper.entityToResponse(entity);
+                    response.setReviewId(checkReviewed(entity.getReview()));
+                    return response;
+                })
                 .collect(Collectors.toList());
     }
 
@@ -211,11 +227,32 @@ public class ReservationService {
     }
 
     @Transactional
+    public void doneReservationById(Long reservationId) {
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new BusinessExceptionHandler("reservation not found", ErrorCode.NOT_FOUND_ERROR));
+
+        List<Status> validStatuses = Arrays.asList(Status.CONFIRMED);
+
+        if (!validStatuses.contains(reservation.getStatus())) {
+            throw new BusinessExceptionHandler("Cannot done a reservation with status " + reservation.getStatus(), ErrorCode.BAD_REQUEST_ERROR);
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+
+        if (now.isBefore(reservation.getStartTime())) {
+            throw new BusinessExceptionHandler("Cannot done a reservation before its start time", ErrorCode.BAD_REQUEST_ERROR);
+        }
+
+        reservation.setStatus(Status.DONE);
+        reservationRepository.save(reservation);
+    }
+
+    @Transactional
     public void reviewReservationById(Long reservationId) {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new BusinessExceptionHandler("reservation not found",ErrorCode.NOT_FOUND_ERROR));
 
-        List<Status> validStatuses = Arrays.asList(Status.REVIEWED);
+        List<Status> validStatuses = Arrays.asList(Status.DONE);
 
         if(!validStatuses.contains(reservation.getStatus())) {
             throw new BusinessExceptionHandler("Cannot review a reservation with status " + reservation.getStatus(), ErrorCode.BAD_REQUEST_ERROR);
@@ -264,6 +301,13 @@ public class ReservationService {
             response.setPaymentId(entity.getPaymentId());
         }
         return response;
+    }
+
+    private Long checkReviewed(Review review) {
+        if (review == null) {
+            return 0L;
+        }
+        return review.getId();
     }
 
 }

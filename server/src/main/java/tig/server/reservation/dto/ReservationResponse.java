@@ -70,4 +70,7 @@ public class ReservationResponse {
 
     @Schema(type = "string", example = "2313dasd2asasd7d8as7d")
     private String paymentId;
+
+    @Schema(type = "integer", example = "3")
+    private Long reviewId;
 }
