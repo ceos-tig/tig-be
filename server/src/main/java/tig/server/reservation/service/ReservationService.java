@@ -1,7 +1,6 @@
 package tig.server.reservation.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tig.server.club.domain.Club;
@@ -24,7 +23,6 @@ import tig.server.reservation.repository.ReservationRepository;
 import tig.server.review.domain.Review;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -54,7 +52,8 @@ public class ReservationService {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new BusinessExceptionHandler("reservation not found",ErrorCode.NOT_FOUND_ERROR));
         ReservationResponse response = reservationMapper.entityToResponse(reservation);
-        Club club = clubMapper.responseToEntity(clubService.getClubById(reservationId));
+
+        Club club = reservation.getClub();
         response.setType(club.getType());
         response.setBusinessHours(club.getBusinessHours());
         response.setClubName(club.getClubName());
@@ -125,13 +124,8 @@ public class ReservationService {
 
         return reservations.stream()
                 .map(entity -> {
-//                    try {
-//                        doneReservationById(entity.getId());
-//                    } catch (BusinessExceptionHandler e) {
-//                        System.out.println(e.getMessage());
-//                    }
-                    ReservationResponse response = reservationMapper.entityToResponse(entity);
-                    response = doneReservaation(response, entity);
+                    ReservationResponse response = ensureNonNullFields(reservationMapper.entityToResponse(entity), entity);
+                    doneReservation(response, entity);
                     response.setReviewId(checkReviewed(entity.getReview()));
                     return response;
                 })
@@ -244,12 +238,13 @@ public class ReservationService {
 //        }
 //    }
 
-    private ReservationResponse doneReservaation(ReservationResponse reservationResponse, Reservation reservation) {
+    private ReservationResponse doneReservation(ReservationResponse reservationResponse, Reservation reservation) {
         LocalDateTime now = LocalDateTime.now();
         if (now.isAfter(reservation.getStartTime())) {
             reservation.setStatus(Status.DONE);
-            reservationRepository.save(reservation);
             reservationResponse.setStatus(Status.DONE);
+
+            reservationRepository.save(reservation);
         }
         return reservationResponse;
     }
