@@ -121,17 +121,13 @@ public class ReservationService {
         List<Reservation> reservations = reservationRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new BusinessExceptionHandler("reservation not found", ErrorCode.BAD_REQUEST_ERROR));
 
-        for (Reservation reservation : reservations) {
-            try {
-                doneReservationById(reservation.getId());
-            } catch (BusinessExceptionHandler e) {
-                // Handle the exception or log it as needed
-                System.out.println("Exception updating reservation: " + e.getMessage());
-            }
-        }
-
         return reservations.stream()
                 .map(entity -> {
+                    try {
+                        doneReservationById(entity.getId());
+                    } catch (BusinessExceptionHandler e) {
+                        System.out.println(e.getMessage());
+                    }
                     ReservationResponse response = reservationMapper.entityToResponse(entity);
                     response.setReviewId(checkReviewed(entity.getReview()));
                     return response;
