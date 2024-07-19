@@ -16,6 +16,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
+import tig.server.error.BusinessExceptionHandler;
+import tig.server.error.ErrorCode;
 import tig.server.jwt.TokenProvider;
 import tig.server.member.service.MemberDetailsServiceImpl;
 
@@ -83,7 +85,6 @@ public class JwtExceptionHandlerFilter extends OncePerRequestFilter {
                 }
             }
         }
-
         return null;
     }
 

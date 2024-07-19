@@ -17,6 +17,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import tig.server.error.BusinessExceptionHandler;
+import tig.server.error.ErrorCode;
 
 import java.security.Key;
 import java.util.Date;
@@ -82,7 +84,7 @@ public class TokenProvider implements InitializingBean {
                 }
             }
         }
-        return null;
+        throw new BusinessExceptionHandler("No AccessToken Found", ErrorCode.BAD_REQUEST_ERROR);
     }
 
     public String getUniqueId(String accessToken) {
