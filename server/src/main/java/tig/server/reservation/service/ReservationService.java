@@ -240,7 +240,7 @@ public class ReservationService {
 
     private ReservationResponse doneReservation(ReservationResponse reservationResponse, Reservation reservation) {
         LocalDateTime now = LocalDateTime.now();
-        if (now.isAfter(reservation.getStartTime())) {
+        if (now.isAfter(reservation.getStartTime()) && reservation.getStatus() == Status.CONFIRMED) {
             reservation.setStatus(Status.DONE);
             reservationResponse.setStatus(Status.DONE);
 
