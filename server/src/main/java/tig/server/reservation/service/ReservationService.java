@@ -120,7 +120,7 @@ public class ReservationService {
         List<Reservation> reservations = reservationRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new BusinessExceptionHandler("reservation not found", ErrorCode.BAD_REQUEST_ERROR));
         return reservations.stream()
-                .map(entity -> ensureNonNullFields(reservationMapper.entityToResponse(entity), entity))
+                .map(entity -> entity.getReview() == null ? null : ensureNonNullFields(reservationMapper.entityToResponse(entity), entity))
                 .collect(Collectors.toList());
     }
 
@@ -253,7 +253,7 @@ public class ReservationService {
             response.setClubAddress(entity.getClub().getAddress());
         }
         if (response.getReservationId() == null) {
-            response.setReservationId(entity.getClub().getId());
+            response.setReservationId(entity.getId());
         }
         if (response.getMemberName() == null) {
             response.setMemberName(entity.getMember().getName());
