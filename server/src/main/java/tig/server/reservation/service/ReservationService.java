@@ -10,6 +10,7 @@ import tig.server.club.service.ClubService;
 import tig.server.discord.DiscordMessageProvider;
 import tig.server.discord.EventMessage;
 import tig.server.enums.Status;
+import tig.server.enums.Type;
 import tig.server.error.BusinessExceptionHandler;
 import tig.server.error.ErrorCode;
 import tig.server.member.domain.Member;
@@ -82,15 +83,13 @@ public class ReservationService {
         reservation.setMember(member);
         reservation.setClub(club);
 
-//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
-//        LocalDateTime date = LocalDateTime.parse(reservationRequest.getDate(), formatter);
-//        LocalDateTime startTime = LocalDateTime.parse(reservationRequest.getStartTime(), formatter);
-//        LocalDateTime endTime = LocalDateTime.parse(reservationRequest.getEndTime(), formatter);
+        if (club.getType() == Type.GAME) {
+            reservationRequest.setEndTime("2000-01-01T00:00:00");
+        }
 
         LocalDateTime date = LocalDateTime.parse(reservationRequest.getDate());
         LocalDateTime startTime = LocalDateTime.parse(reservationRequest.getStartTime());
         LocalDateTime endTime = LocalDateTime.parse(reservationRequest.getEndTime());
-
 
         reservation.setDate(date);
         reservation.setStartTime(startTime);
