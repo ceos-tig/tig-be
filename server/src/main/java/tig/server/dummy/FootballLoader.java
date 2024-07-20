@@ -80,5 +80,24 @@ public class FootballLoader implements CommandLineRunner {
         clubRepository.save(club2);
         clubRepository.save(club3);
         clubRepository.save(club4);
+
+//        for (int i = 1; i <= 100000; i++) {
+//            Club club = Club.builder()
+//                    .clubName("Club " + i)
+//                    .address("Address " + i)
+//                    .ratingSum(20.0f + i)
+//                    .ratingCount(10 + i)
+//                    .price(15000 + (i * 1000))
+//                    .phoneNumber("010-4569-9" + String.format("%03d", i))
+//                    .snsLink("snsLink " + i)
+//                    .businessHours("09:00 - 19:00")
+//                    .category(Category.FOOTBALL)
+//                    .type(Type.TIME)
+//                    .latitude(0f)
+//                    .longitude(0f)
+//                    .build();
+//
+//            clubRepository.save(club);
+//        }
     }
 }

@@ -16,10 +16,13 @@ import tig.server.reservation.repository.ReservationRepository;
 import tig.server.review.domain.Review;
 import tig.server.review.dto.ReviewRequest;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -132,11 +135,25 @@ public class ClubService {
                 .map(clubMapper::entityToResponse)
                 .collect(Collectors.toList());
 
-        List<ClubResponse> popularClubs = clubRepository.findTop5ByOrderByRatingCountDesc().stream()
-                .map(clubMapper::entityToResponse)
-                .collect(Collectors.toList());
+//        List<ClubResponse> optimizedNearestClubsFour = service.optimizedFindNearestClubsFour(requestLatitude, requestLongitude, 5).stream()
+//                .map(clubMapper::entityToResponse)
+//                .collect(Collectors.toList());
+//
+//        List<ClubResponse> optimizedNearestClubsFive = service.optimizedFindNearestClubsFive(requestLatitude, requestLongitude, 5).stream()
+//                .map(clubMapper::entityToResponse)
+//                .collect(Collectors.toList());
+//
+//        List<ClubResponse> parallelNearestClubs = service.parallelFindNearestClubs(requestLatitude, requestLongitude, 5).stream()
+//                .map(clubMapper::entityToResponse)
+//                .collect(Collectors.toList());
+//
+//        List<ClubResponse> optimizedParallelNearestClubs = service.optimizedParallelFindNearestClubs(requestLatitude, requestLongitude, 5).stream()
+//                .map(clubMapper::entityToResponse)
+//                .collect(Collectors.toList());
 
-        List<ClubResponse> recommendedClubs = getRecommendedClubs(5);
+        List<ClubResponse> popularClubs = service.getPopularClubs();
+
+        List<ClubResponse> recommendedClubs = service.getRecommendedClubs(5);
 
         return HomeResponse.builder()
                 .nearestClubs(nearestClubs)
@@ -148,10 +165,10 @@ public class ClubService {
     public List<Club> findNearestClubs(double requestLatitude, double requestLongitude, Integer count) {
         List<Club> allClubs = clubRepository.findAll();
 
-        ClubService service = serviceProvider.getObject();
-
         return allClubs.stream()
-                .sorted(Comparator.comparingDouble(club -> service.distance(requestLatitude, requestLongitude, club.getLatitude(), club.getLongitude())))
+                .sorted(Comparator.comparingDouble(
+                    club -> distance(requestLatitude, requestLongitude, club.getLatitude(), club.getLongitude()
+                )))
                 .limit(count)
                 .collect(Collectors.toList());
     }
@@ -170,20 +187,173 @@ public class ClubService {
         return distance;
     }
 
-    public List<ClubResponse> getRecommendedClubs(Integer count) {
-        List<ClubResponse> recommendedClubs = clubRepository.findAll().stream()
-                .map(clubMapper::entityToResponse)
+    public List<Club> optimizedFindNearestClubsFour(float requestLatitude, float requestLongitude, int count) {
+        List<Club> allClubs = clubRepository.findAll();
+
+        // Create a priority queue to maintain the nearest clubs
+        PriorityQueue<ClubDistance> nearestClubs = new PriorityQueue<>(count, Comparator.comparingDouble(ClubDistance::getDistance));
+
+        allClubs.stream()
+                .map(club -> new ClubDistance(club, distance(requestLatitude, requestLongitude, club.getLatitude(), club.getLongitude())))
+                .forEach(clubDistance -> {
+                    nearestClubs.offer(clubDistance);
+                    if (nearestClubs.size() > count) {
+                        nearestClubs.poll(); // Remove the club with the largest distance if the queue exceeds the count
+                    }
+                });
+
+        return nearestClubs.stream()
+                .map(ClubDistance::getClub)
                 .collect(Collectors.toList());
+    }
 
-        // Shuffle the list to randomize the order
-        Collections.shuffle(recommendedClubs);
+    private float distance(float lat1, float lon1, float lat2, float lon2) {
+        // Haversine formula to calculate the distance between two points on the Earth
+        final float R = 6371; // Radius of the earth in km
+        float latDistance = (float) Math.toRadians(lat2 - lat1);
+        float lonDistance = (float) Math.toRadians(lon2 - lon1);
+        float a = (float) (Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2));
+        float c = (float) (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+        return R * c; // convert to kilometers
+    }
 
-        // Take the first 5 elements from the shuffled list
-        return recommendedClubs.stream()
-                .limit(count)
+    public List<Club> optimizedFindNearestClubsFive(float requestLatitude, float requestLongitude, int count) {
+        List<Club> allClubs = clubRepository.findAll();
+
+        // Precompute cosine of request latitude
+        float requestLatitudeRad = (float) Math.toRadians(requestLatitude);
+        float cosRequestLatitude = (float) Math.cos(requestLatitudeRad);
+
+        // Create a priority queue to maintain the nearest clubs
+        PriorityQueue<ClubDistance> nearestClubs = new PriorityQueue<>(count, Comparator.comparingDouble(ClubDistance::getDistance));
+
+        allClubs.stream()
+                .map(club -> new ClubDistance(club, distance(requestLatitude, requestLongitude, club.getLatitude(), club.getLongitude(), cosRequestLatitude)))
+                .forEach(clubDistance -> {
+                    nearestClubs.offer(clubDistance);
+                    if (nearestClubs.size() > count) {
+                        nearestClubs.poll(); // Remove the club with the largest distance if the queue exceeds the count
+                    }
+                });
+
+        return nearestClubs.stream()
+                .map(ClubDistance::getClub)
                 .collect(Collectors.toList());
     }
 
 
+    public List<Club> parallelFindNearestClubs(float requestLatitude, float requestLongitude, int count) {
+        List<Club> allClubs = clubRepository.findAll();
+
+        // Precompute cosine of request latitude
+        float requestLatitudeRad = (float) Math.toRadians(requestLatitude);
+        float cosRequestLatitude = (float) Math.cos(requestLatitudeRad);
+
+        // Use ConcurrentSkipListSet to maintain the nearest clubs in a thread-safe manner
+        ConcurrentSkipListSet<ClubDistance> nearestClubs = new ConcurrentSkipListSet<>(Comparator.comparingDouble(ClubDistance::getDistance));
+
+        allClubs.parallelStream()
+                .map(club -> new ClubDistance(club, distance(requestLatitude, requestLongitude, club.getLatitude(), club.getLongitude(), cosRequestLatitude)))
+                .forEach(clubDistance -> {
+                    nearestClubs.add(clubDistance);
+                    if (nearestClubs.size() > count) {
+                        nearestClubs.pollLast(); // Remove the club with the largest distance if the set exceeds the count
+                    }
+                });
+
+        return nearestClubs.stream()
+                .limit(count)
+                .map(ClubDistance::getClub)
+                .collect(Collectors.toList());
+    }
+
+    public List<Club> optimizedParallelFindNearestClubs(float requestLatitude, float requestLongitude, int count) {
+        List<Club> allClubs = clubRepository.findAll();
+
+        // Precompute cosine of request latitude
+        float requestLatitudeRad = (float) Math.toRadians(requestLatitude);
+        float cosRequestLatitude = (float) Math.cos(requestLatitudeRad);
+
+        // Use ConcurrentSkipListSet to maintain the nearest clubs in a thread-safe manner
+        ConcurrentSkipListSet<ClubDistance> nearestClubs = allClubs.parallelStream()
+                .map(club -> new ClubDistance(club, distance(requestLatitude, requestLongitude, club.getLatitude(), club.getLongitude(), cosRequestLatitude)))
+                .collect(Collectors.toCollection(() -> new ConcurrentSkipListSet<>(Comparator.comparingDouble(ClubDistance::getDistance))));
+
+        // Limit to the desired number of nearest clubs
+        return nearestClubs.stream()
+                .limit(count)
+                .map(ClubDistance::getClub)
+                .collect(Collectors.toList());
+    }
+
+
+    private float distance(float lat1, float lon1, float lat2, float lon2, float cosRequestLatitude) {
+        // Haversine formula to calculate the distance between two points on the Earth
+        final float R = 6371; // Radius of the earth in km
+        float latDistance = (float) Math.toRadians(lat2 - lat1);
+        float lonDistance = (float) Math.toRadians(lon2 - lon1);
+        float a = (float) (Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
+                + cosRequestLatitude * Math.cos(Math.toRadians(lat2))
+                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2));
+        float c = (float) (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+        return R * c; // convert to kilometers
+    }
+
+
+    public List<ClubResponse> getPopularClubs() {
+        return clubRepository.findTop5ByOrderByRatingCountDesc().stream()
+                .map(clubMapper::entityToResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<ClubResponse> getRecommendedClubs(Integer count) {
+        List<Club> allClubs = clubRepository.findAll();
+        int size = allClubs.size();
+
+        // If the count is greater than or equal to the size of the list, return the whole list
+        if (count >= size) {
+            return allClubs.stream()
+                    .map(clubMapper::entityToResponse)
+                    .collect(Collectors.toList());
+        }
+
+        // Reservoir sampling algorithm
+        List<ClubResponse> reservoir = new ArrayList<>(count);
+        for (int i = 0; i < count; i++) {
+            reservoir.add(clubMapper.entityToResponse(allClubs.get(i)));
+        }
+
+        for (int i = count; i < size; i++) {
+            int j = ThreadLocalRandom.current().nextInt(i + 1);
+            if (j < count) {
+                reservoir.set(j, clubMapper.entityToResponse(allClubs.get(i)));
+            }
+        }
+
+        return reservoir;
+    }
+
+
+    private static class ClubDistance {
+        private final Club club;
+        private final double distance;
+
+        public ClubDistance(Club club, double distance) {
+            this.club = club;
+            this.distance = distance;
+        }
+
+        public Club getClub() {
+            return club;
+        }
+
+        public double getDistance() {
+            return distance;
+        }
+    }
 
 }
+
+

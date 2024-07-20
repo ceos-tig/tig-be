@@ -20,9 +20,7 @@ public class TimingAspect {
         String args = fullSignature.substring(fullSignature.indexOf("("), fullSignature.indexOf(")") + 1);
         String requiredPart = methodName + args;
 
-//        System.out.println("\n==============================================================================================================");
-        System.out.println(" Execution Time | " + requiredPart + " : " + timeTaken + " ms");
-//        System.out.println("==============================================================================================================");
+        System.out.println("\n Execution Time | " + requiredPart + " : " + timeTaken + " ms");
 
         return result;
     }
