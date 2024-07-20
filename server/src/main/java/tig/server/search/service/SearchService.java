@@ -24,7 +24,12 @@ public class SearchService {
     private final SearchMapper searchMapper = SearchMapper.INSTANCE;
 
     public SearchResultDto findClubByNameContain(Long memberId, String request) {
-        List<Club> clubList = clubRepository.findByAddressContaining(request);
+        String keywordWithoutSpaces = request.replaceAll(" ", "");
+        System.out.println("keywordWithoutSpaces = " + keywordWithoutSpaces);
+        List<Club> clubList = clubRepository.searchByKeyword(keywordWithoutSpaces);
+
+        System.out.println("clubList.size() = " + clubList.size());
+
         AvgPointDto avgPointDto = calculateMidPoint(clubList);
         List<SearchResponseDto> searchResponseDtoList = new ArrayList<>();
         for (Club club : clubList) {

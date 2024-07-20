@@ -21,5 +21,12 @@ public interface ClubRepository extends JpaRepository<Club, Long> {
 
     List<Club> findTop5ByOrderByRatingCountDesc();
 
-    List<Club> findByAddressContaining(String request);
+    @Query("SELECT c FROM Club c WHERE REPLACE(c.clubName, ' ', '') LIKE %:keyword% OR c.clubName LIKE %:keyword%")
+    List<Club> searchByClubName(@Param("keyword") String keyword);
+
+    @Query("SELECT c FROM Club c WHERE REPLACE(c.address, ' ', '') LIKE %:keyword% OR c.address LIKE %:keyword%")
+    List<Club> searchByAddress(@Param("keyword") String keyword);
+
+    @Query(value = "SELECT * FROM Club c WHERE REPLACE(c.club_name, ' ', '') LIKE %:keyword% OR REPLACE(c.address, ' ', '') LIKE %:keyword%", nativeQuery = true)
+    List<Club> searchByKeyword(@Param("keyword") String keyword);
 }
