@@ -9,7 +9,9 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.cloud.openfeign.FeignAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
+@EnableJpaAuditing
 @SpringBootApplication
 @EnableFeignClients(basePackages = "tig.server.discord")
 @ImportAutoConfiguration({FeignAutoConfiguration.class, HttpClientConfiguration.class})

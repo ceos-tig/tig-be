@@ -9,15 +9,20 @@ import org.springframework.stereotype.Component;
 @Component
 public class TimingAspect {
 
-    @Around("execution(* tig.server.club.service.ClubService.findNearestClubs(..))")
+    @Around("execution(* tig.server.club.service.ClubService.*(..))")
     public Object timeMethodExecution(ProceedingJoinPoint joinPoint) throws Throwable {
         long startTime = System.currentTimeMillis();
         Object result = joinPoint.proceed();
         long timeTaken = System.currentTimeMillis() - startTime;
 
-        System.out.println("--------------------------------------------------------------------------");
-        System.out.println("\n Time taken by " + joinPoint.getSignature() + " is " + timeTaken + " ms\n");
-        System.out.println("--------------------------------------------------------------------------");
+        String methodName = joinPoint.getSignature().getName();
+        String fullSignature = joinPoint.getSignature().toString();
+        String args = fullSignature.substring(fullSignature.indexOf("("), fullSignature.indexOf(")") + 1);
+        String requiredPart = methodName + args;
+
+//        System.out.println("\n==============================================================================================================");
+        System.out.println(" Execution Time | " + requiredPart + " : " + timeTaken + " ms");
+//        System.out.println("==============================================================================================================");
 
         return result;
     }
