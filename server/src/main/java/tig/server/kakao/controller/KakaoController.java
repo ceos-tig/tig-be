@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import tig.server.error.ApiResponse;
@@ -27,8 +28,9 @@ public class KakaoController {
     private final KakaoService kakaoService;
     private final MemberService memberService;
 
-    @GetMapping("/callback")
+    @RequestMapping("/login/oauth2/code/kakao")
     public ResponseEntity<ApiResponse<LoginAccessTokenResponseDto>> callback(@RequestParam("code") String code, HttpServletResponse response) throws IOException {
+        System.out.println("kakaokakao = " + code);
         String kakaoAccessToken = kakaoService.getAccessTokenFromKakao(code);
         KakaoUserInfoResponseDto userInfo = kakaoService.getUserInfo(kakaoAccessToken);
 

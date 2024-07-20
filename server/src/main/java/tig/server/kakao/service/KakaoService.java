@@ -17,6 +17,8 @@ import tig.server.kakao.dto.KakaoUserInfoResponseDto;
 @Service
 public class KakaoService {
 
+    private String clientIdTest = "81073434cef0de26864d8aa41acd12df";
+    private String clientSecretTest = "jatwys4xhAFPmiqQEPvQWzdGdGPntrAD";
     private String clientId;
     private String clientSecret;
     private final String KAUTH_TOKEN_URL_HOST;
@@ -32,16 +34,17 @@ public class KakaoService {
     }
 
     public String getAccessTokenFromKakao(String code) {
-
+        System.out.println("clientId = " + clientId);
+        System.out.println("clientSecret = " + clientSecret);
         KakaoTokenResponseDto kakaoTokenResponseDto = WebClient.create(KAUTH_TOKEN_URL_HOST).post()
                 .uri(uriBuilder -> uriBuilder
                         .scheme("https")
                         .path("/oauth/token")
                         .queryParam("grant_type", "authorization_code")
-                        .queryParam("client_id", clientId)
-                        .queryParam("client_secret", clientSecret)
+                        .queryParam("client_id", clientIdTest /*clientId*/)
+                        .queryParam("client_secret",clientSecretTest /*clientSecret*/)
                         .queryParam("code", code)
-                        .queryParam("redirect_uri", "https://localhost:3000/login/oauth2/code/kakao")
+                        .queryParam("redirect_uri", "http://localhost:8080/login/oauth2/code/kakao")
                         .build(true))
                 .header(HttpHeaders.CONTENT_TYPE, HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED.toString())
                 .retrieve()
