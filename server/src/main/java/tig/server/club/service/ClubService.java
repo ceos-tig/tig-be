@@ -1,5 +1,6 @@
 package tig.server.club.service;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tig.server.club.domain.Club;
@@ -30,6 +31,8 @@ public class ClubService {
     private final ClubMapper clubMapper = ClubMapper.INSTANCE;
 
     private final S3Uploader s3Uploader;
+
+    private final ObjectProvider<ClubService> serviceProvider;
 
     public List<ClubResponse> getAllClubs() {
         return clubRepository.findAll().stream()
@@ -123,7 +126,9 @@ public class ClubService {
         Float requestLatitude = homeRequest.getLatitude();
         Float requestLongitude = homeRequest.getLongitude();
 
-        List<ClubResponse> nearstClubs = findNearestClubs(requestLatitude, requestLongitude, 5).stream()
+        ClubService service = serviceProvider.getObject();
+
+        List<ClubResponse> nearestClubs = service.findNearestClubs(requestLatitude, requestLongitude, 5).stream()
                 .map(clubMapper::entityToResponse)
                 .collect(Collectors.toList());
 
@@ -134,7 +139,7 @@ public class ClubService {
         List<ClubResponse> recommendedClubs = getRecommendedClubs(5);
 
         return HomeResponse.builder()
-                .nearestClubs(nearstClubs)
+                .nearestClubs(nearestClubs)
                 .popularClubs(popularClubs)
                 .recommendedClubs(recommendedClubs)
                 .build();
@@ -142,8 +147,11 @@ public class ClubService {
 
     public List<Club> findNearestClubs(double requestLatitude, double requestLongitude, Integer count) {
         List<Club> allClubs = clubRepository.findAll();
+
+        ClubService service = serviceProvider.getObject();
+
         return allClubs.stream()
-                .sorted(Comparator.comparingDouble(club -> distance(requestLatitude, requestLongitude, club.getLatitude(), club.getLongitude())))
+                .sorted(Comparator.comparingDouble(club -> service.distance(requestLatitude, requestLongitude, club.getLatitude(), club.getLongitude())))
                 .limit(count)
                 .collect(Collectors.toList());
     }

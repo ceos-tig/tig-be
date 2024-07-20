@@ -9,7 +9,7 @@ import tig.server.review.dto.ReviewResponse;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2024-07-18T20:47:29+0900",
+    date = "2024-07-20T11:41:36+0900",
     comments = "version: 1.5.1.Final, compiler: javac, environment: Java 17.0.5 (Oracle Corporation)"
 )
 @Component
