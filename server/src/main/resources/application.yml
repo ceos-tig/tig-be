@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: deploy
+    active: dev
   config:
     import: optional:file:.env[.properties]
   sql:
@@ -10,10 +10,6 @@ spring:
     pathmatch:
       matching-strategy: ant_path_matcher
 
-kakao:
-  client_id: ${KAKAO_CLIENT_ID}
-  client_secret: ${KAKAO_SECRET_ID}
-  redirect_uri: https://localhost:3000/login/oauth2/code/kakao
 
 server:
   port: 8080
