@@ -18,7 +18,3 @@ spring:
         dialect: org.hibernate.dialect.MySQL8Dialect
         show_sql: true
         format_sql: true
-kakao:
-  client_id: ${KAKAO_CLIENT_ID}
-  client_secret: ${KAKAO_SECRET_ID}
-  redirect_uri: https://localhost:3000/login/oauth2/code/kakao

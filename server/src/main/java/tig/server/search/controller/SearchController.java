@@ -2,10 +2,7 @@ package tig.server.search.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import tig.server.annotation.LoginUser;
 import tig.server.error.ApiResponse;
 import tig.server.member.domain.Member;
@@ -21,7 +18,12 @@ public class SearchController {
     @GetMapping("")
     public ResponseEntity<ApiResponse<SearchResultDto>> search(@LoginUser Member member,
                                                     @RequestParam("search") String request) {
-        SearchResultDto clubList = searchService.findClubByNameContain(member.getId(), request);
+        String passRequest = request.replaceAll("\\p{Z}", "");
+        if (passRequest.endsWith("/")) {
+            passRequest = passRequest.substring(0, passRequest.length() - 1);
+        }
+        System.out.println("passRequest = " + passRequest);
+        SearchResultDto clubList = searchService.findClubByNameContain(member.getId(), passRequest);
         ApiResponse<SearchResultDto> response = ApiResponse.of(200, "successfully searched!", clubList);
         return ResponseEntity.ok(response);
     }
