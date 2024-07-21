@@ -188,6 +188,13 @@ public class ReservationService {
         reservationRepository.save(reservation);
     }
 
+    public List<ReservationResponse> checkTbcReservation() {
+        List<Reservation> reservations = reservationRepository.findByStatus(Status.TBC);
+        return reservations.stream()
+                .map(entity -> ensureNonNullFields(reservationMapper.entityToResponse(entity), entity))
+                .collect(Collectors.toList());
+    }
+
     @Transactional
     public void confirmReservationById(Long reservationId) {
         Reservation reservation = reservationRepository.findById(reservationId)

@@ -16,6 +16,8 @@ import java.util.Optional;
 @Repository
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
 
+    List<Reservation> findByStatus(Status status);
+
     Optional<List<Reservation>> findByMemberId(Long memberId);
 
     @Query("SELECT r FROM Reservation r WHERE r.member.id = :memberId AND r.status IN :statuses")
