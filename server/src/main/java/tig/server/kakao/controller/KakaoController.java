@@ -28,9 +28,8 @@ public class KakaoController {
     private final KakaoService kakaoService;
     private final MemberService memberService;
 
-    @RequestMapping("/login/oauth2/code/kakao")
+    @RequestMapping("/callback")
     public ResponseEntity<ApiResponse<LoginAccessTokenResponseDto>> callback(@RequestParam("code") String code, HttpServletResponse response) throws IOException {
-        System.out.println("kakaokakao = " + code);
         String kakaoAccessToken = kakaoService.getAccessTokenFromKakao(code);
         KakaoUserInfoResponseDto userInfo = kakaoService.getUserInfo(kakaoAccessToken);
 

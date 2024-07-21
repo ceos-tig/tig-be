@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: dev
+    active: deploy
   config:
     import: optional:file:.env[.properties]
   sql:
@@ -41,3 +41,7 @@ webhooks:
   webhook-1: ${DISCORD_WEBHOOK_RESERVATION_APPLICATION}
   webhook-2: ${DISCORD_WEBHOOK_RESERVATION_CANCEL}
   webhook-3: ${DISCORD_WEBHOOK_JOIN}
+kakao:
+  client_id: ${KAKAO_CLIENT_ID}
+  client_secret: ${KAKAO_SECRET_ID}
+  redirect_uri: https://localhost:3000/login/oauth2/code/kakao

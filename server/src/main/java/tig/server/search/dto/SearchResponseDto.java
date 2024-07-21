@@ -63,6 +63,9 @@ public class SearchResponseDto {
 
     private Float avgLatitude;
 
+    @Schema(type = "float", example = "17.28")
+    private Float distance;
+
     public Float getAvgRating() {
         return (ratingCount != null && ratingCount != 0) ? ratingSum / ratingCount : 0.0f;
     }
