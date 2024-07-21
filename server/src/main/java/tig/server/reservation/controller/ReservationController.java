@@ -93,7 +93,7 @@ public class ReservationController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/tbc")
+    @GetMapping("/tbc")
     @Operation(summary = "admin : 대기 중인 모든 예약 조회")
     public ResponseEntity<ApiResponse<List<ReservationResponse>>> checkTbcReservation() {
         List<ReservationResponse> responseList = reservationService.checkTbcReservation();
