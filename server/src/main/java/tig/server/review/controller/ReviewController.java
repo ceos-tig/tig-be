@@ -34,8 +34,7 @@ public class ReviewController {
 
     @GetMapping("/{reviewId}")
     @Operation(summary = "특정 리뷰 조회")
-    public ResponseEntity<ApiResponse<ReviewWithReservationDTO>> getReview(@LoginUser Member member,
-                                                                           @PathVariable("reviewId") Long reviewId) {
+    public ResponseEntity<ApiResponse<ReviewWithReservationDTO>> getReview(@PathVariable("reviewId") Long reviewId) {
         ReviewWithReservationDTO result = reviewService.getReviewById(reviewId);
         ApiResponse<ReviewWithReservationDTO> response = ApiResponse.of(200, "successfully retrieved reivew", result);
         return ResponseEntity.ok(response);
