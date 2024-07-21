@@ -222,25 +222,6 @@ public class ReservationService {
         reservationRepository.save(reservation);
     }
 
-//    @Transactional
-//    public void doneReservationById(Long reservationId) {
-//        Reservation reservation = reservationRepository.findById(reservationId)
-//                .orElseThrow(() -> new BusinessExceptionHandler("reservation not found", ErrorCode.NOT_FOUND_ERROR));
-//
-//        List<Status> validStatuses = Arrays.asList(Status.CONFIRMED);
-//
-//        if (!validStatuses.contains(reservation.getStatus())) {
-//            throw new BusinessExceptionHandler("Cannot done a reservation with status " + reservation.getStatus(), ErrorCode.BAD_REQUEST_ERROR);
-//        }
-//
-//        LocalDateTime now = LocalDateTime.now();
-//
-//        if (now.isAfter(reservation.getStartTime())) {
-//            reservation.setStatus(Status.DONE);
-//            reservationRepository.save(reservation);
-//        }
-//    }
-
     private ReservationResponse doneReservation(ReservationResponse reservationResponse, Reservation reservation) {
         LocalDateTime now = LocalDateTime.now();
         if (now.isAfter(reservation.getStartTime()) && reservation.getStatus() == Status.CONFIRMED) {

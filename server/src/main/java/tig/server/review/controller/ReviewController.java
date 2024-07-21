@@ -22,12 +22,12 @@ import java.util.List;
 public class ReviewController {
     private final ReviewService reviewService;
 
-    @PostMapping("/{reviewId}")
+    @PostMapping("/{reservationId}")
     @Operation(summary = "리뷰 작성")
     public ResponseEntity<ApiResponse<Void>> createReview(@LoginUser Member member,
-                                                          @PathVariable("reviewId") Long reviewId,
+                                                          @PathVariable("reservationId") Long reservationId,
                                                           @RequestBody ReviewRequest request) {
-        reviewService.createReview(member.getId(), reviewId, request);
+        reviewService.createReview(member.getId(), reservationId, request);
         ApiResponse<Void> response = ApiResponse.of(200, "successfully added review", null);
         return ResponseEntity.ok(response);
     }
