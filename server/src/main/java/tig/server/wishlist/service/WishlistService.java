@@ -19,8 +19,10 @@ import tig.server.wishlist.dto.WishlistResponse;
 import tig.server.wishlist.mapper.WishlistMapper;
 import tig.server.wishlist.repository.WishlistRepository;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -61,18 +63,26 @@ public class WishlistService {
             MemberResponse memberResponse = memberService.getMemberById(memberId); // 있는 멤버인지 검사
             Member member = memberMapper.responseToEntity(memberResponse); // createdAt, updatedAt은 추가해야함.
 
-            // 중복 체크 로직 추가
-            if (wishlistRepository.existsByClubIdAndMemberId(clubId, memberId)) {
-                throw new BusinessExceptionHandler("이미 위시리스트에 존재하는 항목입니다.", ErrorCode.BAD_REQUEST_ERROR);
+            // 삭제된 애들 & 삭제 안된 애들 둘다 조회됨
+            Optional<Wishlist> existingWishlist = wishlistRepository.findAllByClubIdAndMemberId(clubId, memberId);
+
+            if (existingWishlist.isEmpty()) {
+                WishlistRequest request = WishlistRequest.builder()
+                        .createdAt(LocalDateTime.now())
+                        .club(club)
+                        .member(member)
+                        .build();
+
+                Wishlist wishlist = wishlistMapper.requestToEntity(request);
+                wishlistRepository.save(wishlist);
+            } else {
+                Wishlist wishlist = existingWishlist.get();
+                if (wishlist.isDeleted()) {
+                    wishlistRepository.restoreWishlist(clubId, memberId);
+                } else {
+                    throw new BusinessExceptionHandler("이미 위시리스트에 존재하는 항목입니다.", ErrorCode.BAD_REQUEST_ERROR);
+                }
             }
-
-            WishlistRequest request = WishlistRequest.builder()
-                    .club(club)
-                    .member(member)
-                    .build();
-
-            Wishlist wishlist = wishlistMapper.requestToEntity(request); // createdAt, updatedAt은 추가해야함.
-            wishlistRepository.save(wishlist);
         } catch (Exception e){
             throw new BusinessExceptionHandler("위시리스트에 추가 하는 과정에서 에러 : " + e.getMessage(), ErrorCode.IO_ERROR);
         }
