@@ -4,14 +4,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tig.server.enums.MemberRoleEnum;
-import tig.server.error.BusinessExceptionHandler;
-import tig.server.error.ErrorCode;
+import tig.server.global.exception.BusinessExceptionHandler;
+import tig.server.global.code.ErrorCode;
 import tig.server.jwt.TokenProvider;
 import tig.server.kakao.dto.KakaoUserInfoResponseDto;
 import tig.server.kakao.dto.LoginMemberResponseDto;
 import tig.server.member.domain.Member;
 import tig.server.member.dto.MemberResponse;
-import tig.server.member.dto.RefreshTokenRequestDto;
 import tig.server.member.dto.RefreshTokenResponseDto;
 import tig.server.member.mapper.MemberMapper;
 import tig.server.member.repository.MemberRepository;
@@ -58,7 +57,7 @@ public class MemberService {
     }
     public MemberResponse getMemberById(Long id) {
         Member member = memberRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("member not found"));
+                .orElseThrow(() -> new BusinessExceptionHandler("member not found",ErrorCode.NOT_FOUND_ERROR));
 
         return memberMapper.entityToResponse(member);
     }
@@ -93,7 +92,7 @@ public class MemberService {
     @Transactional
     public MemberResponse changeName(Long memberId, String newName) {
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new BusinessExceptionHandler("member not found", ErrorCode.BAD_REQUEST_ERROR));
+                .orElseThrow(() -> new BusinessExceptionHandler("member not found", ErrorCode.NOT_FOUND_ERROR));
 
         member.updateName(newName);
         return memberMapper.entityToResponse(member);
@@ -102,7 +101,7 @@ public class MemberService {
     @Transactional
     public MemberResponse changePhoneNumber(Long memberId, String newPhoneNumber) {
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new BusinessExceptionHandler("member not found", ErrorCode.BAD_REQUEST_ERROR));
+                .orElseThrow(() -> new BusinessExceptionHandler("member not found", ErrorCode.NOT_FOUND_ERROR));
 
         member.updatePhoneNumber(newPhoneNumber);
         return memberMapper.entityToResponse(member);
@@ -111,7 +110,7 @@ public class MemberService {
     @Transactional
     public MemberResponse changeEmail(Long memberId, String newEmail) {
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new BusinessExceptionHandler("member not found", ErrorCode.BAD_REQUEST_ERROR));
+                .orElseThrow(() -> new BusinessExceptionHandler("member not found", ErrorCode.NOT_FOUND_ERROR));
 
         member.updateEmail(newEmail);
         return memberMapper.entityToResponse(member);

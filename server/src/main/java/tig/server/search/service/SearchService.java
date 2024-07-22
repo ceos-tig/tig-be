@@ -25,7 +25,6 @@ public class SearchService {
 
     public SearchResultDto findClubByNameContain(Long memberId, String request) {
         String keywordWithoutSpaces = request.replaceAll(" ", "");
-        System.out.println("keywordWithoutSpaces = " + keywordWithoutSpaces);
         List<Club> clubList = clubRepository.searchByKeyword(keywordWithoutSpaces);
 
         AvgPointDto avgPointDto = calculateMidPoint(clubList);

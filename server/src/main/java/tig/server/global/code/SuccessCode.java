@@ -1,4 +1,4 @@
-package tig.server.error;
+package tig.server.global.code;
 import lombok.Getter;
 
 /**

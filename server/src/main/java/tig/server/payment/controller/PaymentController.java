@@ -7,10 +7,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import tig.server.error.ApiResponse;
+import tig.server.global.response.ApiResponse;
 import tig.server.payment.dto.PaymentCompleteResponseDto;
 import tig.server.payment.dto.PaymentRequestDto;
-import tig.server.payment.dto.PaymentResponseDto;
 import tig.server.payment.service.PaymentService;
 
 import java.io.IOException;

@@ -12,17 +12,15 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
-import tig.server.error.BusinessExceptionHandler;
-import tig.server.error.ErrorCode;
+import tig.server.global.exception.BusinessExceptionHandler;
+import tig.server.global.code.ErrorCode;
 
 import java.security.Key;
 import java.util.Date;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor

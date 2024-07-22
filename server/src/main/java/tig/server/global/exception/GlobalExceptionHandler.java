@@ -1,4 +1,4 @@
-package tig.server.error;
+package tig.server.global.exception;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.JsonParseException;
@@ -15,6 +15,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.servlet.NoHandlerFoundException;
+import tig.server.global.response.ApiResponse;
+import tig.server.global.code.ErrorCode;
+import tig.server.global.response.ErrorResponse;
+
 import java.io.IOException;
 
 @Slf4j
