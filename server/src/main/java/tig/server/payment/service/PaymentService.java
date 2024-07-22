@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import tig.server.club.domain.Club;
@@ -27,6 +28,7 @@ import java.time.format.DateTimeFormatter;
 
 @Service
 @Slf4j
+@Transactional(readOnly = true)
 public class PaymentService {
 
     private final ClubRepository clubRepository;

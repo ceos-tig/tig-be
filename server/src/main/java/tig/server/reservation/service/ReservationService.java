@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ReservationService {
 
     private final ReservationRepository reservationRepository;
@@ -118,7 +119,6 @@ public class ReservationService {
         return response;
     }
 
-    @Transactional
     public List<ReservationResponse> getReservationByMemberId(Long memberId) {
         List<Reservation> reservations = reservationRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new BusinessExceptionHandler("reservation not found", ErrorCode.NOT_FOUND_ERROR));
