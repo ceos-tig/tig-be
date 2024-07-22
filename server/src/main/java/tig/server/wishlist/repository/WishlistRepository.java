@@ -25,6 +25,13 @@ public interface WishlistRepository extends JpaRepository<Wishlist, Long> {
 
     Optional<Wishlist> findByMemberIdAndClubId(Long memberId, Long ClubId);
 
+    @Query(value = "SELECT * FROM wishlist WHERE club_id = :clubId AND member_id = :memberId", nativeQuery = true)
+    Optional<Wishlist> findAllByClubIdAndMemberId(@Param("clubId") Long clubId, @Param("memberId") Long memberId);
+
     boolean existsByClubIdAndMemberId(Long clubId, Long memberId);
 
+    @Transactional
+    @Modifying
+    @Query(value = "UPDATE wishlist SET is_deleted = false, updated_at = CURRENT_TIMESTAMP WHERE club_id = :clubId AND member_id = :memberId AND is_deleted = true", nativeQuery = true)
+    void restoreWishlist(@Param("clubId") Long clubId, @Param("memberId") Long memberId);
 }
