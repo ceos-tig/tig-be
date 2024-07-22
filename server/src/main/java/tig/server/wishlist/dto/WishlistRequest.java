@@ -16,6 +16,8 @@ import java.time.LocalDateTime;
 @Builder
 public class WishlistRequest {
 
+    @Schema(type = "date")
+    private LocalDateTime createdAt;
 
     @Schema(type = "member", example = "")
     private Member member;
