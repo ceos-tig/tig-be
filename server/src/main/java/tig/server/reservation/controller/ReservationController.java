@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tig.server.annotation.LoginUser;
 import tig.server.enums.Status;
-import tig.server.error.ApiResponse;
+import tig.server.global.response.ApiResponse;
 import tig.server.member.domain.Member;
 import tig.server.reservation.dto.ReservationRequest;
 import tig.server.reservation.dto.ReservationResponse;

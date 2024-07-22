@@ -10,7 +10,7 @@ import tig.server.club.dto.ClubResponse;
 import tig.server.club.dto.HomeRequest;
 import tig.server.club.dto.HomeResponse;
 import tig.server.club.service.ClubService;
-import tig.server.error.ApiResponse;
+import tig.server.global.response.ApiResponse;
 
 import java.util.List;
 
