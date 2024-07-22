@@ -22,7 +22,6 @@ public class SearchController {
         if (passRequest.endsWith("/")) {
             passRequest = passRequest.substring(0, passRequest.length() - 1);
         }
-        System.out.println("passRequest = " + passRequest);
         SearchResultDto clubList = searchService.findClubByNameContain(member.getId(), passRequest);
         ApiResponse<SearchResultDto> response = ApiResponse.of(200, "successfully searched!", clubList);
         return ResponseEntity.ok(response);

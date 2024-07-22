@@ -57,7 +57,7 @@ public class MemberService {
     }
     public MemberResponse getMemberById(Long id) {
         Member member = memberRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("member not found"));
+                .orElseThrow(() -> new BusinessExceptionHandler("member not found",ErrorCode.NOT_FOUND_ERROR));
 
         return memberMapper.entityToResponse(member);
     }
@@ -92,7 +92,7 @@ public class MemberService {
     @Transactional
     public MemberResponse changeName(Long memberId, String newName) {
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new BusinessExceptionHandler("member not found", ErrorCode.BAD_REQUEST_ERROR));
+                .orElseThrow(() -> new BusinessExceptionHandler("member not found", ErrorCode.NOT_FOUND_ERROR));
 
         member.updateName(newName);
         return memberMapper.entityToResponse(member);
@@ -101,7 +101,7 @@ public class MemberService {
     @Transactional
     public MemberResponse changePhoneNumber(Long memberId, String newPhoneNumber) {
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new BusinessExceptionHandler("member not found", ErrorCode.BAD_REQUEST_ERROR));
+                .orElseThrow(() -> new BusinessExceptionHandler("member not found", ErrorCode.NOT_FOUND_ERROR));
 
         member.updatePhoneNumber(newPhoneNumber);
         return memberMapper.entityToResponse(member);
@@ -110,7 +110,7 @@ public class MemberService {
     @Transactional
     public MemberResponse changeEmail(Long memberId, String newEmail) {
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new BusinessExceptionHandler("member not found", ErrorCode.BAD_REQUEST_ERROR));
+                .orElseThrow(() -> new BusinessExceptionHandler("member not found", ErrorCode.NOT_FOUND_ERROR));
 
         member.updateEmail(newEmail);
         return memberMapper.entityToResponse(member);

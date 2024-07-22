@@ -108,7 +108,7 @@ public class ReviewService {
 
     public List<ReviewResponse> getReviewsByClubId(Long clubId) {
         Club club = clubRepository.findById(clubId)
-                .orElseThrow(() -> new RuntimeException("club not found"));
+                .orElseThrow(() -> new BusinessExceptionHandler("club not found",ErrorCode.NOT_FOUND_ERROR));
 
         List<Reservation> reservations = club.getReservations();
 
