@@ -6,9 +6,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import tig.server.global.code.ErrorCode;
+import tig.server.global.exception.BusinessExceptionHandler;
 import tig.server.kakao.dto.KakaoTokenResponseDto;
 import org.springframework.http.HttpStatusCode;
 import tig.server.kakao.dto.KakaoUserInfoResponseDto;
@@ -33,7 +37,7 @@ public class KakaoService {
         KAUTH_USER_URL_HOST = "https://kapi.kakao.com";
     }
 
-    public String getAccessTokenFromKakao(String code) {
+    public String getAccessTokenFromKakaoTest(String code) {
         KakaoTokenResponseDto kakaoTokenResponseDto = WebClient.create(KAUTH_TOKEN_URL_HOST).post()
                 .uri(uriBuilder -> uriBuilder
                         .scheme("https")
@@ -46,11 +50,35 @@ public class KakaoService {
                         .build(true))
                 .header(HttpHeaders.CONTENT_TYPE, HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED.toString())
                 .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> Mono.error(new RuntimeException("400 Invalid Parameter")))
+                .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> Mono.error(new BusinessExceptionHandler("400 Invalid Parameter "+ clientResponse.toString(),ErrorCode.BAD_REQUEST_ERROR)))
                 .onStatus(HttpStatusCode::is5xxServerError, clientResponse -> Mono.error(new RuntimeException("500 Internal Server Error")))
                 .bodyToMono(KakaoTokenResponseDto.class)
                 .block();
 
+
+        log.info(" [Kakao Service] Access Token ------> {}", kakaoTokenResponseDto.getAccessToken());
+        log.info(" [Kakao Service] Refresh Token ------> {}", kakaoTokenResponseDto.getRefreshToken());
+        log.info(" [Kakao Service] Id Token ------> {}", kakaoTokenResponseDto.getIdToken());
+        log.info(" [Kakao Service] Scope ------> {}", kakaoTokenResponseDto.getScope());
+
+        return kakaoTokenResponseDto.getAccessToken();
+    }
+
+    public String getAccessTokenFromKakaoDeploy(String code) {
+        KakaoTokenResponseDto kakaoTokenResponseDto = WebClient.create(KAUTH_TOKEN_URL_HOST)
+                .post()
+                .uri("/oauth/token")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                .body(BodyInserters.fromFormData("grant_type", "authorization_code")
+                        .with("client_id", clientId)
+                        .with("client_secret", clientSecret)
+                        .with("code", code)
+                        .with("redirect_uri", "https://main--testtig.netlify.app/login/oauth2/code/kakao"))
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> Mono.error(new BusinessExceptionHandler("Invalid Parameter", ErrorCode.BAD_REQUEST_ERROR)))
+                .onStatus(HttpStatusCode::is5xxServerError, clientResponse -> Mono.error(new RuntimeException("500 Internal Server Error")))
+                .bodyToMono(KakaoTokenResponseDto.class)
+                .block();
 
         log.info(" [Kakao Service] Access Token ------> {}", kakaoTokenResponseDto.getAccessToken());
         log.info(" [Kakao Service] Refresh Token ------> {}", kakaoTokenResponseDto.getRefreshToken());

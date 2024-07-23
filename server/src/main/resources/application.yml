@@ -44,7 +44,6 @@ webhooks:
 kakao:
   client_id: ${KAKAO_CLIENT_ID}
   client_secret: ${KAKAO_SECRET_ID}
-  redirect_uri: https://localhost:3000/login/oauth2/code/kakao
 portone:
   api_key: ${PORTONE_API_KEY}
   api_secret: ${PORTONE_API_SECRET}
