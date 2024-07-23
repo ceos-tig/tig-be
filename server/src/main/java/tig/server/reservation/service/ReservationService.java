@@ -15,6 +15,8 @@ import tig.server.global.code.ErrorCode;
 import tig.server.member.domain.Member;
 import tig.server.member.mapper.MemberMapper;
 import tig.server.member.service.MemberService;
+import tig.server.payment.dto.PaymentResponseDto;
+import tig.server.payment.service.PaymentService;
 import tig.server.reservation.domain.Reservation;
 import tig.server.reservation.dto.ReservationRequest;
 import tig.server.reservation.dto.ReservationResponse;
@@ -36,6 +38,7 @@ public class ReservationService {
     private final ReservationMapper reservationMapper;
 
     private final ClubService clubService;
+    private final PaymentService paymentService;
 
     private final ClubMapper clubMapper;
 
@@ -52,6 +55,11 @@ public class ReservationService {
                 .orElseThrow(() -> new BusinessExceptionHandler("reservation not found",ErrorCode.NOT_FOUND_ERROR));
         ReservationResponse response = reservationMapper.entityToResponse(reservation);
 
+        // get response from portone
+        PaymentResponseDto paymentResponseDto = paymentService.getPaymentResponse(response.getPaymentId()).block();
+        String provider = paymentResponseDto.getMethod().getProvider();
+        String updatedAt = paymentResponseDto.getUpdatedAt();
+
         Club club = reservation.getClub();
         response.setType(club.getType());
         response.setBusinessHours(club.getBusinessHours());
@@ -63,6 +71,8 @@ public class ReservationService {
         response.setType(club.getType());
         response.setBusinessHours(club.getBusinessHours());
         response.setClubName(club.getClubName());
+        response.setProvider(provider);
+        response.setUpdatedAt(updatedAt);
 
         // check is review null
         response.setReviewed(reservation.getReview() != null);
