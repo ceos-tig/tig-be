@@ -12,23 +12,22 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
-import tig.server.error.BusinessExceptionHandler;
-import tig.server.error.ErrorCode;
+import tig.server.global.exception.BusinessExceptionHandler;
+import tig.server.global.code.ErrorCode;
 
 import java.security.Key;
 import java.util.Date;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
 public class TokenProvider implements InitializingBean {
     private final Logger logger = LoggerFactory.getLogger(TokenProvider.class);
 
+    private static final long ACCESS_TOKEN_VALIDITY_SECONDS_TEST = 60; // 테스트용 AT는 1분
     private static final long ACCESS_TOKEN_VALIDITY_SECONDS = 24 * 60 * 60; // access token은 24시간
     private static final long REFRESH_TOKEN_VALIDITY_SECONDS = 24 * 60 * 60 * 14; // refresh token은 2주일
 
@@ -122,7 +121,6 @@ public class TokenProvider implements InitializingBean {
     }
 
     public Authentication getAuthentication(String token) {
-        System.out.println("hihihi= " + getUniqueId(token));
         UserDetails userDetails = userDetailsService.loadUserByUsername(getUniqueId(token));
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }

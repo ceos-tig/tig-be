@@ -9,13 +9,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import tig.server.club.domain.Club;
 import tig.server.club.repository.ClubRepository;
 import tig.server.enums.Type;
-import tig.server.error.BusinessExceptionHandler;
-import tig.server.error.ErrorCode;
+import tig.server.global.exception.BusinessExceptionHandler;
+import tig.server.global.code.ErrorCode;
 import tig.server.payment.dto.PaymentCompleteResponseDto;
 import tig.server.payment.dto.PaymentRequestDto;
 import tig.server.payment.dto.PaymentResponseDto;
@@ -27,6 +28,7 @@ import java.time.format.DateTimeFormatter;
 
 @Service
 @Slf4j
+@Transactional(readOnly = true)
 public class PaymentService {
 
     private final ClubRepository clubRepository;

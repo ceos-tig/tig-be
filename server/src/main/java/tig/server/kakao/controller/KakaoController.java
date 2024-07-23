@@ -1,17 +1,16 @@
 package tig.server.kakao.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import tig.server.error.ApiResponse;
+import tig.server.global.response.ApiResponse;
 import tig.server.kakao.dto.KakaoUserInfoResponseDto;
 import tig.server.kakao.dto.LoginAccessTokenResponseDto;
 import tig.server.kakao.dto.LoginMemberResponseDto;
@@ -29,10 +28,18 @@ public class KakaoController {
     private final MemberService memberService;
 
     @RequestMapping("/callback")
-    public ResponseEntity<ApiResponse<LoginAccessTokenResponseDto>> callback(@RequestParam("code") String code, HttpServletResponse response) throws IOException {
-        String kakaoAccessToken = kakaoService.getAccessTokenFromKakao(code);
-        KakaoUserInfoResponseDto userInfo = kakaoService.getUserInfo(kakaoAccessToken);
+    public ResponseEntity<ApiResponse<LoginAccessTokenResponseDto>> callback(HttpServletRequest request,
+                                                                             @RequestParam("code") String code,
+                                                                             HttpServletResponse response) throws IOException {
+        String origin = request.getHeader("Origin");
 
+        String kakaoAccessToken = null;
+        if(origin.equals("https://localhost:3000") || origin.equals("https://localhost:8080")){
+            kakaoAccessToken = kakaoService.getAccessTokenFromKakaoTest(code);
+        } else if(origin.equals("https://main--testtig.netlify.app")) {
+            kakaoAccessToken = kakaoService.getAccessTokenFromKakaoDeploy(code);
+        }
+        KakaoUserInfoResponseDto userInfo = kakaoService.getUserInfo(kakaoAccessToken);
         LoginMemberResponseDto member = memberService.createMember(userInfo);
 
         // Refresh Token 쿠키 설정

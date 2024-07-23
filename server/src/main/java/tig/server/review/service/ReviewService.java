@@ -6,8 +6,8 @@ import org.springframework.transaction.annotation.Transactional;
 import tig.server.club.domain.Club;
 import tig.server.club.repository.ClubRepository;
 import tig.server.club.service.ClubService;
-import tig.server.error.BusinessExceptionHandler;
-import tig.server.error.ErrorCode;
+import tig.server.global.exception.BusinessExceptionHandler;
+import tig.server.global.code.ErrorCode;
 import tig.server.member.service.MemberService;
 import tig.server.reservation.domain.Reservation;
 import tig.server.reservation.dto.ReservationResponse;
@@ -108,7 +108,7 @@ public class ReviewService {
 
     public List<ReviewResponse> getReviewsByClubId(Long clubId) {
         Club club = clubRepository.findById(clubId)
-                .orElseThrow(() -> new RuntimeException("club not found"));
+                .orElseThrow(() -> new BusinessExceptionHandler("club not found",ErrorCode.NOT_FOUND_ERROR));
 
         List<Reservation> reservations = club.getReservations();
 

@@ -1,17 +1,18 @@
 package tig.server.member.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tig.server.enums.MemberRoleEnum;
-import tig.server.error.BusinessExceptionHandler;
-import tig.server.error.ErrorCode;
+import tig.server.global.exception.BusinessExceptionHandler;
+import tig.server.global.code.ErrorCode;
 import tig.server.jwt.TokenProvider;
 import tig.server.kakao.dto.KakaoUserInfoResponseDto;
 import tig.server.kakao.dto.LoginMemberResponseDto;
 import tig.server.member.domain.Member;
 import tig.server.member.dto.MemberResponse;
-import tig.server.member.dto.RefreshTokenRequestDto;
 import tig.server.member.dto.RefreshTokenResponseDto;
 import tig.server.member.mapper.MemberMapper;
 import tig.server.member.repository.MemberRepository;
@@ -36,19 +37,26 @@ public class MemberService {
         member.updateRefreshToken(refreshToken);
     }
 
-    @Transactional
-    public RefreshTokenResponseDto reissueAccessToken(Member member, String refreshToken) {
-        // TODO : 레디스 반영시 access token 을 블랙리스트에 넣는?
-        String uniqueId = tokenProvider.getUniqueId(refreshToken);
-        if (member.getUniqueId().equals(uniqueId)) {
-            String accessToken = tokenProvider.createAccessToken(member.getName(), member.getUniqueId());
-            String newRefreshToken = tokenProvider.createRefreshToken(member.getName(), member.getUniqueId());
-            member.updateRefreshToken(newRefreshToken);
+    public Member getMemberByUniqueId(String uniqueId) {
+        return memberRepository.findByUniqueId(uniqueId)
+                .orElseThrow(() -> new BusinessExceptionHandler("member not found by uniqueId", ErrorCode.NOT_FOUND_ERROR));
+    }
 
-            return RefreshTokenResponseDto.fromRefreshToken(accessToken, newRefreshToken);
-        } else {
-            throw new BusinessExceptionHandler("사용자와 토큰이 일치하지 않음", ErrorCode.BAD_REQUEST_ERROR);
-        }
+    @Transactional
+    public RefreshTokenResponseDto reissueAccessToken(String refreshToken) {
+        // TODO : 레디스 반영시 access token 을 블랙리스트에 넣는? && 기존의 RT는 만료시켜야하거나 폐기
+        String uniqueId = tokenProvider.getUniqueId(refreshToken);
+        Member member = getMemberByUniqueId(uniqueId);
+
+        String accessToken = tokenProvider.createAccessToken(member.getName(), member.getUniqueId());
+        String newRefreshToken = tokenProvider.createRefreshToken(member.getName(), member.getUniqueId());
+        member.updateRefreshToken(newRefreshToken);
+
+        // 새로운 액세스 토큰으로 인증 객체 생성 및 설정
+        Authentication authentication = tokenProvider.getAuthentication(accessToken);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        return RefreshTokenResponseDto.fromRefreshToken(accessToken, newRefreshToken);
     }
 
     public List<MemberResponse> getAllMembers() {
@@ -58,7 +66,7 @@ public class MemberService {
     }
     public MemberResponse getMemberById(Long id) {
         Member member = memberRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("member not found"));
+                .orElseThrow(() -> new BusinessExceptionHandler("member not found",ErrorCode.NOT_FOUND_ERROR));
 
         return memberMapper.entityToResponse(member);
     }
@@ -93,7 +101,7 @@ public class MemberService {
     @Transactional
     public MemberResponse changeName(Long memberId, String newName) {
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new BusinessExceptionHandler("member not found", ErrorCode.BAD_REQUEST_ERROR));
+                .orElseThrow(() -> new BusinessExceptionHandler("member not found", ErrorCode.NOT_FOUND_ERROR));
 
         member.updateName(newName);
         return memberMapper.entityToResponse(member);
@@ -102,7 +110,7 @@ public class MemberService {
     @Transactional
     public MemberResponse changePhoneNumber(Long memberId, String newPhoneNumber) {
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new BusinessExceptionHandler("member not found", ErrorCode.BAD_REQUEST_ERROR));
+                .orElseThrow(() -> new BusinessExceptionHandler("member not found", ErrorCode.NOT_FOUND_ERROR));
 
         member.updatePhoneNumber(newPhoneNumber);
         return memberMapper.entityToResponse(member);
@@ -111,7 +119,7 @@ public class MemberService {
     @Transactional
     public MemberResponse changeEmail(Long memberId, String newEmail) {
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new BusinessExceptionHandler("member not found", ErrorCode.BAD_REQUEST_ERROR));
+                .orElseThrow(() -> new BusinessExceptionHandler("member not found", ErrorCode.NOT_FOUND_ERROR));
 
         member.updateEmail(newEmail);
         return memberMapper.entityToResponse(member);

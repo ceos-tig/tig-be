@@ -11,6 +11,8 @@ import tig.server.club.dto.HomeResponse;
 import tig.server.club.mapper.ClubMapper;
 import tig.server.club.repository.ClubRepository;
 import tig.server.config.S3Uploader;
+import tig.server.global.exception.BusinessExceptionHandler;
+import tig.server.global.code.ErrorCode;
 import tig.server.reservation.domain.Reservation;
 import tig.server.reservation.repository.ReservationRepository;
 import tig.server.review.domain.Review;
@@ -19,13 +21,11 @@ import tig.server.review.dto.ReviewRequest;
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ClubService {
 
     private final ClubRepository clubRepository;
@@ -46,7 +46,7 @@ public class ClubService {
 
     public ClubResponse getClubById(Long id) {
         Club club = clubRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("club not found"));
+                .orElseThrow(() -> new BusinessExceptionHandler("club not found", ErrorCode.NOT_FOUND_ERROR));
         List<String> CloudFrontImageUrl = s3Uploader.getImageUrls(club.getImageUrls());
         club.setImageUrls(CloudFrontImageUrl);
         ClubResponse clubResponse = clubMapper.entityToResponse(club);
@@ -89,10 +89,10 @@ public class ClubService {
     public Club reflectNewReview(ReviewRequest reviewRequest) {
         Long reservationId = reviewRequest.getReservationId();
         Reservation reservation = reservationRepository.findById(reservationId)
-                .orElseThrow(() -> new RuntimeException("Portfolio not found"));
+                .orElseThrow(() -> new BusinessExceptionHandler("reservation not found",ErrorCode.NOT_FOUND_ERROR));
 
         Club club = clubRepository.findById(reservation.getClub().getId())
-                .orElseThrow(() -> new RuntimeException("Portfolio not found"));
+                .orElseThrow(() -> new BusinessExceptionHandler("club not found",ErrorCode.NOT_FOUND_ERROR));
 
         Float rating = reviewRequest.getRating();
 
@@ -108,10 +108,10 @@ public class ClubService {
     public Club reflectModifiedReview(ReviewRequest reviewRequest, Review existingReview) {
         Long reservationId = reviewRequest.getReservationId();
         Reservation reservation = reservationRepository.findById(reservationId)
-                .orElseThrow(() -> new RuntimeException("Portfolio not found"));
+                .orElseThrow(() -> new BusinessExceptionHandler("reservation not found",ErrorCode.NOT_FOUND_ERROR));
 
         Club club = clubRepository.findById(reservation.getClub().getId())
-                .orElseThrow(() -> new RuntimeException("Portfolio not found"));
+                .orElseThrow(() -> new BusinessExceptionHandler("club not found",ErrorCode.NOT_FOUND_ERROR));
 
 
         Float existingRating = existingReview.getRating();
@@ -134,22 +134,6 @@ public class ClubService {
         List<ClubResponse> nearestClubs = service.findNearestClubs(requestLatitude, requestLongitude, 5).stream()
                 .map(clubMapper::entityToResponse)
                 .collect(Collectors.toList());
-
-//        List<ClubResponse> optimizedNearestClubsFour = service.optimizedFindNearestClubsFour(requestLatitude, requestLongitude, 5).stream()
-//                .map(clubMapper::entityToResponse)
-//                .collect(Collectors.toList());
-//
-//        List<ClubResponse> optimizedNearestClubsFive = service.optimizedFindNearestClubsFive(requestLatitude, requestLongitude, 5).stream()
-//                .map(clubMapper::entityToResponse)
-//                .collect(Collectors.toList());
-//
-//        List<ClubResponse> parallelNearestClubs = service.parallelFindNearestClubs(requestLatitude, requestLongitude, 5).stream()
-//                .map(clubMapper::entityToResponse)
-//                .collect(Collectors.toList());
-//
-//        List<ClubResponse> optimizedParallelNearestClubs = service.optimizedParallelFindNearestClubs(requestLatitude, requestLongitude, 5).stream()
-//                .map(clubMapper::entityToResponse)
-//                .collect(Collectors.toList());
 
         List<ClubResponse> popularClubs = service.getPopularClubs();
 

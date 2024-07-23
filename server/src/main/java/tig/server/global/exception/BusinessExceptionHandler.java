@@ -1,7 +1,8 @@
-package tig.server.error;
+package tig.server.global.exception;
 
 import lombok.Builder;
 import lombok.Getter;
+import tig.server.global.code.ErrorCode;
 
 /**
  * 에러를 사용하기 위한 구현체

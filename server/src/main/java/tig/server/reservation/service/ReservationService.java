@@ -10,8 +10,8 @@ import tig.server.discord.DiscordMessageProvider;
 import tig.server.discord.EventMessage;
 import tig.server.enums.Status;
 import tig.server.enums.Type;
-import tig.server.error.BusinessExceptionHandler;
-import tig.server.error.ErrorCode;
+import tig.server.global.exception.BusinessExceptionHandler;
+import tig.server.global.code.ErrorCode;
 import tig.server.member.domain.Member;
 import tig.server.member.mapper.MemberMapper;
 import tig.server.member.service.MemberService;
@@ -29,15 +29,14 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ReservationService {
 
     private final ReservationRepository reservationRepository;
     private final ReservationMapper reservationMapper;
 
-    private final MemberService memberService;
     private final ClubService clubService;
 
-    private final MemberMapper memberMapper;
     private final ClubMapper clubMapper;
 
     private final DiscordMessageProvider discordMessageProvider;
@@ -120,10 +119,9 @@ public class ReservationService {
         return response;
     }
 
-    @Transactional
     public List<ReservationResponse> getReservationByMemberId(Long memberId) {
         List<Reservation> reservations = reservationRepository.findByMemberId(memberId)
-                .orElseThrow(() -> new BusinessExceptionHandler("reservation not found", ErrorCode.BAD_REQUEST_ERROR));
+                .orElseThrow(() -> new BusinessExceptionHandler("reservation not found", ErrorCode.NOT_FOUND_ERROR));
 
         return reservations.stream()
                 .map(entity -> {
@@ -137,7 +135,8 @@ public class ReservationService {
 
     public List<ReservationResponse> getProceedingReservationByMemberId(Long memberId) {
         List<Status> proceedingStatuses = List.of(Status.TBC, Status.CONFIRMED);
-        List<Reservation> reservations = reservationRepository.findReservationsByMemberIdAndStatus(memberId, proceedingStatuses);
+        List<Reservation> reservations = reservationRepository.findReservationsByMemberIdAndStatus(memberId, proceedingStatuses)
+                .orElseThrow(() -> new BusinessExceptionHandler("can not find reservation PROCEEDING", ErrorCode.NOT_FOUND_ERROR));
         return reservations.stream()
                 .map(entity -> ensureNonNullFields(reservationMapper.entityToResponse(entity), entity))
                 .collect(Collectors.toList());
@@ -145,7 +144,8 @@ public class ReservationService {
 
     public List<ReservationResponse> getTerminatedReservationByMemberId(Long memberId) {
         List<Status> proceedingStatuses = List.of(Status.DECLINED, Status.DONE, Status.CANCELED, Status.REVIEWED);
-        List<Reservation> reservations = reservationRepository.findReservationsByMemberIdAndStatus(memberId, proceedingStatuses);
+        List<Reservation> reservations = reservationRepository.findReservationsByMemberIdAndStatus(memberId, proceedingStatuses)
+                .orElseThrow(() -> new BusinessExceptionHandler("can not find reservation TERMINATED", ErrorCode.NOT_FOUND_ERROR));
         return reservations.stream()
                 .map(entity -> ensureNonNullFields(reservationMapper.entityToResponse(entity), entity))
                 .collect(Collectors.toList());
@@ -154,7 +154,8 @@ public class ReservationService {
 
     public List<ReservationResponse> getCanceledReservationByMemberId(Long memberId) {
         List<Status> proceedingStatuses = List.of(Status.CANCELED);
-        List<Reservation> reservations = reservationRepository.findReservationsByMemberIdAndStatus(memberId, proceedingStatuses);
+        List<Reservation> reservations = reservationRepository.findReservationsByMemberIdAndStatus(memberId, proceedingStatuses)
+                .orElseThrow(() -> new BusinessExceptionHandler("can not find reservation CANCELED", ErrorCode.NOT_FOUND_ERROR));
         return reservations.stream()
                 .map(entity -> ensureNonNullFields(reservationMapper.entityToResponse(entity), entity))
                 .collect(Collectors.toList());
@@ -189,7 +190,8 @@ public class ReservationService {
     }
 
     public List<ReservationResponse> checkTbcReservation() {
-        List<Reservation> reservations = reservationRepository.findByStatus(Status.TBC);
+        List<Reservation> reservations = reservationRepository.findByStatus(Status.TBC)
+                .orElseThrow(() -> new BusinessExceptionHandler("can not find TBC reservation", ErrorCode.NOT_FOUND_ERROR));
         return reservations.stream()
                 .map(entity -> ensureNonNullFields(reservationMapper.entityToResponse(entity), entity))
                 .collect(Collectors.toList());

@@ -8,17 +8,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import tig.server.annotation.LoginUser;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import tig.server.error.ApiResponse;
-import tig.server.error.BusinessExceptionHandler;
-import tig.server.error.ErrorCode;
+import tig.server.global.response.ApiResponse;
+import tig.server.global.exception.BusinessExceptionHandler;
+import tig.server.global.code.ErrorCode;
 import tig.server.member.domain.Member;
 import tig.server.member.dto.MemberResponse;
-import tig.server.member.dto.RefreshTokenRequestDto;
 import tig.server.member.dto.RefreshTokenResponseDto;
 import tig.server.member.mapper.MemberMapper;
 import tig.server.member.service.MemberService;
@@ -38,14 +36,13 @@ public class MemberController {
      * refresh token을 통한 access token 재발급
      */
     @PostMapping("/reissue")
-    @Operation(summary = "리프레시 토큰 발급")
-    public ResponseEntity<ApiResponse<RefreshTokenResponseDto>> reissueAccessToken(@LoginUser Member member,
-                                                                                   @CookieValue(value = "refreshToken", required = false) String refreshToken,
+    @Operation(summary = "리프레시 토큰을 통한 AT,RT 재발급")
+    public ResponseEntity<ApiResponse<RefreshTokenResponseDto>> reissueAccessToken(@CookieValue(value = "refreshToken", required = false) String refreshToken,
                                                                                    HttpServletResponse response) {
         if (refreshToken == null) {
             throw new BusinessExceptionHandler("No refresh token found in cookies", ErrorCode.BAD_REQUEST_ERROR);
         }
-        RefreshTokenResponseDto refreshTokenResponseDto = memberService.reissueAccessToken(member, refreshToken);
+        RefreshTokenResponseDto refreshTokenResponseDto = memberService.reissueAccessToken(refreshToken);
         ApiResponse<RefreshTokenResponseDto> resultResponse = ApiResponse.of(200, "successfully reissued Access Token & Refresh Token", refreshTokenResponseDto);
 
         // Refresh Token 쿠키 설정

@@ -18,7 +18,3 @@ spring:
         show_sql: false
         format_sql: false
     defer-datasource-initialization: true
-kakao:
-  client_id: 81073434cef0de26864d8aa41acd12df
-  client_secret: jatwys4xhAFPmiqQEPvQWzdGdGPntrAD
-  redirect_uri: http://localhost:8080/login/oauth2/code/kakao

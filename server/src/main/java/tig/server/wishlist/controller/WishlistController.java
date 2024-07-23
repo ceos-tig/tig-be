@@ -7,10 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tig.server.annotation.LoginUser;
 import tig.server.club.dto.ClubResponse;
-import tig.server.error.ApiResponse;
+import tig.server.global.response.ApiResponse;
 import tig.server.member.domain.Member;
-import tig.server.wishlist.domain.Wishlist;
-import tig.server.wishlist.dto.WishlistRequest;
 import tig.server.wishlist.service.WishlistService;
 
 import java.util.List;
