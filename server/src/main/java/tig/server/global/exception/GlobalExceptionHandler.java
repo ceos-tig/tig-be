@@ -2,6 +2,9 @@ package tig.server.global.exception;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.JsonParseException;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -180,11 +183,66 @@ public class GlobalExceptionHandler {
      * @return ResponseEntity<ErrorResponse>
      */
     @ExceptionHandler(Exception.class)
-    protected final ResponseEntity<ErrorResponse> handleAllExceptions(Exception ex) {
-        log.error("Exception", ex);
-        final ErrorResponse response = ErrorResponse.of(ErrorCode.INTERNAL_SERVER_ERROR, ex.getMessage());
-        return new ResponseEntity<>(response, HTTP_STATUS_OK);
+    protected final ResponseEntity<ApiResponse<Void>> handleAllExceptions(Exception ex) {
+        ApiResponse<Void> response = ApiResponse.of(
+                ErrorCode.BAD_REQUEST_ERROR.getStatus(),
+                ex.getMessage(),
+                null
+        );
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+
+    @ExceptionHandler(SecurityException.class)
+    public ResponseEntity<ApiResponse<Void>> handleSecurityException(SecurityException ex) {
+        ApiResponse<Void> response = ApiResponse.of(
+                ErrorCode.FORBIDDEN_ERROR.getStatus(),
+                ex.getMessage(),
+                null
+        );
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<ApiResponse<Void>> handleJwtExpiredException(ExpiredJwtException ex) {
+        ApiResponse<Void> response = ApiResponse.of(
+                ErrorCode.NOT_VALID_ERROR.getStatus(),
+                ex.getMessage(),
+                null
+        );
+        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(MalformedJwtException.class)
+    public ResponseEntity<ApiResponse<Void>> handleJwtMalformedException(MalformedJwtException ex) {
+        ApiResponse<Void> response = ApiResponse.of(
+                ErrorCode.BAD_REQUEST_ERROR.getStatus(),
+                ex.getMessage(),
+                null
+        );
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @ExceptionHandler(UnsupportedJwtException.class)
+    public ResponseEntity<ApiResponse<Void>> handleJwtUnsupportedException(UnsupportedJwtException ex) {
+        ApiResponse<Void> response = ApiResponse.of(
+                ErrorCode.BAD_REQUEST_ERROR.getStatus(),
+                ex.getMessage(),
+                null
+        );
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiResponse<Void>> handleIllegalArgumentException(IllegalArgumentException ex) {
+        ApiResponse<Void> response = ApiResponse.of(
+                ErrorCode.BAD_REQUEST_ERROR.getStatus(),
+                ex.getMessage(),
+                null
+        );
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
 
     @ExceptionHandler(BusinessExceptionHandler.class)
     public ResponseEntity<ApiResponse<Void>> handleBusinessException(BusinessExceptionHandler ex) {
