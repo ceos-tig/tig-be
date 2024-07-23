@@ -125,7 +125,7 @@ public class PaymentService {
         return response;
     }
 
-    private Mono<PaymentResponseDto> getPaymentResponse(String paymentId) {
+    public Mono<PaymentResponseDto> getPaymentResponse(String paymentId) {
         return webClient.get()
                 .uri("/payments/{paymentId}", paymentId)
                 .header(HttpHeaders.AUTHORIZATION, "PortOne " + v2Secret)
