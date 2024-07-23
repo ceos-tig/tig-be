@@ -25,7 +25,7 @@ public class BallingDataLoader implements CommandLineRunner {
                 .price(5000)
                 .phoneNumber("010-6283-5645")
                 .snsLink("https://www.instagram.com/clubstrikepub/")
-                .businessHours("12:00 - 02:00")
+                .businessHours("12:00 -T 02:00")
                 .category(Category.BALLING)
                 .type(Type.GAME)
                 .latitude(0f)

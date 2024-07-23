@@ -117,6 +117,22 @@ public class ReservationController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/confirmed")
+    @Operation(summary = "admin : 승인된 모든 예약 조회")
+    public ResponseEntity<ApiResponse<List<ReservationResponse>>> checkConfirmedReservation() {
+        List<ReservationResponse> responseList = reservationService.checkConfirmedReservation();
+        ApiResponse<List<ReservationResponse>> response = ApiResponse.of(200, "대기중인 모든 예약 조회 성공", responseList);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/declined")
+    @Operation(summary = "admin : 거절된 모든 예약 조회")
+    public ResponseEntity<ApiResponse<List<ReservationResponse>>> checkDeclinedReservation() {
+        List<ReservationResponse> responseList = reservationService.checkDeclinedReservation();
+        ApiResponse<List<ReservationResponse>> response = ApiResponse.of(200, "대기중인 모든 예약 조회 성공", responseList);
+        return ResponseEntity.ok(response);
+    }
+
 
 }
 

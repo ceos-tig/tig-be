@@ -197,6 +197,22 @@ public class ReservationService {
                 .collect(Collectors.toList());
     }
 
+    public List<ReservationResponse> checkConfirmedReservation() {
+        List<Reservation> reservations = reservationRepository.findByStatus(Status.CONFIRMED)
+                .orElseThrow(() -> new BusinessExceptionHandler("can not find Confirmed reservation", ErrorCode.NOT_FOUND_ERROR));
+        return reservations.stream()
+                .map(entity -> ensureNonNullFields(reservationMapper.entityToResponse(entity), entity))
+                .collect(Collectors.toList());
+    }
+
+    public List<ReservationResponse> checkDeclinedReservation() {
+        List<Reservation> reservations = reservationRepository.findByStatus(Status.DECLINED)
+                .orElseThrow(() -> new BusinessExceptionHandler("can not find Declined reservation", ErrorCode.NOT_FOUND_ERROR));
+        return reservations.stream()
+                .map(entity -> ensureNonNullFields(reservationMapper.entityToResponse(entity), entity))
+                .collect(Collectors.toList());
+    }
+
     @Transactional
     public void confirmReservationById(Long reservationId) {
         Reservation reservation = reservationRepository.findById(reservationId)
