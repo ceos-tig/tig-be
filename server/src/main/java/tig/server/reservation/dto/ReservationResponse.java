@@ -73,4 +73,10 @@ public class ReservationResponse {
 
     @Schema(type = "integer", example = "3")
     private Long reviewId;
+
+    @Schema(type = "string", example = "TOSSPAY")
+    private String provider;
+
+    @Schema(type = "string", example = "2024-07-23T13:22:36.907525084Z")
+    private String updatedAt;
 }
