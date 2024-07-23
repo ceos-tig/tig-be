@@ -27,6 +27,7 @@ import java.util.Date;
 public class TokenProvider implements InitializingBean {
     private final Logger logger = LoggerFactory.getLogger(TokenProvider.class);
 
+    private static final long ACCESS_TOKEN_VALIDITY_SECONDS_TEST = 60; // 테스트용 AT는 1분
     private static final long ACCESS_TOKEN_VALIDITY_SECONDS = 24 * 60 * 60; // access token은 24시간
     private static final long REFRESH_TOKEN_VALIDITY_SECONDS = 24 * 60 * 60 * 14; // refresh token은 2주일
 
@@ -120,7 +121,6 @@ public class TokenProvider implements InitializingBean {
     }
 
     public Authentication getAuthentication(String token) {
-        System.out.println("hihihi= " + getUniqueId(token));
         UserDetails userDetails = userDetailsService.loadUserByUsername(getUniqueId(token));
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }

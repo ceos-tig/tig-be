@@ -36,14 +36,13 @@ public class MemberController {
      * refresh token을 통한 access token 재발급
      */
     @PostMapping("/reissue")
-    @Operation(summary = "리프레시 토큰 발급")
-    public ResponseEntity<ApiResponse<RefreshTokenResponseDto>> reissueAccessToken(@LoginUser Member member,
-                                                                                   @CookieValue(value = "refreshToken", required = false) String refreshToken,
+    @Operation(summary = "리프레시 토큰을 통한 AT,RT 재발급")
+    public ResponseEntity<ApiResponse<RefreshTokenResponseDto>> reissueAccessToken(@CookieValue(value = "refreshToken", required = false) String refreshToken,
                                                                                    HttpServletResponse response) {
         if (refreshToken == null) {
             throw new BusinessExceptionHandler("No refresh token found in cookies", ErrorCode.BAD_REQUEST_ERROR);
         }
-        RefreshTokenResponseDto refreshTokenResponseDto = memberService.reissueAccessToken(member, refreshToken);
+        RefreshTokenResponseDto refreshTokenResponseDto = memberService.reissueAccessToken(refreshToken);
         ApiResponse<RefreshTokenResponseDto> resultResponse = ApiResponse.of(200, "successfully reissued Access Token & Refresh Token", refreshTokenResponseDto);
 
         // Refresh Token 쿠키 설정
