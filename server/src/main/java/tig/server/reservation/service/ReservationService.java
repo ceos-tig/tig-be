@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tig.server.club.domain.Club;
 import tig.server.club.mapper.ClubMapper;
+import tig.server.club.repository.ClubRepository;
 import tig.server.club.service.ClubService;
 import tig.server.discord.DiscordMessageProvider;
 import tig.server.discord.EventMessage;
@@ -18,6 +19,7 @@ import tig.server.member.service.MemberService;
 import tig.server.payment.dto.PaymentResponseDto;
 import tig.server.payment.service.PaymentService;
 import tig.server.reservation.domain.Reservation;
+import tig.server.reservation.dto.ReservationClubResponse;
 import tig.server.reservation.dto.ReservationRequest;
 import tig.server.reservation.dto.ReservationResponse;
 import tig.server.reservation.mapper.ReservationMapper;
@@ -37,6 +39,7 @@ public class ReservationService {
     private final ReservationRepository reservationRepository;
     private final ReservationMapper reservationMapper;
 
+    private final ClubRepository clubRepository;
     private final ClubService clubService;
     private final PaymentService paymentService;
 
@@ -288,6 +291,18 @@ public class ReservationService {
                 .orElseThrow(() -> new BusinessExceptionHandler("reservation not found",ErrorCode.NOT_FOUND_ERROR));
 
         return reservation.getStatus() == Status.REVIEWED;
+    }
+
+    public ReservationClubResponse checkClubInfo(Long clubId) {
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(() -> new BusinessExceptionHandler("club not found", ErrorCode.NOT_FOUND_ERROR));
+
+        return new ReservationClubResponse().builder()
+                .clubName(club.getClubName())
+                .address(club.getAddress())
+                .price(club.getPrice())
+                .businessHours(club.getBusinessHours())
+                .build();
     }
 
     private ReservationResponse ensureNonNullFields(ReservationResponse response, Reservation entity) {

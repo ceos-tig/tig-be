@@ -9,6 +9,7 @@ import tig.server.annotation.LoginUser;
 import tig.server.enums.Status;
 import tig.server.global.response.ApiResponse;
 import tig.server.member.domain.Member;
+import tig.server.reservation.dto.ReservationClubResponse;
 import tig.server.reservation.dto.ReservationRequest;
 import tig.server.reservation.dto.ReservationResponse;
 import tig.server.reservation.service.ReservationService;
@@ -121,7 +122,7 @@ public class ReservationController {
     @Operation(summary = "admin : 승인된 모든 예약 조회")
     public ResponseEntity<ApiResponse<List<ReservationResponse>>> checkConfirmedReservation() {
         List<ReservationResponse> responseList = reservationService.checkConfirmedReservation();
-        ApiResponse<List<ReservationResponse>> response = ApiResponse.of(200, "대기중인 모든 예약 조회 성공", responseList);
+        ApiResponse<List<ReservationResponse>> response = ApiResponse.of(200, "승인된 모든 예약 조회 성공", responseList);
         return ResponseEntity.ok(response);
     }
 
@@ -129,10 +130,16 @@ public class ReservationController {
     @Operation(summary = "admin : 거절된 모든 예약 조회")
     public ResponseEntity<ApiResponse<List<ReservationResponse>>> checkDeclinedReservation() {
         List<ReservationResponse> responseList = reservationService.checkDeclinedReservation();
-        ApiResponse<List<ReservationResponse>> response = ApiResponse.of(200, "대기중인 모든 예약 조회 성공", responseList);
+        ApiResponse<List<ReservationResponse>> response = ApiResponse.of(200, "거절된 모든 예약 조회 성공", responseList);
         return ResponseEntity.ok(response);
     }
-
+    @GetMapping("/{clubId}")
+    @Operation(summary = "업체 예약 위해 필요한 정보 조회")
+    public ResponseEntity<ApiResponse<ReservationClubResponse>> checkClubInfo(@PathVariable Long clubId) {
+        ReservationClubResponse responseList = reservationService.checkClubInfo(clubId);
+        ApiResponse<ReservationClubResponse> response = ApiResponse.of(200, "업체 예약 관련 정보 조회 성공", responseList);
+        return ResponseEntity.ok(response);
+    }
 
 }
 
