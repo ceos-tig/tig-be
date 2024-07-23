@@ -1,5 +1,6 @@
 package tig.server.kakao.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,10 +28,18 @@ public class KakaoController {
     private final MemberService memberService;
 
     @RequestMapping("/callback")
-    public ResponseEntity<ApiResponse<LoginAccessTokenResponseDto>> callback(@RequestParam("code") String code, HttpServletResponse response) throws IOException {
-        String kakaoAccessToken = kakaoService.getAccessTokenFromKakao(code);
-        KakaoUserInfoResponseDto userInfo = kakaoService.getUserInfo(kakaoAccessToken);
+    public ResponseEntity<ApiResponse<LoginAccessTokenResponseDto>> callback(HttpServletRequest request,
+                                                                             @RequestParam("code") String code,
+                                                                             HttpServletResponse response) throws IOException {
+        String origin = request.getHeader("Origin");
 
+        String kakaoAccessToken = null;
+        if(origin.equals("https://localhost:3000") || origin.equals("https://localhost:8080")){
+            kakaoAccessToken = kakaoService.getAccessTokenFromKakaoTest(code);
+        } else if(origin.equals("https://main--testtig.netlify.app")) {
+            kakaoAccessToken = kakaoService.getAccessTokenFromKakaoDeploy(code);
+        }
+        KakaoUserInfoResponseDto userInfo = kakaoService.getUserInfo(kakaoAccessToken);
         LoginMemberResponseDto member = memberService.createMember(userInfo);
 
         // Refresh Token 쿠키 설정
