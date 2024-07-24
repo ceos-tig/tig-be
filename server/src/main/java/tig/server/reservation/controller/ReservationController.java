@@ -133,7 +133,7 @@ public class ReservationController {
         ApiResponse<List<ReservationResponse>> response = ApiResponse.of(200, "거절된 모든 예약 조회 성공", responseList);
         return ResponseEntity.ok(response);
     }
-    @GetMapping("/{clubId}")
+    @GetMapping("/club/{clubId}")
     @Operation(summary = "업체 예약 위해 필요한 정보 조회")
     public ResponseEntity<ApiResponse<ReservationClubResponse>> checkClubInfo(@PathVariable Long clubId) {
         ReservationClubResponse responseList = reservationService.checkClubInfo(clubId);
