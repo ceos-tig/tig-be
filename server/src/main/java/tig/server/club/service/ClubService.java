@@ -80,6 +80,8 @@ public class ClubService {
     private ClubResponse calculateAvgRating(ClubResponse clubResponse) {
         if (clubResponse.getRatingCount() != 0) {
             float avgRating = (float) clubResponse.getRatingSum() / clubResponse.getRatingCount();
+            // round at 1 decimal place
+            avgRating = Math.round(avgRating * 10) / 10.0f;
             clubResponse.setAvgRating(avgRating);
         }
         return clubResponse;
