@@ -15,9 +15,9 @@ import tig.server.search.service.SearchService;
 public class SearchController {
     private final SearchService searchService;
 
-    @GetMapping("")
+    @GetMapping("/user")
     public ResponseEntity<ApiResponse<SearchResultDto>> search(@LoginUser Member member,
-                                                    @RequestParam("search") String request) {
+                                                               @RequestParam("search") String request) {
         String passRequest = request.replaceAll("\\p{Z}", "");
         if (passRequest.endsWith("/")) {
             passRequest = passRequest.substring(0, passRequest.length() - 1);
@@ -26,4 +26,16 @@ public class SearchController {
         ApiResponse<SearchResultDto> response = ApiResponse.of(200, "successfully searched!", clubList);
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/guest")
+    public ResponseEntity<ApiResponse<SearchResultDto>> searchIfNotLogin(@RequestParam("search") String request) {
+        String passRequest = request.replaceAll("\\p{Z}", "");
+        if (passRequest.endsWith("/")) {
+            passRequest = passRequest.substring(0, passRequest.length() - 1);
+        }
+        SearchResultDto clubList = searchService.findClubByNameContainIfNoLogin(passRequest);
+        ApiResponse<SearchResultDto> response = ApiResponse.of(200, "successfully searched!", clubList);
+        return ResponseEntity.ok(response);
+    }
+
 }

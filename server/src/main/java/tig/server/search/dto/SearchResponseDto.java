@@ -59,10 +59,6 @@ public class SearchResponseDto {
     @Schema(type = "boolean", example = "true")
     private Boolean isHeart;
 
-    private Float avgLongitude;
-
-    private Float avgLatitude;
-
     @Schema(type = "float", example = "17.28")
     private Float distance;
 
