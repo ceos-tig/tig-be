@@ -118,6 +118,14 @@ public class ReservationController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/done/{reservationId}")
+    @Operation(summary = "admin : 대기 중인 특정 예약 체험 완료 로 전환")
+    public ResponseEntity<ApiResponse<Void>> doneReservation(@PathVariable Long reservationId) {
+        reservationService.doneReservationById(reservationId);
+        ApiResponse<Void> response = ApiResponse.of(200, "대기 중인 특정 예약 체험 환료로 전환 성공", null);
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/confirmed")
     @Operation(summary = "admin : 승인된 모든 예약 조회")
     public ResponseEntity<ApiResponse<List<ReservationResponse>>> checkConfirmedReservation() {
@@ -133,6 +141,7 @@ public class ReservationController {
         ApiResponse<List<ReservationResponse>> response = ApiResponse.of(200, "거절된 모든 예약 조회 성공", responseList);
         return ResponseEntity.ok(response);
     }
+
     @GetMapping("/club/{clubId}")
     @Operation(summary = "업체 예약 위해 필요한 정보 조회")
     public ResponseEntity<ApiResponse<ReservationClubResponse>> checkClubInfo(@PathVariable Long clubId) {
