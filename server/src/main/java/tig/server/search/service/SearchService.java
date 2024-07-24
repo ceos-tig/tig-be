@@ -40,6 +40,21 @@ public class SearchService {
         return new SearchResultDto(searchResponseDtoList, avgPointDto.getAvgLatitude(), avgPointDto.getAvgLongitude());
     }
 
+    public SearchResultDto findClubByNameContainIfNoLogin(String request) {
+        String keywordWithoutSpaces = request.replaceAll(" ", "");
+        List<Club> clubList = clubRepository.searchByKeyword(keywordWithoutSpaces);
+
+        AvgPointDto avgPointDto = calculateMidPoint(clubList);
+        List<SearchResponseDto> searchResponseDtoList = new ArrayList<>();
+        for (Club club : clubList) {
+            Float distance = calculateDistance(avgPointDto, club);
+            SearchResponseDto searchResponseDto = searchMapper.entityToResponse(club);
+            searchResponseDto.setDistance(distance);
+            searchResponseDtoList.add(searchResponseDto);
+        }
+        return new SearchResultDto(searchResponseDtoList, avgPointDto.getAvgLatitude(), avgPointDto.getAvgLongitude());
+    }
+
     public static AvgPointDto calculateMidPoint(List<Club> clubList) {
         Float sumOfLatitude = 0.0f;
         Float sumOfLongitude = 0.0f;
