@@ -68,6 +68,9 @@ public class ReservationMapperImpl implements ReservationMapper {
         reservationResponse.price( reservation.getPrice() );
         reservationResponse.status( reservation.getStatus() );
         reservationResponse.paymentId( reservation.getPaymentId() );
+        if ( reservation.getUpdatedAt() != null ) {
+            reservationResponse.updatedAt( DateTimeFormatter.ISO_LOCAL_DATE_TIME.format( reservation.getUpdatedAt() ) );
+        }
 
         return reservationResponse.build();
     }
