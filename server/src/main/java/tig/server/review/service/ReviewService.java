@@ -112,10 +112,22 @@ public class ReviewService {
 
         List<Reservation> reservations = club.getReservations();
 
+        // set userName, adultCount, teenagerCount, kidsCount, startTime
         return reservations.stream()
-                .map(Reservation::getReview)
-                .filter(Objects::nonNull)
-                .map(reviewMapper::entityToResponse)
+                .filter(reservation -> Objects.nonNull(reservation.getReview()))
+                .map(reservation -> {
+                    Review review = reservation.getReview();
+                    return ReviewResponse.builder()
+                            .reservationId(reservation.getId())
+                            .rating(review.getRating())
+                            .contents(review.getContents())
+                            .userName(reservation.getMember().getName())
+                            .adultCount(reservation.getAdultCount())
+                            .teenagerCount(reservation.getTeenagerCount())
+                            .kidsCount(reservation.getKidsCount())
+                            .startTime(reservation.getStartTime().toString())
+                            .build();
+                })
                 .collect(Collectors.toList());
     }
 

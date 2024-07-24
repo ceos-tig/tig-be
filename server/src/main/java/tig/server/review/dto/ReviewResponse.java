@@ -20,4 +20,18 @@ public class ReviewResponse {
     @Schema(type = "string", example = "재미있어요. 티그볼링장 추천합니다.")
     private String contents;
 
+    @Schema(type = "string", example = "김티그")
+    private String userName;
+
+    @Schema(type = "integer", example = "2")
+    private Integer adultCount;
+
+    @Schema(type = "integer", example = "0")
+    private Integer teenagerCount;
+
+    @Schema(type = "integer", example = "0")
+    private Integer kidsCount;
+
+    @Schema(type = "string", example = "2007-12-03T10:15:30")
+    private String startTime;
 }
