@@ -25,7 +25,7 @@ public class SearchLogService {
                 .orElseThrow(() -> new BusinessExceptionHandler("member not found", ErrorCode.NOT_FOUND_ERROR));
 
         String now = request.getCreatedAt();
-        String key = "SearchLog" + member.getId();
+        String key = "SearchLog:" + member.getUniqueId();
         SearchLog value = SearchLog.builder()
                 .name(request.getName())
                 .createdAt(now)
@@ -52,7 +52,7 @@ public class SearchLogService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new BusinessExceptionHandler("member not found",ErrorCode.NOT_FOUND_ERROR));
 
-        String key = "SearchLog" + member.getId();
+        String key = "SearchLog:" + member.getUniqueId();
         List<SearchLog> logs = redisTemplate.opsForList().
                 range(key, 0, 10);
 
