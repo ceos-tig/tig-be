@@ -81,6 +81,9 @@ dependencies {
 	// payment
 	implementation 'com.github.iamport:iamport-rest-client-java:0.2.21'
 
+	// redis
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
 
 	implementation group: 'org.javassist', name: 'javassist', version: '3.15.0-GA'
 	implementation 'io.netty:netty-resolver-dns-native-macos:4.1.68.Final:osx-aarch_64'
