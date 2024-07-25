@@ -102,6 +102,14 @@ public class ReservationController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/tbc/{reservationId}")
+    @Operation(summary = "admin : 대기 중인 특정 예약 TBC로 전환")
+    public ResponseEntity<ApiResponse<Void>> tbcReservation(@PathVariable Long reservationId) {
+        reservationService.tbcReservationById(reservationId);
+        ApiResponse<Void> response = ApiResponse.of(200, "대기중인 특정 예약을 TBC로 전환 성공", null);
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping("/confirm/{reservationId}")
     @Operation(summary = "admin : 대기 중인 특정 예약 확정으로 전환")
     public ResponseEntity<ApiResponse<Void>> confirmReservation(@PathVariable Long reservationId) {

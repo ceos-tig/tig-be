@@ -59,6 +59,9 @@ public class ReservationResponse {
     @Schema(type = "string", example = "02-1234-5678")
     private String clubPhoneNumber;
 
+    @Schema(type = "string", example = "010-1234-5678")
+    private String customerPhoneNumber;
+
     @Schema(type = "string", example = "서울시 동교동 14-2")
     private String clubAddress;
 

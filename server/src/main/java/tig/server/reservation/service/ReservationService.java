@@ -227,6 +227,23 @@ public class ReservationService {
     }
 
     @Transactional
+    public void tbcReservationById(Long reservationId) {
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new BusinessExceptionHandler("reservation not found",ErrorCode.NOT_FOUND_ERROR));
+
+//        // Define the list of valid statuses
+//        List<Status> validStatuses = Arrays.asList(Status.CANCELED, Status.TBC);
+//
+//        // Check if the reservation status is not in the list of valid statuses
+//        if (!validStatuses.contains(reservation.getStatus())) {
+//            throw new BusinessExceptionHandler("Cannot tbc a reservation with status " + reservation.getStatus(),ErrorCode.BAD_REQUEST_ERROR);
+//        }
+
+        reservation.setStatus(Status.TBC);
+        reservationRepository.save(reservation);
+    }
+
+    @Transactional
     public void confirmReservationById(Long reservationId) {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new BusinessExceptionHandler("reservation not found",ErrorCode.NOT_FOUND_ERROR));
@@ -355,6 +372,9 @@ public class ReservationService {
         }
         if (response.getClubPhoneNumber() == null) {
             response.setClubPhoneNumber(entity.getClub().getPhoneNumber());
+        }
+        if (response.getCustomerPhoneNumber() == null) {
+            response.setCustomerPhoneNumber(entity.getMember().getPhoneNumber());
         }
         return response;
     }

@@ -10,8 +10,8 @@ import tig.server.search.dto.SearchResponseDto;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2024-07-20T10:38:05+0900",
-    comments = "version: 1.5.1.Final, compiler: javac, environment: Java 17.0.7 (Oracle Corporation)"
+    date = "2024-07-25T22:46:56+0900",
+    comments = "version: 1.5.1.Final, compiler: javac, environment: Java 17.0.5 (Oracle Corporation)"
 )
 @Component
 public class SearchMapperImpl implements SearchMapper {

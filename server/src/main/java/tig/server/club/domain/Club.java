@@ -22,8 +22,10 @@ public class Club extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "club_id")
+    @Column(name = "id")
     private Long id;
+
+    private Long clubId;
 
     @Builder.Default
     private boolean isDeleted = Boolean.FALSE;
