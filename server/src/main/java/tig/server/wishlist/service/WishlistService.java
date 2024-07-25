@@ -45,7 +45,7 @@ public class WishlistService {
 
             List<ClubResponse> reponseList = new ArrayList<>();
             for (WishlistResponse wishlist : responseList) {
-                ClubResponse club = clubService.getClubById(wishlist.getClub().getId());
+                ClubResponse club = clubService.getClubByIdForLoginUser(memberId, wishlist.getClub().getId());
                 reponseList.add(club);
             }
             return reponseList;

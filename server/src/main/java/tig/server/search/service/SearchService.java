@@ -6,11 +6,13 @@ import org.springframework.transaction.annotation.Transactional;
 import tig.server.club.domain.Club;
 import tig.server.club.repository.ClubRepository;
 import tig.server.search.dto.AvgPointDto;
+import tig.server.search.dto.SearchLogDto;
 import tig.server.search.dto.SearchResponseDto;
 import tig.server.search.dto.SearchResultDto;
 import tig.server.search.mapper.SearchMapper;
 import tig.server.wishlist.repository.WishlistRepository;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +22,7 @@ import java.util.List;
 public class SearchService {
     private final ClubRepository clubRepository;
     private final WishlistRepository wishlistRepository;
+    private final SearchLogService searchLogService;
 
     private final SearchMapper searchMapper = SearchMapper.INSTANCE;
 
@@ -37,6 +40,11 @@ public class SearchService {
             searchResponseDto.setDistance(distance);
             searchResponseDtoList.add(searchResponseDto);
         }
+
+        String now = LocalDateTime.now().toString();
+        SearchLogDto searchLogDto = new SearchLogDto(request,now);
+        searchLogService.saveRecentSearchLog(memberId,searchLogDto);
+
         return new SearchResultDto(searchResponseDtoList, avgPointDto.getAvgLatitude(), avgPointDto.getAvgLongitude());
     }
 
