@@ -5,12 +5,14 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import tig.server.annotation.LoginUser;
 import tig.server.club.dto.ClubRequest;
 import tig.server.club.dto.ClubResponse;
 import tig.server.club.dto.HomeRequest;
 import tig.server.club.dto.HomeResponse;
 import tig.server.club.service.ClubService;
 import tig.server.global.response.ApiResponse;
+import tig.server.member.domain.Member;
 
 import java.util.List;
 
@@ -30,9 +32,17 @@ public class ClubController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/{clubId}")
-    @Operation(summary = "특정 업체 조회")
-    public ResponseEntity<ApiResponse<ClubResponse>> getClubById(@PathVariable Long clubId) {
+    @GetMapping("/user/{clubId}")
+    @Operation(summary = "특정 업체 조회 : 로그인 된 사용자를 위함")
+    public ResponseEntity<ApiResponse<ClubResponse>> getClubById(@LoginUser Member member, @PathVariable Long clubId) {
+        ClubResponse clubResponse = clubService.getClubByIdForLoginUser(member.getId(), clubId);
+        ApiResponse<ClubResponse> response = ApiResponse.of(200, "successfully retrieved club", clubResponse);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/guest/{clubId}")
+    @Operation(summary = "특정 업체 조회 : 로그인 안된 사용자를 위함")
+    public ResponseEntity<ApiResponse<ClubResponse>> getClubByIdForLoginUser(@PathVariable Long clubId) {
         ClubResponse clubResponse = clubService.getClubById(clubId);
         ApiResponse<ClubResponse> response = ApiResponse.of(200, "successfully retrieved club", clubResponse);
         return ResponseEntity.ok(response);
