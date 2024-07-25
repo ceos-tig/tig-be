@@ -61,4 +61,7 @@ public class ClubResponse {
 
     @Schema(type = "array", example = "[\"https://s3.amazonaws.com/bucket/club1.jpg\", \"https://s3.amazonaws.com/bucket/club2.jpg\"]", description = "각각 10분동안 유효하며, 보낸 이미지 순서대로 presigned URL이 반환됩니다.")
     private List<String> presignedImageUrls;
+
+    @Schema(type = "boolean", example = "true")
+    private Boolean isHeart;
 }

@@ -17,6 +17,8 @@ import tig.server.reservation.domain.Reservation;
 import tig.server.reservation.repository.ReservationRepository;
 import tig.server.review.domain.Review;
 import tig.server.review.dto.ReviewRequest;
+import tig.server.wishlist.domain.Wishlist;
+import tig.server.wishlist.repository.WishlistRepository;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -30,6 +32,7 @@ public class ClubService {
 
     private final ClubRepository clubRepository;
     private final ReservationRepository reservationRepository;
+    private final WishlistRepository wishlistRepository;
 
     private final ClubMapper clubMapper = ClubMapper.INSTANCE;
 
@@ -50,6 +53,21 @@ public class ClubService {
         List<String> CloudFrontImageUrl = s3Uploader.getImageUrls(club.getImageUrls());
         club.setImageUrls(CloudFrontImageUrl);
         ClubResponse clubResponse = clubMapper.entityToResponse(club);
+        return calculateAvgRating(clubResponse);
+    }
+
+    public ClubResponse getClubByIdForLoginUser(Long memberId, Long clubId) {
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(() -> new BusinessExceptionHandler("club not found", ErrorCode.NOT_FOUND_ERROR));
+        Optional<Wishlist> wishlist = wishlistRepository.findByMemberIdAndClubId(memberId, clubId);
+        List<String> CloudFrontImageUrl = s3Uploader.getImageUrls(club.getImageUrls());
+        club.setImageUrls(CloudFrontImageUrl);
+        ClubResponse clubResponse = clubMapper.entityToResponse(club);
+        if (wishlist.isEmpty()) { // 해당 사용자는 해당 클럽에 좋아요 안누름
+            clubResponse.setIsHeart(false);
+        } else { //해당 사용자는 해당 클럽에 좋아요 누름
+            clubResponse.setIsHeart(true);
+        }
         return calculateAvgRating(clubResponse);
     }
 
