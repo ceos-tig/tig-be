@@ -90,7 +90,7 @@ public class MemberController {
     @PatchMapping("/name")
     @Operation(summary = "사용자 이름 변경")
     public ResponseEntity<ApiResponse<MemberResponse>> changeName(@LoginUser Member member,
-                                                         @RequestParam("newName") String newName) {
+                                                                  @RequestParam("newName") String newName) {
         MemberResponse response = memberService.changeName(member.getId(), newName);
         ApiResponse<MemberResponse> apiResponse = ApiResponse.of(200, "successfully changed name", response);
         return ResponseEntity.ok(apiResponse);
@@ -99,7 +99,7 @@ public class MemberController {
     @PatchMapping("/phoneNumber")
     @Operation(summary = "사용자 전화번호 변경")
     public ResponseEntity<ApiResponse<MemberResponse>> changePhoneNumber(@LoginUser Member member,
-                                                                @RequestParam("newPhoneNumber") String newPhoneNumber) {
+                                                                         @RequestParam("newPhoneNumber") String newPhoneNumber) {
         MemberResponse response = memberService.changePhoneNumber(member.getId(), newPhoneNumber);
         ApiResponse<MemberResponse> apiResponse = ApiResponse.of(200, "successfully changed phone number", response);
         return ResponseEntity.ok(apiResponse);
@@ -108,9 +108,17 @@ public class MemberController {
     @PatchMapping("/email")
     @Operation(summary = "사용자 이메일 변경")
     public ResponseEntity<ApiResponse<MemberResponse>> changeEmail(@LoginUser Member member,
-                                                                       @RequestParam("newEmail") String newEmail) {
+                                                                   @RequestParam("newEmail") String newEmail) {
         MemberResponse response = memberService.changeEmail(member.getId(), newEmail);
         ApiResponse<MemberResponse> apiResponse = ApiResponse.of(200, "successfully changed email", response);
         return ResponseEntity.ok(apiResponse);
+    }
+
+    @Operation(summary = "로그아웃")
+    @GetMapping("/logout")
+    public ResponseEntity<ApiResponse<Void>> logout(@LoginUser Member member) {
+        memberService.logout(member.getId());
+        ApiResponse<Void> response = ApiResponse.of(200, "successfully logged out!", null);
+        return ResponseEntity.ok(response);
     }
 }
