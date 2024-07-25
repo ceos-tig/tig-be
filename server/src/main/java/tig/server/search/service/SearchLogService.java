@@ -31,6 +31,14 @@ public class SearchLogService {
                 .createdAt(now)
                 .build();
 
+        // 기존에 같은 이름의 검색 기록이 있는지 확인하고 제거
+        List<SearchLog> logs = redisTemplate.opsForList().range(key, 0, -1);
+        for (SearchLog log : logs) {
+            if (log.getName().equals(request.getName())) {
+                redisTemplate.opsForList().remove(key, 1, log);
+            }
+        }
+
         Long size = redisTemplate.opsForList().size(key);
         if (size == 10) {
             // rightPop을 통해 가장 오래된 데이터 삭제
