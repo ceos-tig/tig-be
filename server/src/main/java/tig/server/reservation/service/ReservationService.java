@@ -353,6 +353,9 @@ public class ReservationService {
         if (response.getPaymentId() == null) {
             response.setPaymentId(entity.getPaymentId());
         }
+        if (response.getClubPhoneNumber() == null) {
+            response.setClubPhoneNumber(entity.getClub().getPhoneNumber());
+        }
         return response;
     }
 
