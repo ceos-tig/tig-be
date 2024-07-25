@@ -140,4 +140,12 @@ public class TokenProvider implements InitializingBean {
         }
         return false;
     }
+
+    public long getRefreshTokenExpiration(String token) {
+        Claims claims = Jwts.parser()
+                .setSigningKey(key)
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.getExpiration().getTime() - System.currentTimeMillis();
+    }
 }

@@ -1,6 +1,7 @@
 package tig.server.member.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -19,12 +20,14 @@ import tig.server.member.repository.MemberRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class MemberService {
+    private final RedisTemplate<String, Object> redisTemplateRT;
 
     private final MemberRepository memberRepository;
     private final TokenProvider tokenProvider;
@@ -44,19 +47,24 @@ public class MemberService {
 
     @Transactional
     public RefreshTokenResponseDto reissueAccessToken(String refreshToken) {
-        // TODO : 레디스 반영시 access token 을 블랙리스트에 넣는? && 기존의 RT는 만료시켜야하거나 폐기
-        String uniqueId = tokenProvider.getUniqueId(refreshToken);
-        Member member = getMemberByUniqueId(uniqueId);
+        String key = "blacklist:" + refreshToken;
+        if (redisTemplateRT.hasKey(key)) {
+            throw new BusinessExceptionHandler("!!!Refresh Token Blacklisted!!!",ErrorCode.FORBIDDEN_ERROR);
+        } else {
+            String uniqueId = tokenProvider.getUniqueId(refreshToken);
+            Member member = getMemberByUniqueId(uniqueId);
 
-        String accessToken = tokenProvider.createAccessToken(member.getName(), member.getUniqueId());
-        String newRefreshToken = tokenProvider.createRefreshToken(member.getName(), member.getUniqueId());
-        member.updateRefreshToken(newRefreshToken);
+            String accessToken = tokenProvider.createAccessToken(member.getName(), member.getUniqueId());
+            String newRefreshToken = tokenProvider.createRefreshToken(member.getName(), member.getUniqueId());
+            member.updateRefreshToken(newRefreshToken);
 
-        // 새로운 액세스 토큰으로 인증 객체 생성 및 설정
-        Authentication authentication = tokenProvider.getAuthentication(accessToken);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+            // 새로운 액세스 토큰으로 인증 객체 생성 및 설정
+            Authentication authentication = tokenProvider.getAuthentication(accessToken);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        return RefreshTokenResponseDto.fromRefreshToken(accessToken, newRefreshToken);
+            return RefreshTokenResponseDto.fromRefreshToken(accessToken, newRefreshToken);
+        }
+
     }
 
     public List<MemberResponse> getAllMembers() {
@@ -82,6 +90,7 @@ public class MemberService {
         Optional<Member> findMember = memberRepository.findByUniqueId(uniqueId);
         if (findMember.isPresent()) { // 있는 사용자
             Member existMember = findMember.get();
+            existMember.updateRefreshToken(refreshToken);
             return LoginMemberResponseDto.fromMember(existMember, accessToken);
         } else {
             Member member = Member.builder()
@@ -123,5 +132,17 @@ public class MemberService {
 
         member.updateEmail(newEmail);
         return memberMapper.entityToResponse(member);
+    }
+
+    @Transactional
+    public void logout(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new BusinessExceptionHandler("Member not found", ErrorCode.NOT_FOUND_ERROR));
+
+        // 기존 리프레시 토큰을 블랙리스트에 추가
+        String key = "blacklist:" + member.getRefreshToken();
+        redisTemplateRT.opsForValue().set(key, "blacklisted", tokenProvider.getRefreshTokenExpiration(member.getRefreshToken()), TimeUnit.MILLISECONDS);
+
+        member.updateRefreshToken(null);
     }
 }
