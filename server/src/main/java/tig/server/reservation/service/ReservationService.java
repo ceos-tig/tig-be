@@ -273,7 +273,7 @@ public class ReservationService {
             throw new BusinessExceptionHandler("Cannot done a reservation with status " + reservation.getStatus(),ErrorCode.BAD_REQUEST_ERROR);
         }
 
-        reservation.setStatus(Status.DECLINED);
+        reservation.setStatus(Status.DONE);
         reservationRepository.save(reservation);
     }
     
