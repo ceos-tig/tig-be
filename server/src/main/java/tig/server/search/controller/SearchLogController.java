@@ -28,4 +28,21 @@ public class SearchLogController {
         ApiResponse<List<SearchLogDto>> response = ApiResponse.of(200, "successfully retrieved recent search logs", searchLogDtoList);
         return ResponseEntity.ok(response);
     }
+
+    @Operation(summary = "특정 검색 기록 삭제")
+    @DeleteMapping("")
+    public ResponseEntity<ApiResponse<Void>> deleteByName(@LoginUser Member member,
+                                                          @RequestParam("target") String target) {
+        searchLogService.deleteSearchLog(member.getId(), target);
+        ApiResponse<Void> response = ApiResponse.of(200, "successfully deleted target search history", null);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "전체 검색 기록 삭제")
+    @DeleteMapping("/all")
+    public ResponseEntity<ApiResponse<Void>> deleteAll(@LoginUser Member member) {
+        searchLogService.deleteAllSearchLogs(member.getId());
+        ApiResponse<Void> response = ApiResponse.of(200, "successfully deleted ALL search history", null);
+        return ResponseEntity.ok(response);
+    }
 }

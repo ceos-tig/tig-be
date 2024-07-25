@@ -63,23 +63,26 @@ public class SearchLogService {
         }
         return searchLogDtoList;
     }
-    /*
-    public void deleteRecentSearchLog(Long memberId, SearchLogDeleteRequest request) {
+
+    public void deleteSearchLog(Long memberId, String target) {
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new BusinessExceptionHandler("member not found",ErrorCode.NOT_FOUND_ERROR));
+                .orElseThrow(() -> new BusinessExceptionHandler("member not found", ErrorCode.NOT_FOUND_ERROR));
 
-        String key = "SearchLog" + member.getId();
-        SearchLog value = SearchLog.builder()
-                .name(request.getName())
-                .createdAt(request.getCreatedAt())
-                .build();
-
-        long count = redisTemplate.opsForList().remove(key, 1, value);
-
-        if (count == 0) {
-            throw new CustomException(ErrorCode.SEARCH_LOG_NOT_EXIST);
+        String key = "SearchLog:" + member.getUniqueId();
+        List<SearchLog> logs = redisTemplate.opsForList().range(key, 0, -1);
+        for (SearchLog log : logs) {
+            if (log.getName().equals(target)) {
+                redisTemplate.opsForList().remove(key, 1, log);
+                break; // 검색 기록을 하나만 삭제
+            }
         }
     }
-    /*
-     */
+
+    public void deleteAllSearchLogs(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new BusinessExceptionHandler("member not found", ErrorCode.NOT_FOUND_ERROR));
+
+        String key = "SearchLog:" + member.getUniqueId();
+        redisTemplate.delete(key);
+    }
 }
