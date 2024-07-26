@@ -64,7 +64,7 @@ public class KakaoService {
         return kakaoTokenResponseDto.getAccessToken();
     }
 
-    public String getAccessTokenFromKakaoDeploy(String code) {
+    public String getAccessTokenFromKakaoDeployTest(String code) {
         KakaoTokenResponseDto kakaoTokenResponseDto = WebClient.create(KAUTH_TOKEN_URL_HOST)
                 .post()
                 .uri("/oauth/token")
@@ -76,6 +76,30 @@ public class KakaoService {
                         .with("redirect_uri", "https://main--testtig.netlify.app/login/oauth2/code/kakao"))
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> Mono.error(new BusinessExceptionHandler("Invalid Parameter", ErrorCode.BAD_REQUEST_ERROR)))
+                .onStatus(HttpStatusCode::is5xxServerError, clientResponse -> Mono.error(new RuntimeException("500 Internal Server Error")))
+                .bodyToMono(KakaoTokenResponseDto.class)
+                .block();
+
+        log.info(" [Kakao Service] Access Token ------> {}", kakaoTokenResponseDto.getAccessToken());
+        log.info(" [Kakao Service] Refresh Token ------> {}", kakaoTokenResponseDto.getRefreshToken());
+        log.info(" [Kakao Service] Id Token ------> {}", kakaoTokenResponseDto.getIdToken());
+        log.info(" [Kakao Service] Scope ------> {}", kakaoTokenResponseDto.getScope());
+
+        return kakaoTokenResponseDto.getAccessToken();
+    }
+
+    public String getAccessTokenFromKakaoDeploy(String code) {
+        KakaoTokenResponseDto kakaoTokenResponseDto = WebClient.create(KAUTH_TOKEN_URL_HOST)
+                .post()
+                .uri("/oauth/token")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                .body(BodyInserters.fromFormData("grant_type", "authorization_code")
+                        .with("client_id", clientId)
+                        .with("client_secret", clientSecret)
+                        .with("code", code)
+                        .with("redirect_uri", "https://www.tigleisure.com/login/oauth2/code/kakao"))
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> Mono.error(new BusinessExceptionHandler("KAKAO Invalid Parameter", ErrorCode.BAD_REQUEST_ERROR)))
                 .onStatus(HttpStatusCode::is5xxServerError, clientResponse -> Mono.error(new RuntimeException("500 Internal Server Error")))
                 .bodyToMono(KakaoTokenResponseDto.class)
                 .block();
