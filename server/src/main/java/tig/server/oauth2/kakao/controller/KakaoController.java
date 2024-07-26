@@ -42,7 +42,7 @@ public class KakaoController {
             kakaoAccessToken = kakaoService.getAccessTokenFromKakaoDeploy(code);
         }
         KakaoUserInfoResponseDto userInfo = kakaoService.getUserInfo(kakaoAccessToken);
-        LoginMemberResponseDto member = memberService.createMember(userInfo);
+        LoginMemberResponseDto member = memberService.createKakaoMember(userInfo);
 
         // Refresh Token 쿠키 설정
         ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", member.getRefreshToken())
