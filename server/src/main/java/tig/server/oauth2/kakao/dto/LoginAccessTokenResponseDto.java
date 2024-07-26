@@ -1,8 +1,7 @@
-package tig.server.kakao.dto;
+package tig.server.oauth2.kakao.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import tig.server.member.domain.Member;
 
 @Getter
 @AllArgsConstructor

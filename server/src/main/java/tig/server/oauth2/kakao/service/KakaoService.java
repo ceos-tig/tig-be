@@ -1,8 +1,7 @@
-package tig.server.kakao.service;
+package tig.server.oauth2.kakao.service;
 
 import org.springframework.beans.factory.annotation.Value;
 import io.netty.handler.codec.http.HttpHeaderValues;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -13,9 +12,9 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import tig.server.global.code.ErrorCode;
 import tig.server.global.exception.BusinessExceptionHandler;
-import tig.server.kakao.dto.KakaoTokenResponseDto;
+import tig.server.oauth2.kakao.dto.KakaoTokenResponseDto;
 import org.springframework.http.HttpStatusCode;
-import tig.server.kakao.dto.KakaoUserInfoResponseDto;
+import tig.server.oauth2.kakao.dto.KakaoUserInfoResponseDto;
 
 @Slf4j
 @Service
