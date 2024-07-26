@@ -14,6 +14,7 @@ import tig.server.club.mapper.ClubMapper;
 import tig.server.club.repository.ClubRepository;
 import tig.server.config.S3Uploader;
 import tig.server.enums.Category;
+import tig.server.enums.District;
 import tig.server.enums.Facility;
 import tig.server.global.exception.BusinessExceptionHandler;
 import tig.server.global.code.ErrorCode;
@@ -402,7 +403,6 @@ public class ClubService {
         return reservoir;
     }
 
-
     private static class ClubDistance {
         private final Club club;
         private final double distance;
@@ -419,6 +419,21 @@ public class ClubService {
         public double getDistance() {
             return distance;
         }
+    }
+
+    public String getNearestDistrict(double latitude, double longitude) {
+        District nearestDistrict = null;
+        double minDistance = Double.MAX_VALUE;
+
+        for (District district : District.values()) {
+            double distance = distance(latitude, longitude, district.getLatitude(), district.getLongitude());
+            if (distance < minDistance) {
+                minDistance = distance;
+                nearestDistrict = district;
+            }
+        }
+
+        return nearestDistrict != null ? nearestDistrict.getKoreanName() : null;
     }
 
 }

@@ -57,11 +57,17 @@ public class ClubController {
         return ResponseEntity.status(201).body(response);
     }
 
-    @PostMapping("/home")
-    @Operation(summary = "홈 화면")
+    @GetMapping("/home")
+    @Operation(summary = "홈 화면 업체 조회")
     public ResponseEntity<ApiResponse<List<HomeResponse>>> getHomecClubs(@RequestBody HomeRequest homeRequest) {
         HomeResponse homeResponse = clubService.getHomeClubs(homeRequest);
         ApiResponse<List<HomeResponse>> response = ApiResponse.of(200, "successfully retrieved home clubs", List.of(homeResponse));
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/nearest-district")
+    @Operation(summary = "가장 가까운 구역 조회")
+    public String getNearestDistrict(@RequestParam double latitude, @RequestParam double longitude) {
+        return clubService.getNearestDistrict(latitude, longitude);
     }
 }
