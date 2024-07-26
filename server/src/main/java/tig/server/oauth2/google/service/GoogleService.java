@@ -25,7 +25,7 @@ public class GoogleService {
     private String GOOGLE_CLIENT_SECRET;
     
 
-    public GoogleInfoResponseDto getGoogleMemberInfo(String code) {
+    public GoogleInfoResponseDto getGoogleMemberInfoTest(String code) {
         RestTemplate restTemplate = new RestTemplate();
         GoogleRequestDto googleOAuthRequestParam = GoogleRequestDto
                 .builder()
@@ -41,8 +41,25 @@ public class GoogleService {
         Map<String, String> map = new HashMap<>();
         map.put("id_token",jwtToken);
         ResponseEntity<GoogleInfoResponseDto> memberInfo = restTemplate.postForEntity(GOOGLE_MEMBER_INFO_URL, map, GoogleInfoResponseDto.class);
-        System.out.println("memberInfo.getBody().getSub() = " + memberInfo.getBody().getSub());
-        System.out.println("memberInfo.getBody().getPicture() = " + memberInfo.getBody().getPicture());
+        return memberInfo.getBody();
+    }
+
+    public GoogleInfoResponseDto getGoogleMemberInfoDeploy(String code) {
+        RestTemplate restTemplate = new RestTemplate();
+        GoogleRequestDto googleOAuthRequestParam = GoogleRequestDto
+                .builder()
+                .clientId(GOOGLE_CLIENT_ID)
+                .clientSecret(GOOGLE_CLIENT_SECRET)
+                .code(code)
+                .redirectUri("https://tigleisure.com/login/oauth2/code/google")
+                .grantType("authorization_code").build();
+
+        ResponseEntity<GoogleResponseDto> resultEntity = restTemplate.postForEntity(GOOGLE_TOKEN_URL, googleOAuthRequestParam, GoogleResponseDto.class);
+        String jwtToken=resultEntity.getBody().getId_token();
+
+        Map<String, String> map = new HashMap<>();
+        map.put("id_token",jwtToken);
+        ResponseEntity<GoogleInfoResponseDto> memberInfo = restTemplate.postForEntity(GOOGLE_MEMBER_INFO_URL, map, GoogleInfoResponseDto.class);
         return memberInfo.getBody();
     }
 }
