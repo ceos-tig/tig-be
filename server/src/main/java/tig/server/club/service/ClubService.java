@@ -13,6 +13,7 @@ import tig.server.club.dto.HomeResponse;
 import tig.server.club.mapper.ClubMapper;
 import tig.server.club.repository.ClubRepository;
 import tig.server.config.S3Uploader;
+import tig.server.enums.Category;
 import tig.server.enums.Facility;
 import tig.server.global.exception.BusinessExceptionHandler;
 import tig.server.global.code.ErrorCode;
@@ -171,18 +172,21 @@ public class ClubService {
 
         ClubService service = serviceProvider.getObject();
 
-        List<ClubResponse> nearestClubs = service.findNearestClubs(requestLatitude, requestLongitude, 5).stream()
+        List<ClubResponse> nearestClubs = service.optimizedParallelFindNearestClubs(requestLatitude, requestLongitude, 5).stream()
                 .map(clubMapper::entityToResponse)
                 .collect(Collectors.toList());
 
         List<ClubResponse> popularClubs = service.getPopularClubs();
 
-        List<ClubResponse> recommendedClubs = service.getRecommendedClubs(5);
+        List<ClubResponse> recommendedClubs = service.getRecommendedClubs(10);
+
+        Map<Category, List<Club>> nearestClubsByCategory = service.findNearestClubsByCategory(requestLatitude, requestLongitude, 10);
 
         return HomeResponse.builder()
                 .nearestClubs(nearestClubs)
                 .popularClubs(popularClubs)
                 .recommendedClubs(recommendedClubs)
+                .nearestClubsByCategory(nearestClubsByCategory)
                 .build();
     }
 
@@ -302,6 +306,7 @@ public class ClubService {
 
         // Use ConcurrentSkipListSet to maintain the nearest clubs in a thread-safe manner
         ConcurrentSkipListSet<ClubDistance> nearestClubs = allClubs.parallelStream()
+                .filter(club -> club.getLatitude() != null && club.getLongitude() != null) // Filter out clubs with null latitude or longitude
                 .map(club -> new ClubDistance(club, distance(requestLatitude, requestLongitude, club.getLatitude(), club.getLongitude(), cosRequestLatitude)))
                 .collect(Collectors.toCollection(() -> new ConcurrentSkipListSet<>(Comparator.comparingDouble(ClubDistance::getDistance))));
 
@@ -323,6 +328,44 @@ public class ClubService {
                 * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2));
         float c = (float) (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
         return R * c; // convert to kilometers
+    }
+
+    public Map<Category, List<Club>> findNearestClubsByCategory(float requestLatitude, float requestLongitude, int count) {
+        List<Club> allClubs = clubRepository.findAll();
+
+        // Precompute cosine of request latitude
+        float requestLatitudeRad = (float) Math.toRadians(requestLatitude);
+        float cosRequestLatitude = (float) Math.cos(requestLatitudeRad);
+
+        // Group clubs by category
+        Map<Category, List<Club>> clubsByCategory = allClubs.stream()
+                .filter(club -> club.getLatitude() != null && club.getLongitude() != null) // Filter out clubs with null latitude or longitude
+                .collect(Collectors.groupingBy(Club::getCategory));
+
+        // Create a map to hold the nearest clubs for each category
+        Map<Category, List<Club>> nearestClubsByCategory = new HashMap<>();
+
+        // Find the nearest clubs for each category
+        for (Map.Entry<Category, List<Club>> entry : clubsByCategory.entrySet()) {
+            Category category = entry.getKey();
+            List<Club> clubs = entry.getValue();
+
+            // Use ConcurrentSkipListSet to maintain the nearest clubs in a thread-safe manner
+            ConcurrentSkipListSet<ClubDistance> nearestClubs = clubs.parallelStream()
+                    .map(club -> new ClubDistance(club, distance(requestLatitude, requestLongitude, club.getLatitude(), club.getLongitude(), cosRequestLatitude)))
+                    .collect(Collectors.toCollection(() -> new ConcurrentSkipListSet<>(Comparator.comparingDouble(ClubDistance::getDistance))));
+
+            // Limit to the desired number of nearest clubs
+            List<Club> nearestClubsList = nearestClubs.stream()
+                    .limit(count)
+                    .map(ClubDistance::getClub)
+                    .collect(Collectors.toList());
+
+            // Add the nearest clubs to the result map
+            nearestClubsByCategory.put(category, nearestClubsList);
+        }
+
+        return nearestClubsByCategory;
     }
 
 
