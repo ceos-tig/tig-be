@@ -1,9 +1,8 @@
-package tig.server.kakao.controller;
+package tig.server.oauth2.google.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -11,38 +10,35 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import tig.server.global.response.ApiResponse;
-import tig.server.kakao.dto.KakaoUserInfoResponseDto;
-import tig.server.kakao.dto.LoginAccessTokenResponseDto;
-import tig.server.kakao.dto.LoginMemberResponseDto;
-import tig.server.kakao.service.KakaoService;
 import tig.server.member.service.MemberService;
+import tig.server.oauth2.google.dto.GoogleInfoResponseDto;
+import tig.server.oauth2.google.service.GoogleService;
+import tig.server.oauth2.kakao.dto.LoginAccessTokenResponseDto;
+import tig.server.oauth2.kakao.dto.LoginMemberResponseDto;
 
 import java.io.IOException;
 
-@RequiredArgsConstructor
 @RestController
-@Slf4j
-public class KakaoController {
-
-    private final KakaoService kakaoService;
+@RequiredArgsConstructor
+public class GoogleController {
+    private final GoogleService googleService;
     private final MemberService memberService;
 
-    @RequestMapping("/callback")
+    @RequestMapping("/google/callback")
     public ResponseEntity<ApiResponse<LoginAccessTokenResponseDto>> callback(HttpServletRequest request,
                                                                              @RequestParam("code") String code,
                                                                              HttpServletResponse response) throws IOException {
         String origin = request.getHeader("Origin");
+        System.out.println("여기 들어와졌나");
+        GoogleInfoResponseDto googleMemberInfo = googleService.getGoogleMemberInfo(code);
 
-        String kakaoAccessToken = null;
-        if(origin.equals("https://localhost:3000") || origin.equals("https://localhost:8080")){
-            kakaoAccessToken = kakaoService.getAccessTokenFromKakaoTest(code);
-        } else if(origin.equals("https://main--testtig.netlify.app")) {
-            kakaoAccessToken = kakaoService.getAccessTokenFromKakaoDeployTest(code);
-        } else if(origin.equals("https://tigleisure.com")){
-            kakaoAccessToken = kakaoService.getAccessTokenFromKakaoDeploy(code);
-        }
-        KakaoUserInfoResponseDto userInfo = kakaoService.getUserInfo(kakaoAccessToken);
-        LoginMemberResponseDto member = memberService.createMember(userInfo);
+//        GoogleInfoResponseDto googleMemberInfo = null;
+//        if(origin.equals("https://localhost:3000") || origin.equals("https://localhost:8080")){
+//            googleMemberInfo = googleService.getGoogleMemberInfo(code);
+//        } else if(origin.equals("https://tigleisure.com")){
+//            //kakaoAccessToken = googleService.getAccessTokenFromKakaoDeploy(code);
+//        }
+        LoginMemberResponseDto member = memberService.createGoogleMember(googleMemberInfo);
 
         // Refresh Token 쿠키 설정
         ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", member.getRefreshToken())
