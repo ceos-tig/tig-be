@@ -38,7 +38,7 @@ public class KakaoController {
             kakaoAccessToken = kakaoService.getAccessTokenFromKakaoTest(code);
         } else if(origin.equals("https://main--testtig.netlify.app")) {
             kakaoAccessToken = kakaoService.getAccessTokenFromKakaoDeployTest(code);
-        } else if(origin.equals("https://www.tigleisure.com")){
+        } else if(origin.equals("https://tigleisure.com")){
             kakaoAccessToken = kakaoService.getAccessTokenFromKakaoDeploy(code);
         }
         KakaoUserInfoResponseDto userInfo = kakaoService.getUserInfo(kakaoAccessToken);

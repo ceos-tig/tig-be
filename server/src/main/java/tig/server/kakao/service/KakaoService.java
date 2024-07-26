@@ -97,7 +97,7 @@ public class KakaoService {
                         .with("client_id", clientId)
                         .with("client_secret", clientSecret)
                         .with("code", code)
-                        .with("redirect_uri", "https://www.tigleisure.com/login/oauth2/code/kakao"))
+                        .with("redirect_uri", "https://tigleisure.com/login/oauth2/code/kakao"))
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> Mono.error(new BusinessExceptionHandler("KAKAO Invalid Parameter", ErrorCode.BAD_REQUEST_ERROR)))
                 .onStatus(HttpStatusCode::is5xxServerError, clientResponse -> Mono.error(new RuntimeException("500 Internal Server Error")))
