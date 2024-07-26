@@ -171,7 +171,7 @@ public class ClubService {
 
         ClubService service = serviceProvider.getObject();
 
-        List<ClubResponse> nearestClubs = service.findNearestClubs(requestLatitude, requestLongitude, 5).stream()
+        List<ClubResponse> nearestClubs = service.optimizedParallelFindNearestClubs(requestLatitude, requestLongitude, 5).stream()
                 .map(clubMapper::entityToResponse)
                 .collect(Collectors.toList());
 
@@ -302,6 +302,7 @@ public class ClubService {
 
         // Use ConcurrentSkipListSet to maintain the nearest clubs in a thread-safe manner
         ConcurrentSkipListSet<ClubDistance> nearestClubs = allClubs.parallelStream()
+                .filter(club -> club.getLatitude() != null && club.getLongitude() != null) // Filter out clubs with null latitude or longitude
                 .map(club -> new ClubDistance(club, distance(requestLatitude, requestLongitude, club.getLatitude(), club.getLongitude(), cosRequestLatitude)))
                 .collect(Collectors.toCollection(() -> new ConcurrentSkipListSet<>(Comparator.comparingDouble(ClubDistance::getDistance))));
 
