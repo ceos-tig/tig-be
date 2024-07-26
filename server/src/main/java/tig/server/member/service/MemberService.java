@@ -10,6 +10,7 @@ import tig.server.enums.MemberRoleEnum;
 import tig.server.global.exception.BusinessExceptionHandler;
 import tig.server.global.code.ErrorCode;
 import tig.server.jwt.TokenProvider;
+import tig.server.oauth2.google.dto.GoogleInfoResponseDto;
 import tig.server.oauth2.kakao.dto.KakaoUserInfoResponseDto;
 import tig.server.oauth2.kakao.dto.LoginMemberResponseDto;
 import tig.server.member.domain.Member;
@@ -80,7 +81,7 @@ public class MemberService {
     }
 
     @Transactional
-    public LoginMemberResponseDto createMember(KakaoUserInfoResponseDto userInfoResponseDto) {
+    public LoginMemberResponseDto createKakaoMember(KakaoUserInfoResponseDto userInfoResponseDto) {
         String username = userInfoResponseDto.kakaoAccount.profile.nickName;
         String uniqueId = "kakao_" + userInfoResponseDto.id;
 
@@ -99,6 +100,33 @@ public class MemberService {
                     .email(userInfoResponseDto.kakaoAccount.email)
                     .uniqueId("kakao_" + userInfoResponseDto.id)
                     .profileImage(userInfoResponseDto.kakaoAccount.profile.profileImageUrl)
+                    .refreshToken(refreshToken)
+                    .build();
+
+            memberRepository.save(member);
+            return LoginMemberResponseDto.fromMember(member, accessToken);
+        }
+    }
+
+    @Transactional
+    public LoginMemberResponseDto createGoogleMember(GoogleInfoResponseDto googleInfoResponseDto) {
+        String username = googleInfoResponseDto.getName();
+        String uniqueId = "google_" + googleInfoResponseDto.getSub();
+
+        String accessToken = tokenProvider.createAccessToken(username, uniqueId);
+        String refreshToken = tokenProvider.createRefreshToken(username, uniqueId);
+
+        Optional<Member> findMember = memberRepository.findByUniqueId(uniqueId);
+        if (findMember.isPresent()) { // 있는 사용자
+            Member existMember = findMember.get();
+            existMember.updateRefreshToken(refreshToken);
+            return LoginMemberResponseDto.fromMember(existMember, accessToken);
+        } else {
+            Member member = Member.builder()
+                    .memberRoleEnum(MemberRoleEnum.USER)
+                    .name(googleInfoResponseDto.getName())
+                    .email(googleInfoResponseDto.getEmail())
+                    .uniqueId("google_" + googleInfoResponseDto.getSub())
                     .refreshToken(refreshToken)
                     .build();
 
