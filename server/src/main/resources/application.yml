@@ -53,3 +53,6 @@ portone:
   api_key: ${PORTONE_API_KEY}
   api_secret: ${PORTONE_API_SECRET}
   v2_secret: ${PORTONE_V2_SECRET}
+google:
+  client_id: ${GOOGLE_CLIENT_ID}
+  client_secret: ${GOOGLE_SECRET_ID}
