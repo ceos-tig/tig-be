@@ -1,4 +1,4 @@
-package tig.server.kakao.dto;
+package tig.server.oauth2.kakao.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

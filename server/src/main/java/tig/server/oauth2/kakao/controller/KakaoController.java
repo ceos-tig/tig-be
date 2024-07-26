@@ -1,4 +1,4 @@
-package tig.server.kakao.controller;
+package tig.server.oauth2.kakao.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import tig.server.global.response.ApiResponse;
-import tig.server.kakao.dto.KakaoUserInfoResponseDto;
-import tig.server.kakao.dto.LoginAccessTokenResponseDto;
-import tig.server.kakao.dto.LoginMemberResponseDto;
-import tig.server.kakao.service.KakaoService;
+import tig.server.oauth2.kakao.dto.KakaoUserInfoResponseDto;
+import tig.server.oauth2.kakao.dto.LoginAccessTokenResponseDto;
+import tig.server.oauth2.kakao.dto.LoginMemberResponseDto;
+import tig.server.oauth2.kakao.service.KakaoService;
 import tig.server.member.service.MemberService;
 
 import java.io.IOException;
