@@ -127,6 +127,7 @@ public class MemberService {
                     .name(googleInfoResponseDto.getName())
                     .email(googleInfoResponseDto.getEmail())
                     .uniqueId("google_" + googleInfoResponseDto.getSub())
+                    .profileImage(googleInfoResponseDto.getPicture())
                     .refreshToken(refreshToken)
                     .build();
 

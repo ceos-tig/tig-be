@@ -42,7 +42,7 @@ public class GoogleService {
         map.put("id_token",jwtToken);
         ResponseEntity<GoogleInfoResponseDto> memberInfo = restTemplate.postForEntity(GOOGLE_MEMBER_INFO_URL, map, GoogleInfoResponseDto.class);
         System.out.println("memberInfo.getBody().getSub() = " + memberInfo.getBody().getSub());
-        System.out.println("memberInfo.getBody().getEmail() = " + memberInfo.getBody().getEmail());
+        System.out.println("memberInfo.getBody().getPicture() = " + memberInfo.getBody().getPicture());
         return memberInfo.getBody();
     }
 }
