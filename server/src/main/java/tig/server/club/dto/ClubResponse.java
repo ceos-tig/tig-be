@@ -3,6 +3,7 @@ package tig.server.club.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import tig.server.enums.Category;
+import tig.server.enums.Facility;
 import tig.server.enums.Type;
 
 import java.util.List;
@@ -64,4 +65,7 @@ public class ClubResponse {
 
     @Schema(type = "boolean", example = "true")
     private Boolean isHeart;
+
+    @Schema(type = "array", example = "[\"무선 인터넷\", \"간편 결제\"]")
+    private List<Facility> amenities;
 }

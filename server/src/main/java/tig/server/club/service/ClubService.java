@@ -3,6 +3,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tig.server.amenity.dto.AmenityResponseDto;
+import tig.server.amenity.service.AmenityService;
 import tig.server.club.domain.Club;
 import tig.server.club.dto.ClubRequest;
 import tig.server.club.dto.ClubResponse;
@@ -11,6 +13,7 @@ import tig.server.club.dto.HomeResponse;
 import tig.server.club.mapper.ClubMapper;
 import tig.server.club.repository.ClubRepository;
 import tig.server.config.S3Uploader;
+import tig.server.enums.Facility;
 import tig.server.global.exception.BusinessExceptionHandler;
 import tig.server.global.code.ErrorCode;
 import tig.server.reservation.domain.Reservation;
@@ -34,6 +37,8 @@ public class ClubService {
     private final ReservationRepository reservationRepository;
     private final WishlistRepository wishlistRepository;
 
+    private final AmenityService amenityService;
+
     private final ClubMapper clubMapper = ClubMapper.INSTANCE;
 
     private final S3Uploader s3Uploader;
@@ -52,7 +57,12 @@ public class ClubService {
                 .orElseThrow(() -> new BusinessExceptionHandler("club not found", ErrorCode.NOT_FOUND_ERROR));
         List<String> CloudFrontImageUrl = s3Uploader.getImageUrls(club.getImageUrls());
         club.setImageUrls(CloudFrontImageUrl);
+
+        // 편의시설 추가
+        List<Facility> amenities = amenityService.getAmenitiesByClubId(club.getId());
+
         ClubResponse clubResponse = clubMapper.entityToResponse(club);
+        clubResponse.setAmenities(amenities);
         return calculateAvgRating(clubResponse);
     }
 
@@ -61,8 +71,11 @@ public class ClubService {
                 .orElseThrow(() -> new BusinessExceptionHandler("club not found", ErrorCode.NOT_FOUND_ERROR));
         Optional<Wishlist> wishlist = wishlistRepository.findByMemberIdAndClubId(memberId, clubId);
         List<String> CloudFrontImageUrl = s3Uploader.getImageUrls(club.getImageUrls());
+
+        List<Facility> amenities = amenityService.getAmenitiesByClubId(club.getId());
         club.setImageUrls(CloudFrontImageUrl);
         ClubResponse clubResponse = clubMapper.entityToResponse(club);
+        clubResponse.setAmenities(amenities);
         if (wishlist.isEmpty()) { // 해당 사용자는 해당 클럽에 좋아요 안누름
             clubResponse.setIsHeart(false);
         } else { //해당 사용자는 해당 클럽에 좋아요 누름
