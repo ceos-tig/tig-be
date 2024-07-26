@@ -29,15 +29,13 @@ public class GoogleController {
                                                                              @RequestParam("code") String code,
                                                                              HttpServletResponse response) throws IOException {
         String origin = request.getHeader("Origin");
-        System.out.println("여기 들어와졌나");
-        GoogleInfoResponseDto googleMemberInfo = googleService.getGoogleMemberInfo(code);
 
-//        GoogleInfoResponseDto googleMemberInfo = null;
-//        if(origin.equals("https://localhost:3000") || origin.equals("https://localhost:8080")){
-//            googleMemberInfo = googleService.getGoogleMemberInfo(code);
-//        } else if(origin.equals("https://tigleisure.com")){
-//            //kakaoAccessToken = googleService.getAccessTokenFromKakaoDeploy(code);
-//        }
+        GoogleInfoResponseDto googleMemberInfo = null;
+        if(origin.equals("https://localhost:3000") || origin.equals("https://localhost:8080")){
+            googleMemberInfo = googleService.getGoogleMemberInfoTest(code);
+        } else if(origin.equals("https://tigleisure.com")){
+            googleMemberInfo = googleService.getGoogleMemberInfoDeploy(code);
+        }
         LoginMemberResponseDto member = memberService.createGoogleMember(googleMemberInfo);
 
         // Refresh Token 쿠키 설정
