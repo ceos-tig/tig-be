@@ -96,12 +96,19 @@ public class ClubService {
     }
 
     private ClubResponse calculateAvgRating(ClubResponse clubResponse) {
+        float avgRating = 0f;
+        if (clubResponse.getRatingCount() == null) {
+            clubResponse.setRatingCount(0);
+        }
+        if (clubResponse.getRatingSum() == null) {
+            clubResponse.setRatingSum(0f);
+        }
         if (clubResponse.getRatingCount() != 0) {
-            float avgRating = (float) clubResponse.getRatingSum() / clubResponse.getRatingCount();
+            avgRating = (float) clubResponse.getRatingSum() / clubResponse.getRatingCount();
             // round at 1 decimal place
             avgRating = Math.round(avgRating * 10) / 10.0f;
-            clubResponse.setAvgRating(avgRating);
         }
+        clubResponse.setAvgRating(avgRating);
         return clubResponse;
     }
 
