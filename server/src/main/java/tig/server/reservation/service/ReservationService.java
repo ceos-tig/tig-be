@@ -120,14 +120,10 @@ public class ReservationService {
         response.setClubName(club.getClubName());
         response.setPaymentId(reservation.getPaymentId());
         response.setGameCount(reservation.getGameCount());
-
         response.setReviewId(checkReviewed(reservation.getReview()));
 
         // discord-webhook
-        String memberName = member.getName();
-        String clubName = club.getClubName();
-
-        discordMessageProvider.sendApplicationMessage(EventMessage.RESERVATION_APPLICATION, memberName, clubName);
+        discordMessageProvider.sendApplicationMessage(EventMessage.RESERVATION_APPLICATION, response);
 
         return response;
     }
@@ -190,14 +186,10 @@ public class ReservationService {
 
         reservation.setStatus(Status.CANCELED);
 
-        Member member = reservation.getMember();
-        Club club = reservation.getClub();
+        ReservationResponse response = reservationMapper.entityToResponse(reservation);
 
         // discord-webhook
-        String memberName = member.getName();
-        String clubName = club.getClubName();
-
-        discordMessageProvider.sendCancelMessage(EventMessage.RESERVATION_CANCEL, memberName, clubName);
+        discordMessageProvider.sendCancelMessage(EventMessage.RESERVATION_CANCEL, response);
 
         reservationRepository.save(reservation);
     }
@@ -230,14 +222,6 @@ public class ReservationService {
     public void tbcReservationById(Long reservationId) {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new BusinessExceptionHandler("reservation not found",ErrorCode.NOT_FOUND_ERROR));
-
-//        // Define the list of valid statuses
-//        List<Status> validStatuses = Arrays.asList(Status.CANCELED, Status.TBC);
-//
-//        // Check if the reservation status is not in the list of valid statuses
-//        if (!validStatuses.contains(reservation.getStatus())) {
-//            throw new BusinessExceptionHandler("Cannot tbc a reservation with status " + reservation.getStatus(),ErrorCode.BAD_REQUEST_ERROR);
-//        }
 
         reservation.setStatus(Status.TBC);
         reservationRepository.save(reservation);
