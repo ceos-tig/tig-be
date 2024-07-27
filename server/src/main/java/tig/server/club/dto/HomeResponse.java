@@ -20,5 +20,5 @@ public class HomeResponse {
 
     private List<ClubResponse> recommendedClubs;
 
-    Map<Category, List<Club>> nearestClubsByCategory;
+    Map<Category, List<CategoryClubResponse>> nearestClubsByCategory;
 }
