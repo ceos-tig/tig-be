@@ -4,7 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tig.server.club.domain.Club;
+import tig.server.club.mapper.ClubMapper;
 import tig.server.club.repository.ClubRepository;
+import tig.server.club.service.ClubService;
 import tig.server.search.dto.AvgPointDto;
 import tig.server.search.dto.SearchLogDto;
 import tig.server.search.dto.SearchResponseDto;
@@ -15,6 +17,7 @@ import tig.server.wishlist.repository.WishlistRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -22,45 +25,86 @@ import java.util.List;
 public class SearchService {
     private final ClubRepository clubRepository;
     private final WishlistRepository wishlistRepository;
+
     private final SearchLogService searchLogService;
+    private final ClubService clubService;
 
     private final SearchMapper searchMapper = SearchMapper.INSTANCE;
+    private final ClubMapper clubMapper = ClubMapper.INSTANCE;
 
     public SearchResultDto findClubByNameContain(Long memberId, String request) {
         String keywordWithoutSpaces = request.replaceAll(" ", "");
         List<Club> clubList = clubRepository.searchByKeyword(keywordWithoutSpaces);
 
-        AvgPointDto avgPointDto = calculateMidPoint(clubList);
+        Boolean isResult = true;
         List<SearchResponseDto> searchResponseDtoList = new ArrayList<>();
-        for (Club club : clubList) {
-            Float distance = calculateDistance(avgPointDto, club);
-            boolean isHeart = wishlistRepository.existsByClubIdAndMemberId(club.getId(), memberId);
-            SearchResponseDto searchResponseDto = searchMapper.entityToResponse(club);
-            searchResponseDto.setIsHeart(isHeart);
-            searchResponseDto.setDistance(distance);
-            searchResponseDtoList.add(searchResponseDto);
+        AvgPointDto avgPointDto;
+
+        if (clubList.isEmpty()) { // 검색 결과 없을떄
+            isResult = false;
+            List<Club> recommendedClubList = clubService.getRecommendedClubs(2).stream()
+                    .map(clubMapper::responseToEntity)
+                    .toList();
+            avgPointDto = calculateMidPoint(clubList);
+            for (Club recommendedClub : recommendedClubList) {
+                Float distance = calculateDistance(avgPointDto, recommendedClub);
+                boolean isHeart = wishlistRepository.existsByClubIdAndMemberId(recommendedClub.getId(), memberId);
+                SearchResponseDto searchResponseDto = searchMapper.entityToResponse(recommendedClub);
+                searchResponseDto.setIsHeart(isHeart);
+                searchResponseDto.setDistance(distance);
+                searchResponseDtoList.add(searchResponseDto);
+            }
+        } else {
+            avgPointDto = calculateMidPoint(clubList);
+            for (Club club : clubList) {
+                Float distance = calculateDistance(avgPointDto, club);
+                boolean isHeart = wishlistRepository.existsByClubIdAndMemberId(club.getId(), memberId);
+                SearchResponseDto searchResponseDto = searchMapper.entityToResponse(club);
+                searchResponseDto.setIsHeart(isHeart);
+                searchResponseDto.setDistance(distance);
+                searchResponseDtoList.add(searchResponseDto);
+            }
         }
 
         String now = LocalDateTime.now().toString();
         SearchLogDto searchLogDto = new SearchLogDto(request,now);
         searchLogService.saveRecentSearchLog(memberId,searchLogDto);
 
-        return new SearchResultDto(searchResponseDtoList, avgPointDto.getAvgLatitude(), avgPointDto.getAvgLongitude());
+        return new SearchResultDto(searchResponseDtoList, avgPointDto.getAvgLatitude(), avgPointDto.getAvgLongitude(), isResult);
     }
 
     public SearchResultDto findClubByNameContainIfNoLogin(String request) {
         String keywordWithoutSpaces = request.replaceAll(" ", "");
         List<Club> clubList = clubRepository.searchByKeyword(keywordWithoutSpaces);
 
-        AvgPointDto avgPointDto = calculateMidPoint(clubList);
+        Boolean isResult = true;
         List<SearchResponseDto> searchResponseDtoList = new ArrayList<>();
-        for (Club club : clubList) {
-            Float distance = calculateDistance(avgPointDto, club);
-            SearchResponseDto searchResponseDto = searchMapper.entityToResponse(club);
-            searchResponseDto.setDistance(distance);
-            searchResponseDtoList.add(searchResponseDto);
+        AvgPointDto avgPointDto;
+
+        if (clubList.isEmpty()) { // 검색 결과 없을때
+            isResult = false;
+            List<Club> recommendedClubList = clubService.getRecommendedClubs(2).stream()
+                    .map(clubMapper::responseToEntity)
+                    .toList();
+            avgPointDto = calculateMidPoint(recommendedClubList);
+            for (Club recommendedClub : recommendedClubList) {
+                Float distance = calculateDistance(avgPointDto, recommendedClub);
+                SearchResponseDto searchResponseDto = searchMapper.entityToResponse(recommendedClub);
+                searchResponseDto.setDistance(distance);
+                searchResponseDtoList.add(searchResponseDto);
+            }
+        } else {
+            avgPointDto = calculateMidPoint(clubList);
+            for (Club club : clubList) {
+                Float distance = calculateDistance(avgPointDto, club);
+                SearchResponseDto searchResponseDto = searchMapper.entityToResponse(club);
+                searchResponseDto.setDistance(distance);
+                searchResponseDtoList.add(searchResponseDto);
+            }
         }
-        return new SearchResultDto(searchResponseDtoList, avgPointDto.getAvgLatitude(), avgPointDto.getAvgLongitude());
+
+
+        return new SearchResultDto(searchResponseDtoList, avgPointDto.getAvgLatitude(), avgPointDto.getAvgLongitude(), isResult);
     }
 
     public static AvgPointDto calculateMidPoint(List<Club> clubList) {
