@@ -16,6 +16,7 @@ import java.util.List;
 @Builder
 public class ClubResponse {
 
+    @Schema(type = "integer", example = "1")
     private Long id;
 
     @Schema(type = "string", example = "티그볼링장")
