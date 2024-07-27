@@ -1,5 +1,6 @@
 package tig.server.club.controller;
 
+import com.nimbusds.oauth2.sdk.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -7,10 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tig.server.amenity.service.AmenityService;
 import tig.server.annotation.LoginUser;
-import tig.server.club.dto.ClubRequest;
-import tig.server.club.dto.ClubResponse;
-import tig.server.club.dto.HomeRequest;
-import tig.server.club.dto.HomeResponse;
+import tig.server.club.dto.*;
 import tig.server.club.service.ClubService;
 import tig.server.global.response.ApiResponse;
 import tig.server.member.domain.Member;
@@ -59,15 +57,16 @@ public class ClubController {
 
     @GetMapping("/home")
     @Operation(summary = "홈 화면 업체 조회")
-    public ResponseEntity<ApiResponse<List<HomeResponse>>> getHomecClubs(@RequestBody HomeRequest homeRequest) {
+    public ResponseEntity<ApiResponse<List<HomeResponse>>> getHomeClubs(@RequestBody HomeRequest homeRequest) {
         HomeResponse homeResponse = clubService.getHomeClubs(homeRequest);
         ApiResponse<List<HomeResponse>> response = ApiResponse.of(200, "successfully retrieved home clubs", List.of(homeResponse));
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/nearest-district")
+    @PostMapping("/nearest-district")
     @Operation(summary = "가장 가까운 구역 조회")
-    public String getNearestDistrict(@RequestParam double latitude, @RequestParam double longitude) {
-        return clubService.getNearestDistrict(latitude, longitude);
+    public ResponseEntity<ApiResponse<NearestResponse>> getNearestDistrict(@RequestBody NearestRequest nearestRequest) {
+        ApiResponse<NearestResponse> response = ApiResponse.of(200, "successfully retrieved nearest district", clubService.getNearestDistrict(nearestRequest));
+        return ResponseEntity.ok(response);
     }
 }

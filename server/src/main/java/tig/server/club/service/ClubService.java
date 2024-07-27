@@ -6,10 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import tig.server.amenity.dto.AmenityResponseDto;
 import tig.server.amenity.service.AmenityService;
 import tig.server.club.domain.Club;
-import tig.server.club.dto.ClubRequest;
-import tig.server.club.dto.ClubResponse;
-import tig.server.club.dto.HomeRequest;
-import tig.server.club.dto.HomeResponse;
+import tig.server.club.dto.*;
 import tig.server.club.mapper.ClubMapper;
 import tig.server.club.repository.ClubRepository;
 import tig.server.config.S3Uploader;
@@ -421,7 +418,10 @@ public class ClubService {
         }
     }
 
-    public String getNearestDistrict(double latitude, double longitude) {
+    public NearestResponse getNearestDistrict(NearestRequest nearestRequest) {
+        double latitude = nearestRequest.getLatitude();
+        double longitude = nearestRequest.getLongitude();
+
         District nearestDistrict = null;
         double minDistance = Double.MAX_VALUE;
 
@@ -432,8 +432,8 @@ public class ClubService {
                 nearestDistrict = district;
             }
         }
-
-        return nearestDistrict != null ? nearestDistrict.getKoreanName() : null;
+        String result = nearestDistrict != null ? nearestDistrict.getKoreanName() : null;
+        return new NearestResponse(result);
     }
 
 }
