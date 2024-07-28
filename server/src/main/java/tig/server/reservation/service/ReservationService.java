@@ -121,6 +121,7 @@ public class ReservationService {
         response.setPaymentId(reservation.getPaymentId());
         response.setGameCount(reservation.getGameCount());
         response.setReviewId(checkReviewed(reservation.getReview()));
+        response.setMemberName(member.getName());
 
         // discord-webhook
         discordMessageProvider.sendApplicationMessage(EventMessage.RESERVATION_APPLICATION, response);
