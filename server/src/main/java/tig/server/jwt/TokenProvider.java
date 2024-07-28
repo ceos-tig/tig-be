@@ -1,5 +1,8 @@
 package tig.server.jwt;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -19,7 +22,9 @@ import org.springframework.util.StringUtils;
 import tig.server.global.exception.BusinessExceptionHandler;
 import tig.server.global.code.ErrorCode;
 
+import java.io.IOException;
 import java.security.Key;
+import java.util.Base64;
 import java.util.Date;
 
 @Component
@@ -28,6 +33,7 @@ public class TokenProvider implements InitializingBean {
     private final Logger logger = LoggerFactory.getLogger(TokenProvider.class);
 
     private static final long ACCESS_TOKEN_VALIDITY_SECONDS_TEST = 60; // 테스트용 AT는 1분
+    private static final long REFRESH_TOKEN_VALIDITY_SECONDS_TEST = 10; // 테스트용 RT는 1분
     private static final long ACCESS_TOKEN_VALIDITY_SECONDS = 24 * 60 * 60; // access token은 24시간
     private static final long REFRESH_TOKEN_VALIDITY_SECONDS = 24 * 60 * 60 * 14; // refresh token은 2주일
 
@@ -93,7 +99,7 @@ public class TokenProvider implements InitializingBean {
 
     public String createRefreshToken(String username, String uniqueId) {
         long now = (new Date()).getTime();
-        Date validity = new Date(now + REFRESH_TOKEN_VALIDITY_SECONDS * 1000);
+        Date validity = new Date(now + REFRESH_TOKEN_VALIDITY_SECONDS_TEST * 1000);
 
         return Jwts.builder()
                 .setSubject(username)
@@ -105,7 +111,7 @@ public class TokenProvider implements InitializingBean {
 
     public String createAccessToken(String username, String uniqueId) {
         long now = (new Date()).getTime();
-        Date validity = new Date(now + ACCESS_TOKEN_VALIDITY_SECONDS * 1000);
+        Date validity = new Date(now + ACCESS_TOKEN_VALIDITY_SECONDS_TEST * 1000);
 
         return Jwts.builder()
                 .setSubject(username)
@@ -147,5 +153,17 @@ public class TokenProvider implements InitializingBean {
                 .parseClaimsJws(token)
                 .getBody();
         return claims.getExpiration().getTime() - System.currentTimeMillis();
+    }
+
+    public long getRefreshTokenExpirationByManual(String token) throws JsonProcessingException {
+        String[] parts = token.split("\\.");
+        if (parts.length != 3) {
+            throw new IllegalArgumentException("Invalid JWT token format");
+        }
+        String payload = new String(Base64.getDecoder().decode(parts[1]));
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode claimsNode = objectMapper.readTree(payload);
+        long expirationTime = claimsNode.get("exp").asLong() * 1000;
+        return expirationTime - System.currentTimeMillis();
     }
 }

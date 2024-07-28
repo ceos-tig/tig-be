@@ -75,6 +75,8 @@ public enum ErrorCode {
     // Transaction Delete Error
     DELETE_ERROR(200, "9999", "Delete Transaction Error Exception"),
 
+    REFRESH_TOKEN_EXPIRED_ERROR(444,"9999","Refresh Token Expired!"),
+
     ; // End
 
     /**
