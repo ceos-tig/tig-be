@@ -46,4 +46,7 @@ public class ReservationRequest {
 
     @Schema(type = "string", example = "2313dasd2asasd7d8as7d")
     private String paymentId;
+
+    @Schema(type = "string", example = "잘 부탁 드립니다.")
+    private String message;
 }

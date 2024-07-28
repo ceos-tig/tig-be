@@ -85,4 +85,7 @@ public class ReservationResponse {
 
     @Schema(type = "string", example = "2024-07-23T13:22:36.907525084Z")
     private String updatedAt;
+
+    @Schema(type = "string", example = "잘 부탁 드립니다.")
+    private String message;
 }
