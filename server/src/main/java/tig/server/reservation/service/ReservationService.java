@@ -83,6 +83,8 @@ public class ReservationService {
 
         response.setReviewId(checkReviewed(reservation.getReview()));
         response.setMemberId(reservation.getMember().getId());
+        response.setCustomerPhoneNumber(reservation.getMember().getPhoneNumber());
+        response.setClubPhoneNumber(club.getPhoneNumber());
         
         return response;
     }
