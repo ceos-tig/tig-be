@@ -17,7 +17,6 @@ public record DiscordMessage(
                 + "| " + message + "\n"
                 + "| " + memberName + " 님이 " + clubName + " 업체를 예약했습니다.\n"
                 + "| " + "Reservation ID: " + reservationResponse.getReservationId() + "\n"
-                + "| " + "예약 날짜: " + changeToDateFormat(reservationResponse.getDate()) + "\n"
                 + "| " + "예약 시간: " + changeToTimeFormat(reservationResponse.getStartTime()) +
                 " - " + changeToTimeFormat(reservationResponse.getEndTime()) + "\n"
                 + "| " + "결제 ID: " + reservationResponse.getPaymentId() + "\n"
@@ -32,7 +31,6 @@ public record DiscordMessage(
                 + "| " + message + "\n"
                 + "| " + memberName + " 님이 " + clubName + " 업체예약을 취소했습니다.\n"
                 + "| " + "Reservation ID: " + reservationResponse.getReservationId() + "\n"
-                + "| " + "예약 날짜: " + changeToDateFormat(reservationResponse.getDate()) + "\n"
                 + "| " + "예약 시간: " + changeToTimeFormat(reservationResponse.getStartTime()) +
                 " - " + changeToTimeFormat(reservationResponse.getEndTime()) + "\n"
                 + "| " + "결제 ID: " + reservationResponse.getPaymentId() + "\n"
