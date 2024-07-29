@@ -62,6 +62,9 @@ public class ClubService {
 
         ClubResponse clubResponse = clubMapper.entityToResponse(club);
         clubResponse.setAmenities(amenities);
+
+        System.out.println("get Club by Id");
+
         return calculateAvgRating(clubResponse);
     }
 
@@ -108,6 +111,8 @@ public class ClubService {
     }
 
     private ClubResponse calculateAvgRating(ClubResponse clubResponse) {
+        System.out.println("calculateAvgRating");
+
         float avgRating = 0f;
         if (clubResponse.getRatingCount() == null) {
             clubResponse.setRatingCount(0);
@@ -115,11 +120,16 @@ public class ClubService {
         if (clubResponse.getRatingSum() == null) {
             clubResponse.setRatingSum(0f);
         }
+        System.out.println("ratingCount: " + clubResponse.getRatingCount());
+        System.out.println("ratingSum: " + clubResponse.getRatingSum());
+
         if (clubResponse.getRatingCount() != 0) {
             avgRating = (float) clubResponse.getRatingSum() / clubResponse.getRatingCount();
+            System.out.println("avgRating before : " + avgRating);
             // round at 1 decimal place
             avgRating = Math.round(avgRating * 10) / 10.0f;
         }
+        System.out.println("avgRating after: " + avgRating);
         clubResponse.setAvgRating(avgRating);
         return clubResponse;
     }
