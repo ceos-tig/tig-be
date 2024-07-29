@@ -10,6 +10,8 @@ import tig.server.discord.event.DiscordFeignJoin;
 import tig.server.member.domain.Member;
 import tig.server.reservation.dto.ReservationResponse;
 
+import java.text.ParseException;
+
 import static tig.server.discord.DiscordMessage.*;
 
 @Component
@@ -26,12 +28,12 @@ public class DiscordMessageProvider {
         sendJoinMessageToDiscord(discordMessage);
     }
 
-    public void sendApplicationMessage(EventMessage eventMessage, ReservationResponse reservationResponse) {
+    public void sendApplicationMessage(EventMessage eventMessage, ReservationResponse reservationResponse) throws ParseException {
         DiscordMessage discordMessage = createApplicationMessage(eventMessage.getMessage(), reservationResponse);
         sendApplicationMessageToDiscord(discordMessage);
     }
 
-    public void sendCancelMessage(EventMessage eventMessage, ReservationResponse reservationResponse) {
+    public void sendCancelMessage(EventMessage eventMessage, ReservationResponse reservationResponse) throws ParseException {
         DiscordMessage discordMessage = createCancelMessage(eventMessage.getMessage(), reservationResponse);
         sendCancelMessageToDiscord(discordMessage);
     }

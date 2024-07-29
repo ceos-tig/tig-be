@@ -26,6 +26,7 @@ import tig.server.reservation.mapper.ReservationMapper;
 import tig.server.reservation.repository.ReservationRepository;
 import tig.server.review.domain.Review;
 
+import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -102,7 +103,7 @@ public class ReservationService {
     }
 
     @Transactional
-    public ReservationResponse createReservation(Member member, Long clubId, ReservationRequest reservationRequest) {
+    public ReservationResponse createReservation(Member member, Long clubId, ReservationRequest reservationRequest) throws ParseException {
         System.out.println(member.getId());
 
         Club club = clubMapper.responseToEntity(clubService.getClubById(clubId));
@@ -187,7 +188,7 @@ public class ReservationService {
 
 
     @Transactional
-    public void cancelReservationById(Long reservationId) {
+    public void cancelReservationById(Long reservationId) throws ParseException {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new BusinessExceptionHandler("reservation not found",ErrorCode.NOT_FOUND_ERROR));
 

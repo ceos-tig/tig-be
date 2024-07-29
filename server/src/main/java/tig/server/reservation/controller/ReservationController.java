@@ -14,6 +14,7 @@ import tig.server.reservation.dto.ReservationRequest;
 import tig.server.reservation.dto.ReservationResponse;
 import tig.server.reservation.service.ReservationService;
 
+import java.text.ParseException;
 import java.util.List;
 
 @RestController
@@ -46,7 +47,7 @@ public class ReservationController {
             @LoginUser Member member,
             @PathVariable Long clubId,
             @RequestBody ReservationRequest reservationRequest
-    ) {
+    ) throws ParseException {
         ReservationResponse createdReservation = reservationService.createReservation(member, clubId, reservationRequest);
         createdReservation.setStatus(Status.TBC);
         ApiResponse<ReservationResponse> response = ApiResponse.of(200, "successfully reserved", createdReservation);
@@ -80,7 +81,7 @@ public class ReservationController {
 
     @PostMapping("/cancel/{reservationId}")
     @Operation(summary = "특정 예약 취소")
-    public ResponseEntity<ApiResponse<Void>> cancelReservation(@PathVariable Long reservationId) {
+    public ResponseEntity<ApiResponse<Void>> cancelReservation(@PathVariable Long reservationId) throws ParseException {
         reservationService.cancelReservationById(reservationId);
         ApiResponse<Void> response = ApiResponse.of(200, "successfully canceled reservation", null);
         return ResponseEntity.ok(response);
