@@ -202,6 +202,9 @@ public class ReservationService {
         reservation.setStatus(Status.CANCELED);
 
         ReservationResponse response = reservationMapper.entityToResponse(reservation);
+        response.setUserName(reservation.getUserName());
+        response.setClubName(reservation.getClub().getClubName());
+        response.setReservationId(reservationId);
 
         // discord-webhook
         discordMessageProvider.sendCancelMessage(EventMessage.RESERVATION_CANCEL, response);
