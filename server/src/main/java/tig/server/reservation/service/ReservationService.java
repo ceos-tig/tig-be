@@ -82,6 +82,7 @@ public class ReservationService {
         response.setPaymentId(reservation.getPaymentId());
 
         response.setReviewId(checkReviewed(reservation.getReview()));
+        response.setMemberId(reservation.getMember().getId());
         
         return response;
     }
