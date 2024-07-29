@@ -68,7 +68,6 @@ public class ReservationService {
         response.setBusinessHours(club.getBusinessHours());
         response.setClubName(club.getClubName());
         response.setClubAddress(club.getAddress());
-        response.setMemberName(reservation.getMember().getName());
         response.setReservationId(reservation.getId());
         response.setClubId(club.getId());
         response.setType(club.getType());
@@ -83,7 +82,6 @@ public class ReservationService {
 
         response.setReviewId(checkReviewed(reservation.getReview()));
         response.setMemberId(reservation.getMember().getId());
-        response.setCustomerPhoneNumber(reservation.getMember().getPhoneNumber());
         response.setClubPhoneNumber(club.getPhoneNumber());
         
         return response;
@@ -124,7 +122,6 @@ public class ReservationService {
         response.setPaymentId(reservation.getPaymentId());
         response.setGameCount(reservation.getGameCount());
         response.setReviewId(checkReviewed(reservation.getReview()));
-        response.setMemberName(member.getName());
 
         // discord-webhook
         discordMessageProvider.sendApplicationMessage(EventMessage.RESERVATION_APPLICATION, response);
@@ -349,8 +346,8 @@ public class ReservationService {
         if (response.getReservationId() == null) {
             response.setReservationId(entity.getId());
         }
-        if (response.getMemberName() == null) {
-            response.setMemberName(entity.getMember().getName());
+        if (response.getUserName() == null) {
+            response.setUserName(entity.getUserName());
         }
         if (response.getGameCount() == null) {
             response.setGameCount(entity.getGameCount());
@@ -361,8 +358,8 @@ public class ReservationService {
         if (response.getClubPhoneNumber() == null) {
             response.setClubPhoneNumber(entity.getClub().getPhoneNumber());
         }
-        if (response.getCustomerPhoneNumber() == null) {
-            response.setCustomerPhoneNumber(entity.getMember().getPhoneNumber());
+        if (response.getPhoneNumber() == null) {
+            response.setPhoneNumber(entity.getPhoneNumber());
         }
         return response;
     }
