@@ -1,5 +1,6 @@
 package tig.server.member.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
@@ -38,7 +39,7 @@ public class MemberController {
     @PostMapping("/reissue")
     @Operation(summary = "리프레시 토큰을 통한 AT,RT 재발급")
     public ResponseEntity<ApiResponse<RefreshTokenResponseDto>> reissueAccessToken(@CookieValue(value = "refreshToken", required = false) String refreshToken,
-                                                                                   HttpServletResponse response) {
+                                                                                   HttpServletResponse response) throws JsonProcessingException {
         if (refreshToken == null) {
             throw new BusinessExceptionHandler("No refresh token found in cookies", ErrorCode.BAD_REQUEST_ERROR);
         }

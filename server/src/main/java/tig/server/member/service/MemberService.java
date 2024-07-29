@@ -1,5 +1,6 @@
 package tig.server.member.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
@@ -47,7 +48,12 @@ public class MemberService {
     }
 
     @Transactional
-    public RefreshTokenResponseDto reissueAccessToken(String refreshToken) {
+    public RefreshTokenResponseDto reissueAccessToken(String refreshToken) throws JsonProcessingException {
+        long refreshTokenExpiration = tokenProvider.getRefreshTokenExpirationByManual(refreshToken);
+        // 남은 만료 시간이 0 이하이면 토큰이 만료된 것으로 간주
+        if (refreshTokenExpiration <= 0) {
+            throw new BusinessExceptionHandler("Refresh token is expired", ErrorCode.REFRESH_TOKEN_EXPIRED_ERROR);
+        }
         String key = "blacklist:" + refreshToken;
         if (redisTemplateRT.hasKey(key)) {
             throw new BusinessExceptionHandler("!!!Refresh Token Blacklisted!!!",ErrorCode.FORBIDDEN_ERROR);

@@ -57,4 +57,6 @@ public class Reservation extends BaseTimeEntity {
     @JoinColumn(name = "review_id")
     private Review review;
 
+    private String message;
+
 }
