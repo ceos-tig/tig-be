@@ -27,6 +27,10 @@ import tig.server.reservation.repository.ReservationRepository;
 import tig.server.review.domain.Review;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -62,6 +66,16 @@ public class ReservationService {
         PaymentResponseDto paymentResponseDto = paymentService.getPaymentResponse(response.getPaymentId()).block();
         String provider = paymentResponseDto.getMethod().getProvider();
         String updatedAt = paymentResponseDto.getUpdatedAt();
+
+        // Convert updatedAt to Korean time
+        try {
+            ZonedDateTime utcDateTime = ZonedDateTime.parse(updatedAt, DateTimeFormatter.ISO_DATE_TIME);
+            ZonedDateTime koreanDateTime = utcDateTime.withZoneSameInstant(ZoneId.of("Asia/Seoul"));
+            updatedAt = koreanDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
+        } catch (DateTimeParseException e) {
+            // Handle parsing exception if necessary
+            e.printStackTrace();
+        }
 
         Club club = reservation.getClub();
         response.setType(club.getType());
