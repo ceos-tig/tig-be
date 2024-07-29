@@ -60,7 +60,7 @@ public class ReservationResponse {
     private String clubPhoneNumber;
 
     @Schema(type = "string", example = "010-1234-5678")
-    private String customerPhoneNumber;
+    private String phoneNumber;
 
     @Schema(type = "string", example = "서울시 동교동 14-2")
     private String clubAddress;
@@ -69,7 +69,7 @@ public class ReservationResponse {
     private Long reservationId;
 
     @Schema(type = "string", example = "홍길동")
-    private String memberName;
+    private String userName;
 
     @Schema(type = "boolean", example = "true")
     private boolean isReviewed;

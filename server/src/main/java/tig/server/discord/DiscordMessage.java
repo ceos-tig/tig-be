@@ -6,7 +6,7 @@ public record DiscordMessage(
         String content
 ) {
     public static DiscordMessage createApplicationMessage(String message, ReservationResponse reservationResponse) {
-        String memberName = reservationResponse.getMemberName();
+        String memberName = reservationResponse.getUserName();
         String clubName = reservationResponse.getClubName();
 
         return new DiscordMessage("\n--------------------------------------------\n"
@@ -20,7 +20,7 @@ public record DiscordMessage(
     }
 
     public static DiscordMessage createCancelMessage(String message, ReservationResponse reservationResponse) {
-        String memberName = reservationResponse.getMemberName();
+        String memberName = reservationResponse.getUserName();
         String clubName = reservationResponse.getClubName();
 
         return new DiscordMessage("\n--------------------------------------------\n"

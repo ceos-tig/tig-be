@@ -49,4 +49,10 @@ public class ReservationRequest {
 
     @Schema(type = "string", example = "잘 부탁 드립니다.")
     private String message;
+
+    @Schema(type = "string", example = "예약할때 입력하는 이름")
+    private String userName;
+
+    @Schema(type = "string", example = "예약할때 입력하는 전화번호")
+    private String phoneNumber;
 }

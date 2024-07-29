@@ -27,6 +27,10 @@ import tig.server.reservation.repository.ReservationRepository;
 import tig.server.review.domain.Review;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -63,12 +67,21 @@ public class ReservationService {
         String provider = paymentResponseDto.getMethod().getProvider();
         String updatedAt = paymentResponseDto.getUpdatedAt();
 
+        // Convert updatedAt to Korean time
+        try {
+            ZonedDateTime utcDateTime = ZonedDateTime.parse(updatedAt, DateTimeFormatter.ISO_DATE_TIME);
+            ZonedDateTime koreanDateTime = utcDateTime.withZoneSameInstant(ZoneId.of("Asia/Seoul"));
+            updatedAt = koreanDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
+        } catch (DateTimeParseException e) {
+            // Handle parsing exception if necessary
+            e.printStackTrace();
+        }
+
         Club club = reservation.getClub();
         response.setType(club.getType());
         response.setBusinessHours(club.getBusinessHours());
         response.setClubName(club.getClubName());
         response.setClubAddress(club.getAddress());
-        response.setMemberName(reservation.getMember().getName());
         response.setReservationId(reservation.getId());
         response.setClubId(club.getId());
         response.setType(club.getType());
@@ -83,7 +96,6 @@ public class ReservationService {
 
         response.setReviewId(checkReviewed(reservation.getReview()));
         response.setMemberId(reservation.getMember().getId());
-        response.setCustomerPhoneNumber(reservation.getMember().getPhoneNumber());
         response.setClubPhoneNumber(club.getPhoneNumber());
         
         return response;
@@ -124,7 +136,6 @@ public class ReservationService {
         response.setPaymentId(reservation.getPaymentId());
         response.setGameCount(reservation.getGameCount());
         response.setReviewId(checkReviewed(reservation.getReview()));
-        response.setMemberName(member.getName());
 
         // discord-webhook
         discordMessageProvider.sendApplicationMessage(EventMessage.RESERVATION_APPLICATION, response);
@@ -349,8 +360,8 @@ public class ReservationService {
         if (response.getReservationId() == null) {
             response.setReservationId(entity.getId());
         }
-        if (response.getMemberName() == null) {
-            response.setMemberName(entity.getMember().getName());
+        if (response.getUserName() == null) {
+            response.setUserName(entity.getUserName());
         }
         if (response.getGameCount() == null) {
             response.setGameCount(entity.getGameCount());
@@ -361,8 +372,8 @@ public class ReservationService {
         if (response.getClubPhoneNumber() == null) {
             response.setClubPhoneNumber(entity.getClub().getPhoneNumber());
         }
-        if (response.getCustomerPhoneNumber() == null) {
-            response.setCustomerPhoneNumber(entity.getMember().getPhoneNumber());
+        if (response.getPhoneNumber() == null) {
+            response.setPhoneNumber(entity.getPhoneNumber());
         }
         return response;
     }

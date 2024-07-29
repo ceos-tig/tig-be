@@ -99,7 +99,7 @@ public class TokenProvider implements InitializingBean {
 
     public String createRefreshToken(String username, String uniqueId) {
         long now = (new Date()).getTime();
-        Date validity = new Date(now + REFRESH_TOKEN_VALIDITY_SECONDS_TEST * 1000);
+        Date validity = new Date(now + REFRESH_TOKEN_VALIDITY_SECONDS * 1000);
 
         return Jwts.builder()
                 .setSubject(username)
@@ -111,7 +111,7 @@ public class TokenProvider implements InitializingBean {
 
     public String createAccessToken(String username, String uniqueId) {
         long now = (new Date()).getTime();
-        Date validity = new Date(now + ACCESS_TOKEN_VALIDITY_SECONDS_TEST * 1000);
+        Date validity = new Date(now + ACCESS_TOKEN_VALIDITY_SECONDS * 1000);
 
         return Jwts.builder()
                 .setSubject(username)

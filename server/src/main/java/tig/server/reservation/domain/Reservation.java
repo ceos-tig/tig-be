@@ -59,4 +59,8 @@ public class Reservation extends BaseTimeEntity {
 
     private String message;
 
+    // 예약 정보 입력시 입력하는 필드
+    private String userName;
+    private String phoneNumber;
+
 }
