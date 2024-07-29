@@ -63,6 +63,7 @@ public class SearchResponseDto {
     private Float distance;
 
     public Float getAvgRating() {
-        return (ratingCount != null && ratingCount != 0) ? ratingSum / ratingCount : 0.0f;
+        // round at 1 decimal place
+        return Math.round(ratingSum / ratingCount * 10) / 10.0f;
     }
 }
