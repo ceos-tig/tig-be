@@ -31,20 +31,27 @@ public class S3Uploader {
     private final int PRESIGNED_URL_EXPIRATION = 60 * 1000 * 10; // 10분
 
 
-    public String getPresignedUrl(String fileName) {
-        return generatePresignedUrl(fileName).toString();
+    public String getPresignedUrl(Long clubId, String fileName) {
+        return generatePresignedUrl(clubId, fileName).toString();
     }
 
+    public List<String> getPresignedUrls(Long clubId, List<String> fileNames) {
+        List<String> presignedUrlList = new ArrayList<>();
+        for (String fileName : fileNames) {
+            presignedUrlList.add(getPresignedUrl(clubId, fileName));
+        }
+        return presignedUrlList;
+    }
 
     // Upload file to S3 using presigned url
-    private GeneratePresignedUrlRequest getGeneratePresignedUrlRequest(String fileName) {
-        return new GeneratePresignedUrlRequest(bucket, "test/" + fileName)
+    private GeneratePresignedUrlRequest getGeneratePresignedUrlRequest(Long clubId, String fileName) {
+        return new GeneratePresignedUrlRequest(bucket, clubId.toString() + "/" + fileName)
                 .withMethod(HttpMethod.PUT)
                 .withExpiration(setExpiration());
     }
 
-    private URL generatePresignedUrl(String fileName) {
-        GeneratePresignedUrlRequest generatePresignedUrlRequest = getGeneratePresignedUrlRequest(fileName);
+    private URL generatePresignedUrl(Long clubId, String fileName) {
+        GeneratePresignedUrlRequest generatePresignedUrlRequest = getGeneratePresignedUrlRequest(clubId, fileName);
         URL url = s3Config.amazonS3().generatePresignedUrl(generatePresignedUrlRequest);
         return url;
     }
@@ -83,18 +90,18 @@ public class S3Uploader {
     }
 
 
-    public String uploadFile(String fileName){
-        return getPresignedUrl(fileName);
-    }
-
-    public List<String> uploadFileList(List<String> fileNameList){
-        List<String> presignedUrlList = new ArrayList<>();
-        for (String fileName : fileNameList) {
-            String uniqueFileName = getUniqueFilename(fileName);
-            presignedUrlList.add(getPresignedUrl(uniqueFileName));
-        }
-        return presignedUrlList;
-    }
+//    public String uploadFile(String fileName){
+//        return getPresignedUrl(fileName);
+//    }
+//
+//    public List<String> uploadFileList(List<String> fileNameList){
+//        List<String> presignedUrlList = new ArrayList<>();
+//        for (String fileName : fileNameList) {
+//            String uniqueFileName = getUniqueFilename(fileName);
+//            presignedUrlList.add(getPresignedUrl(uniqueFileName));
+//        }
+//        return presignedUrlList;
+//    }
 
     public String getImageUrl(String uniqueFileName){
         return getCloudfrontFilePath(uniqueFileName);
