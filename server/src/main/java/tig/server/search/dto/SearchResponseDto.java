@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import tig.server.enums.Category;
 import tig.server.enums.Type;
+import tig.server.wishlist.domain.Wishlist;
 
 import java.util.List;
 
@@ -63,6 +64,12 @@ public class SearchResponseDto {
     private Float distance;
 
     public Float getAvgRating() {
+        if (ratingCount == 0) {
+            return 0.0f;
+        }
+        if (ratingSum == 0) {
+            return 0.0f;
+        }
         // round at 1 decimal place
         return Math.round(ratingSum / ratingCount * 10) / 10.0f;
     }

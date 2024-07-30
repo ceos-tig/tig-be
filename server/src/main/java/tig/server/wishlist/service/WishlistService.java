@@ -7,6 +7,7 @@ import tig.server.club.domain.Club;
 import tig.server.club.dto.ClubResponse;
 import tig.server.club.mapper.ClubMapper;
 import tig.server.club.service.ClubService;
+import tig.server.config.S3Uploader;
 import tig.server.global.exception.BusinessExceptionHandler;
 import tig.server.global.code.ErrorCode;
 import tig.server.member.domain.Member;
@@ -35,6 +36,7 @@ public class WishlistService {
     private final WishlistMapper wishlistMapper = WishlistMapper.INSTANCE;
     private final ClubMapper clubMapper = ClubMapper.INSTANCE;
     private final MemberMapper memberMapper = MemberMapper.INSTANCE;
+    private final S3Uploader s3Uploader;
 
     //사용자 아이디로 위시리스트 조회
     public List<ClubResponse> getWishlistByUserId(Long memberId) {
@@ -45,8 +47,9 @@ public class WishlistService {
 
             List<ClubResponse> reponseList = new ArrayList<>();
             for (WishlistResponse wishlist : responseList) {
-                ClubResponse club = clubService.getClubByIdForLoginUser(memberId, wishlist.getClub().getId());
-                reponseList.add(club);
+                ClubResponse clubResponse = clubService.getClubByIdForLoginUser(memberId, wishlist.getClub().getId());
+                clubResponse.setPresignedImageUrls(s3Uploader.getPresignedUrls(clubResponse.getId(), clubResponse.getImageUrls()));
+                reponseList.add(clubResponse);
             }
             return reponseList;
         } catch (Exception e) {
