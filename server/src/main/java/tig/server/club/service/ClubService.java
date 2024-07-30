@@ -173,13 +173,25 @@ public class ClubService {
 
         List<ClubResponse> nearestClubs = service.optimizedParallelFindNearestClubs(requestLatitude, requestLongitude, 5).stream()
                 .map(clubMapper::entityToResponse)
+                //set presigned urls for images
+                .peek(clubResponse -> clubResponse.setPresignedImageUrls(s3Uploader.getPresignedUrls(clubResponse.getId(), clubResponse.getImageUrls())))
                 .collect(Collectors.toList());
 
-        List<ClubResponse> popularClubs = service.getPopularClubs();
+        List<ClubResponse> popularClubs = service.getPopularClubs().stream()
+                .peek(clubResponse -> clubResponse.setPresignedImageUrls(s3Uploader.getPresignedUrls(clubResponse.getId(), clubResponse.getImageUrls())))
+                .collect(Collectors.toList());
 
-        List<ClubResponse> recommendedClubs = service.getRecommendedClubs(10);
+        List<ClubResponse> recommendedClubs = service.getRecommendedClubs(10).stream()
+                .peek(clubResponse -> clubResponse.setPresignedImageUrls(s3Uploader.getPresignedUrls(clubResponse.getId(), clubResponse.getImageUrls())))
+                .collect(Collectors.toList());
 
         Map<Category, List<CategoryClubResponse>> nearestClubsByCategory = service.findNearestClubsByCategory(requestLatitude, requestLongitude, 10);
+
+        nearestClubsByCategory.forEach((category, categoryClubResponses) ->
+                categoryClubResponses.forEach(categoryClubResponse ->
+                        categoryClubResponse.setPresignedImageUrls(s3Uploader.getPresignedUrls(categoryClubResponse.getId(), categoryClubResponse.getImageUrls()))
+                )
+        );
 
         return HomeResponse.builder()
                 .nearestClubs(nearestClubs)
@@ -370,6 +382,7 @@ public class ClubService {
     // Helper method to convert Club to CategoryClubResponse
     private CategoryClubResponse toCategoryClubResponse(Club club) {
         return new CategoryClubResponse(
+                s3Uploader.getPresignedUrls(club.getId(), club.getImageUrls()),
                 club.getImageUrls(),
                 club.getCategory().name(),
                 club.getId(),
