@@ -62,6 +62,7 @@ public class ClubService {
 
         ClubResponse clubResponse = clubMapper.entityToResponse(club);
         clubResponse.setAmenities(amenities);
+        clubResponse.setPresignedImageUrls(s3Uploader.getPresignedUrls(club.getId(), club.getImageUrls()));
         return calculateAvgRating(clubResponse);
     }
 
@@ -84,28 +85,28 @@ public class ClubService {
     }
 
 
-    @Transactional
-    public ClubResponse createClub(ClubRequest clubRequest) {
-        //Change image name to be unique
-        clubRequest.setImageUrls(clubRequest.getImageUrls().stream()
-                .map(s3Uploader::getUniqueFilename)
-                .collect(Collectors.toList()));
-
-        //Upload image to s3
-        List<String> presignedUrlList = s3Uploader.uploadFileList(clubRequest.getImageUrls());
-
-        //save club, set presigned url and cloudfront url to response
-        Club club = clubMapper.requestToEntity(clubRequest);
-        club = clubRepository.save(club);
-        ClubResponse response = clubMapper.entityToResponse(club);
-        response.setPresignedImageUrls(presignedUrlList);
-
-        response.setImageUrls(club.getImageUrls().stream()
-                .map(s3Uploader::getImageUrl)
-                .collect(Collectors.toList()));
-
-        return response;
-    }
+//    @Transactional
+//    public ClubResponse createClub(ClubRequest clubRequest) {
+//        //Change image name to be unique
+//        clubRequest.setImageUrls(clubRequest.getImageUrls().stream()
+//                .map(s3Uploader::getUniqueFilename)
+//                .collect(Collectors.toList()));
+//
+//        //Upload image to s3
+//        List<String> presignedUrlList = s3Uploader.uploadFileList(clubRequest.getImageUrls());
+//
+//        //save club, set presigned url and cloudfront url to response
+//        Club club = clubMapper.requestToEntity(clubRequest);
+//        club = clubRepository.save(club);
+//        ClubResponse response = clubMapper.entityToResponse(club);
+//        response.setPresignedImageUrls(presignedUrlList);
+//
+//        response.setImageUrls(club.getImageUrls().stream()
+//                .map(s3Uploader::getImageUrl)
+//                .collect(Collectors.toList()));
+//
+//        return response;
+//    }
 
     private ClubResponse calculateAvgRating(ClubResponse clubResponse) {
         float avgRating = 0f;

@@ -47,13 +47,13 @@ public class ClubController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("")
-    @Operation(summary = "업체 업로드")
-    public ResponseEntity<ApiResponse<ClubResponse>> createClub(@RequestBody ClubRequest clubRequest) {
-        ClubResponse createdClub = clubService.createClub(clubRequest);
-        ApiResponse<ClubResponse> response = ApiResponse.of(200, "successfully added club", createdClub);
-        return ResponseEntity.status(201).body(response);
-    }
+//    @PostMapping("")
+//    @Operation(summary = "업체 업로드")
+//    public ResponseEntity<ApiResponse<ClubResponse>> createClub(@RequestBody ClubRequest clubRequest) {
+//        ClubResponse createdClub = clubService.createClub(clubRequest);
+//        ApiResponse<ClubResponse> response = ApiResponse.of(200, "successfully added club", createdClub);
+//        return ResponseEntity.status(201).body(response);
+//    }
 
     @PostMapping("/home")
     @Operation(summary = "홈 화면 업체 조회")
