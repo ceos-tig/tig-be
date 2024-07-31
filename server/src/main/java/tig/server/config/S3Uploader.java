@@ -30,6 +30,11 @@ public class S3Uploader {
 
     private final int PRESIGNED_URL_EXPIRATION = 60 * 1000 * 10; // 10분
 
+    private String getPresignedUrl(String fileName) {
+        return generatePresignedUrl(fileName).toString();
+    }
+
+
 
     public String getPresignedUrl(Long clubId, String fileName) {
         return generatePresignedUrl(clubId, fileName).toString();
@@ -111,5 +116,41 @@ public class S3Uploader {
         return imageUrls.stream()
                 .map(this::getImageUrl)
                 .collect(Collectors.toList());
+    }
+
+
+    // Upload file to S3 using presigned url
+    private GeneratePresignedUrlRequest getGeneratePresignedUrlRequest(String fileName) {
+        System.out.println("fileName: " + fileName);
+        return new GeneratePresignedUrlRequest(bucket, fileName)
+                .withMethod(HttpMethod.PUT)
+                .withExpiration(setExpiration());
+    }
+
+    private URL generatePresignedUrl(String fileName) {
+        GeneratePresignedUrlRequest generatePresignedUrlRequest = getGeneratePresignedUrlRequest(fileName);
+        URL url = s3Config.amazonS3().generatePresignedUrl(generatePresignedUrlRequest);
+        return url;
+    }
+
+    public String uploadFile(String fileName){
+        return getPresignedUrl(fileName);
+    }
+
+    public List<String> uploadFileList(List<String> fileNameList){
+        List<String> presignedUrlList = new ArrayList<>();
+        for (String fileName : fileNameList) {
+            presignedUrlList.add(getPresignedUrl(fileName));
+        }
+        return presignedUrlList;
+    }
+
+    private boolean checkFileExists(String fileName) {
+        // cloudfrontUrl 부분을 앞에서부터 제거
+        String cleanedFileName = fileName;
+        if (fileName.startsWith(cloudfrontPath)) {
+            cleanedFileName = fileName.substring(cloudfrontPath.length());
+        }
+        return s3Config.amazonS3().doesObjectExist(bucket, cleanedFileName);
     }
 }

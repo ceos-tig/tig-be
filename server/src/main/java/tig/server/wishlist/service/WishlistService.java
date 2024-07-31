@@ -1,6 +1,7 @@
 package tig.server.wishlist.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tig.server.club.domain.Club;
@@ -24,10 +25,12 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class WishlistService {
     private final WishlistRepository wishlistRepository;
     private final ClubService clubService;
@@ -41,21 +44,21 @@ public class WishlistService {
     //사용자 아이디로 위시리스트 조회
     public List<ClubResponse> getWishlistByUserId(Long memberId) {
         try {
-            List<WishlistResponse> responseList = wishlistRepository.findAllByMemberId(memberId).stream()
+            List<WishlistResponse> wishlistResponses = wishlistRepository.findAllByMemberId(memberId).stream()
                     .map(wishlistMapper::entityToResponse)
-                    .toList();
+                    .collect(Collectors.toList());
 
-            List<ClubResponse> reponseList = new ArrayList<>();
-            for (WishlistResponse wishlist : responseList) {
+            List<ClubResponse> clubResponses = new ArrayList<>();
+            for (WishlistResponse wishlist : wishlistResponses) {
                 ClubResponse clubResponse = clubService.getClubByIdForLoginUser(memberId, wishlist.getClub().getId());
-                clubResponse.setPresignedImageUrls(s3Uploader.getPresignedUrls(clubResponse.getId(), clubResponse.getImageUrls()));
-                reponseList.add(clubResponse);
+                clubResponses.add(clubResponse);
             }
-            return reponseList;
+            return clubResponses;
         } catch (Exception e) {
-            throw new BusinessExceptionHandler("위시리스트 조회 중 에러 : " + e.getMessage(), ErrorCode.IO_ERROR);
+            throw new BusinessExceptionHandler("Error retrieving wishlist: " + e.getMessage(), ErrorCode.IO_ERROR);
         }
     }
+
 
     @Transactional
     public void addWishlist(Long clubId, Long memberId) {

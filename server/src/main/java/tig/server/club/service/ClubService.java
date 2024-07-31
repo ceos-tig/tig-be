@@ -62,7 +62,7 @@ public class ClubService {
 
         ClubResponse clubResponse = clubMapper.entityToResponse(club);
         clubResponse.setAmenities(amenities);
-        clubResponse.setPresignedImageUrls(s3Uploader.getPresignedUrls(club.getId(), club.getImageUrls()));
+        clubResponse.setPresignedImageUrls(club.getImageUrls());
         return calculateAvgRating(clubResponse);
     }
 
@@ -70,12 +70,13 @@ public class ClubService {
         Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new BusinessExceptionHandler("club not found", ErrorCode.NOT_FOUND_ERROR));
         Optional<Wishlist> wishlist = wishlistRepository.findByMemberIdAndClubId(memberId, clubId);
-        List<String> CloudFrontImageUrl = s3Uploader.getImageUrls(club.getImageUrls());
+        List<String> CloudFrontImageUrls = club.getImageUrls();
 
         List<Facility> amenities = amenityService.getAmenitiesByClubId(club.getId());
-        club.setImageUrls(CloudFrontImageUrl);
+        club.setImageUrls(CloudFrontImageUrls);
         ClubResponse clubResponse = clubMapper.entityToResponse(club);
         clubResponse.setAmenities(amenities);
+
         if (wishlist.isEmpty()) { // 해당 사용자는 해당 클럽에 좋아요 안누름
             clubResponse.setIsHeart(false);
         } else { //해당 사용자는 해당 클럽에 좋아요 누름
@@ -173,23 +174,22 @@ public class ClubService {
 
         List<ClubResponse> nearestClubs = service.optimizedParallelFindNearestClubs(requestLatitude, requestLongitude, 5).stream()
                 .map(clubMapper::entityToResponse)
-                //set presigned urls for images
-                .peek(clubResponse -> clubResponse.setPresignedImageUrls(s3Uploader.getPresignedUrls(clubResponse.getId(), clubResponse.getImageUrls())))
+                .peek(clubResponse -> clubResponse.setPresignedImageUrls(clubResponse.getImageUrls()))
                 .collect(Collectors.toList());
 
         List<ClubResponse> popularClubs = service.getPopularClubs().stream()
-                .peek(clubResponse -> clubResponse.setPresignedImageUrls(s3Uploader.getPresignedUrls(clubResponse.getId(), clubResponse.getImageUrls())))
+                .peek(clubResponse -> clubResponse.setPresignedImageUrls(clubResponse.getImageUrls()))
                 .collect(Collectors.toList());
 
         List<ClubResponse> recommendedClubs = service.getRecommendedClubs(10).stream()
-                .peek(clubResponse -> clubResponse.setPresignedImageUrls(s3Uploader.getPresignedUrls(clubResponse.getId(), clubResponse.getImageUrls())))
+                .peek(clubResponse -> clubResponse.setPresignedImageUrls(clubResponse.getImageUrls()))
                 .collect(Collectors.toList());
 
         Map<Category, List<CategoryClubResponse>> nearestClubsByCategory = service.findNearestClubsByCategory(requestLatitude, requestLongitude, 10);
 
         nearestClubsByCategory.forEach((category, categoryClubResponses) ->
                 categoryClubResponses.forEach(categoryClubResponse ->
-                        categoryClubResponse.setPresignedImageUrls(s3Uploader.getPresignedUrls(categoryClubResponse.getId(), categoryClubResponse.getImageUrls()))
+                        categoryClubResponse.setPresignedImageUrls(categoryClubResponse.getImageUrls())
                 )
         );
 
