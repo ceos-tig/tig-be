@@ -31,7 +31,7 @@ public enum District {
     private final double latitude;
     private final double longitude;
 
-    District(String koreanName, double latitude, double longitude) {
+    District(String koreanName, double longitude, double latitude) {
         this.koreanName = koreanName;
         this.latitude = latitude;
         this.longitude = longitude;
