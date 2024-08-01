@@ -21,6 +21,8 @@ public record DiscordMessage(
                 + "| " + "예약 날짜: " + changeToDateFormat(reservationResponse.getStartTime()) + "\n"
                 + "| " + "예약 시작 시간: " + changeToTimeFormat(reservationResponse.getStartTime()) + "\n"
                 + "| " + getEndTime(reservationResponse) + "\n"
+                + "| " + "성인: " + reservationResponse.getAdultCount() + "명, 청소년: " + reservationResponse.getTeenagerCount() + "명, 어린이: " + reservationResponse.getKidsCount() + "명\n"
+                + "| " + "메세지: " + reservationResponse.getMessage() + "\n"
                 + "| " + "결제 ID: " + reservationResponse.getPaymentId() + "\n"
                 + "--------------------------------------------\n");
     }
@@ -36,6 +38,8 @@ public record DiscordMessage(
                 + "| " + "예약 날짜: " + changeToDateFormat(reservationResponse.getStartTime()) + "\n"
                 + "| " + "예약 시작 시간: " + changeToTimeFormat(reservationResponse.getStartTime()) + "\n"
                 + "| " + getEndTime(reservationResponse) + "\n"
+                + "| " + "성인: " + reservationResponse.getAdultCount() + "명, 청소년: " + reservationResponse.getTeenagerCount() + "명, 어린이: " + reservationResponse.getKidsCount() + "명\n"
+                + "| " + "메세지: " + reservationResponse.getMessage() + "\n"
                 + "| " + "결제 ID: " + reservationResponse.getPaymentId() + "\n"
                 + "--------------------------------------------\n");
     }
