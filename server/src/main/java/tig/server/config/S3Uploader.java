@@ -107,9 +107,16 @@ public class S3Uploader {
 //        }
 //        return presignedUrlList;
 //    }
+//
+//    public String getImageUrl(String uniqueFileName){
+//        return getCloudfrontFilePath(uniqueFileName);
+//    }
 
-    public String getImageUrl(String uniqueFileName){
-        return getCloudfrontFilePath(uniqueFileName);
+    public String getImageUrl(String uniqueFileName) {
+        if (uniqueFileName.contains("cloudfront.net")) {
+            return uniqueFileName; // 이미 CloudFront URL이 포함된 경우 그대로 반환
+        }
+        return getCloudfrontFilePath(uniqueFileName); // CloudFront URL 생성
     }
 
     public List<String> getImageUrls(List<String> imageUrls) {

@@ -90,6 +90,7 @@ public class ReservationService {
         response.setClubName(club.getClubName());
         response.setProvider(provider);
         response.setUpdatedAt(updatedAt);
+        response.setImageUrls(club.getImageUrls());
 
         // check is review null
         response.setReviewed(reservation.getReview() != null);
@@ -153,6 +154,7 @@ public class ReservationService {
                     ReservationResponse response = ensureNonNullFields(reservationMapper.entityToResponse(entity), entity);
                     doneReservation(response, entity);
                     response.setReviewId(checkReviewed(entity.getReview()));
+                    response.setImageUrls(entity.getClub().getImageUrls());
                     return response;
                 })
                 .collect(Collectors.toList());
