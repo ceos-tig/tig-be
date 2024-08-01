@@ -44,23 +44,26 @@ public record DiscordMessage(
         return new DiscordMessage(message);
     }
 
-    private static String changeToDateFormat(String beforeDate) throws ParseException {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        Date date = dateFormat.parse(beforeDate); // 기존 string을 date 클래스로 변환
-        return dateFormat.format(date); // 변환한 값의 format 변경
+    private static String changeToDateFormat(String beforeDateTime) {
+        // Split the input at the 'T' character to get the date part
+        String[] parts = beforeDateTime.split("T");
+        String datePart = parts[0]; // yyyy-MM-dd
+        return datePart;
     }
 
-    private static String changeToTimeFormat(String beforeTime) throws ParseException {
-        SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
-        Date time = timeFormat.parse(beforeTime); // 기존 string을 date 클래스로 변환
-        return timeFormat.format(time); // 변환한 값의 format 변경
+    private static String changeToTimeFormat(String beforeDateTime) {
+        // Split the input at the 'T' character to get the time part
+        String[] parts = beforeDateTime.split("T");
+        String timePart = parts[1]; // HH:mm:ss
+        return timePart;
     }
 
-    // return endtime when reservationResponse.getType is "TIME". if not, it return reservationResponse.getGameCount
-    private static String getEndTime(ReservationResponse reservationResponse) throws ParseException {
+    // Return endtime when reservationResponse.getType is "TIME". if not, return reservationResponse.getGameCount
+    private static String getEndTime(ReservationResponse reservationResponse) {
         if (reservationResponse.getType().equals(Type.TIME)) {
             return "예약 종료 시간: " + changeToTimeFormat(reservationResponse.getEndTime());
         }
         return "게임 수: " + reservationResponse.getGameCount().toString();
     }
+
 }
