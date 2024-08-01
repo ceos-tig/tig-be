@@ -10,7 +10,7 @@ import tig.server.reservation.dto.ReservationResponse;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2024-07-26T16:16:17+0900",
+    date = "2024-07-31T21:18:40+0900",
     comments = "version: 1.5.1.Final, compiler: javac, environment: Java 17.0.5 (Oracle Corporation)"
 )
 @Component
@@ -40,6 +40,9 @@ public class ReservationMapperImpl implements ReservationMapper {
         }
         reservation.status( reservationRequest.getStatus() );
         reservation.paymentId( reservationRequest.getPaymentId() );
+        reservation.message( reservationRequest.getMessage() );
+        reservation.userName( reservationRequest.getUserName() );
+        reservation.phoneNumber( reservationRequest.getPhoneNumber() );
 
         return reservation.build();
     }
@@ -67,10 +70,13 @@ public class ReservationMapperImpl implements ReservationMapper {
         reservationResponse.gameCount( reservation.getGameCount() );
         reservationResponse.price( reservation.getPrice() );
         reservationResponse.status( reservation.getStatus() );
+        reservationResponse.phoneNumber( reservation.getPhoneNumber() );
+        reservationResponse.userName( reservation.getUserName() );
         reservationResponse.paymentId( reservation.getPaymentId() );
         if ( reservation.getUpdatedAt() != null ) {
             reservationResponse.updatedAt( DateTimeFormatter.ISO_LOCAL_DATE_TIME.format( reservation.getUpdatedAt() ) );
         }
+        reservationResponse.message( reservation.getMessage() );
 
         return reservationResponse.build();
     }
@@ -99,6 +105,9 @@ public class ReservationMapperImpl implements ReservationMapper {
         }
         reservation.status( reservationResponse.getStatus() );
         reservation.paymentId( reservationResponse.getPaymentId() );
+        reservation.message( reservationResponse.getMessage() );
+        reservation.userName( reservationResponse.getUserName() );
+        reservation.phoneNumber( reservationResponse.getPhoneNumber() );
 
         return reservation.build();
     }
@@ -138,6 +147,15 @@ public class ReservationMapperImpl implements ReservationMapper {
         }
         if ( reservationRequest.getPaymentId() != null ) {
             reservation.setPaymentId( reservationRequest.getPaymentId() );
+        }
+        if ( reservationRequest.getMessage() != null ) {
+            reservation.setMessage( reservationRequest.getMessage() );
+        }
+        if ( reservationRequest.getUserName() != null ) {
+            reservation.setUserName( reservationRequest.getUserName() );
+        }
+        if ( reservationRequest.getPhoneNumber() != null ) {
+            reservation.setPhoneNumber( reservationRequest.getPhoneNumber() );
         }
 
         return reservation;
