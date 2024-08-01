@@ -1,7 +1,6 @@
 package tig.server.review.dto;
 
 import lombok.*;
-import tig.server.dummy.DummyDto;
 import tig.server.reservation.dto.ReservationResponse;
 
 @Getter
