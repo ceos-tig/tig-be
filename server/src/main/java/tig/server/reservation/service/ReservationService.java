@@ -118,17 +118,6 @@ public class ReservationService {
             reservationRequest.setEndTime("2000-01-01T00:00:00");
         }
 
-        // Print the date strings and their lengths to verify the format and content
-        System.out.println("Date: '" + reservationRequest.getDate() + "' Length: " + reservationRequest.getDate().length());
-        System.out.println("Start Time: '" + reservationRequest.getStartTime() + "' Length: " + reservationRequest.getStartTime().length());
-        System.out.println("End Time: '" + reservationRequest.getEndTime() + "' Length: " + reservationRequest.getEndTime().length());
-
-        // Print character codes to detect any hidden characters
-        for (char c : reservationRequest.getDate().toCharArray()) {
-            System.out.print((int) c + " ");
-        }
-        System.out.println();
-
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
         try {
@@ -152,6 +141,7 @@ public class ReservationService {
         } catch (DateTimeParseException e) {
             // Handle the parsing error
             System.err.println("Unparseable date: " + e.getMessage());
+            e.printStackTrace();
         }
 
 
