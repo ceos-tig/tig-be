@@ -118,15 +118,42 @@ public class ReservationService {
             reservationRequest.setEndTime("2000-01-01T00:00:00");
         }
 
-        LocalDateTime date = LocalDateTime.parse(reservationRequest.getDate());
-        LocalDateTime startTime = LocalDateTime.parse(reservationRequest.getStartTime());
-        LocalDateTime endTime = LocalDateTime.parse(reservationRequest.getEndTime());
+        // Print the date strings and their lengths to verify the format and content
+        System.out.println("Date: '" + reservationRequest.getDate() + "' Length: " + reservationRequest.getDate().length());
+        System.out.println("Start Time: '" + reservationRequest.getStartTime() + "' Length: " + reservationRequest.getStartTime().length());
+        System.out.println("End Time: '" + reservationRequest.getEndTime() + "' Length: " + reservationRequest.getEndTime().length());
 
-        reservation.setDate(date);
-        reservation.setStartTime(startTime);
-        reservation.setEndTime(endTime);
+        // Print character codes to detect any hidden characters
+        for (char c : reservationRequest.getDate().toCharArray()) {
+            System.out.print((int) c + " ");
+        }
+        System.out.println();
 
-        reservation = reservationRepository.save(reservation);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+
+        try {
+            // Trim any potential whitespace
+            String dateString = reservationRequest.getDate().trim();
+            String startTimeString = reservationRequest.getStartTime().trim();
+            String endTimeString = reservationRequest.getEndTime().trim();
+
+            // Parse the input strings using the custom formatter
+            LocalDateTime date = LocalDateTime.parse(dateString, formatter);
+            LocalDateTime startTime = LocalDateTime.parse(startTimeString, formatter);
+            LocalDateTime endTime = LocalDateTime.parse(endTimeString, formatter);
+
+            // Set the parsed LocalDateTime objects to the reservation
+            reservation.setDate(date);
+            reservation.setStartTime(startTime);
+            reservation.setEndTime(endTime);
+
+            // Save the reservation
+            reservation = reservationRepository.save(reservation);
+        } catch (DateTimeParseException e) {
+            // Handle the parsing error
+            System.err.println("Unparseable date: " + e.getMessage());
+        }
+
 
         ReservationResponse response = reservationMapper.entityToResponse(reservation);
         response.setReservationId(reservation.getId());
