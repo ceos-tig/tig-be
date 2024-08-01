@@ -6,6 +6,7 @@ import tig.server.enums.Status;
 import tig.server.enums.Type;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -88,4 +89,7 @@ public class ReservationResponse {
 
     @Schema(type = "string", example = "잘 부탁 드립니다.")
     private String message;
+
+    @Schema(type = "array", example = "[\"src/club/img1.jpg\", \"src/club/img2.jpg\"]")
+    private List<String> imageUrls;
 }
