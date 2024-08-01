@@ -222,6 +222,7 @@ public class ReservationService {
         reservation.setStatus(Status.CANCELED);
 
         ReservationResponse response = reservationMapper.entityToResponse(reservation);
+        response.setType(reservation.getClub().getType());
         response.setUserName(reservation.getUserName());
         response.setClubName(reservation.getClub().getClubName());
         response.setReservationId(reservationId);
