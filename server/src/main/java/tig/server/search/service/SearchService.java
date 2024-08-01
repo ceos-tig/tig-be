@@ -52,6 +52,13 @@ public class SearchService {
                 SearchResponseDto searchResponseDto = searchMapper.entityToResponse(recommendedClub);
                 searchResponseDto.setIsHeart(isHeart);
                 searchResponseDto.setDistance(distance);
+                // set ratingSum and ratingCount 0 if null
+                if (searchResponseDto.getRatingSum() == null) {
+                    searchResponseDto.setRatingSum(0f);
+                }
+                if (searchResponseDto.getRatingCount() == null) {
+                    searchResponseDto.setRatingCount(0);
+                }
                 searchResponseDtoList.add(searchResponseDto);
             }
         } else {
@@ -100,6 +107,13 @@ public class SearchService {
                 Float distance = calculateDistance(avgPointDto, recommendedClub);
                 SearchResponseDto searchResponseDto = searchMapper.entityToResponse(recommendedClub);
                 searchResponseDto.setDistance(distance);
+                // set ratingSum and ratingCount 0 if null
+                if (searchResponseDto.getRatingSum() == null) {
+                    searchResponseDto.setRatingSum(0f);
+                }
+                if (searchResponseDto.getRatingCount() == null) {
+                    searchResponseDto.setRatingCount(0);
+                }
                 searchResponseDtoList.add(searchResponseDto);
             }
         } else {
