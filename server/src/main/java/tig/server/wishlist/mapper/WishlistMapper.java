@@ -2,7 +2,6 @@ package tig.server.wishlist.mapper;
 
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
-import tig.server.dummy.DummyDto;
 import tig.server.wishlist.domain.Wishlist;
 import tig.server.wishlist.dto.WishlistRequest;
 import tig.server.wishlist.dto.WishlistResponse;
