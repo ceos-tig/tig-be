@@ -59,9 +59,13 @@ public class ReviewService {
             reviewRepository.save(review);
             reservationRepository.save(reservation);
 
+            // reservation.getClub().getImageUrls() 값을 ReservationResponse에 설정
+            ReservationResponse reservationResponse = reservationMapper.entityToResponse(reservation);
+            reservationResponse.setImageUrls(reservation.getClub().getImageUrls());
+
             return ReviewWithReservationDTO.builder()
                     .review(reviewMapper.entityToResponse(review))
-                    .reservation(reservationMapper.entityToResponse(reservation))
+                    .reservation(reservationResponse)
                     .build();
 
         } catch (Exception e) {
