@@ -34,4 +34,7 @@ public class ReviewResponse {
 
     @Schema(type = "string", example = "2007-12-03T10:15:30")
     private String startTime;
+
+    @Schema(type = "string", example = "AI 가 요약한 리뷰 내용")
+    private String reviewSummary;
 }

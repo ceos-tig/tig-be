@@ -11,6 +11,7 @@ import tig.server.member.domain.Member;
 import tig.server.review.dto.ReviewRequest;
 import tig.server.review.dto.ReviewResponse;
 import tig.server.review.dto.ReviewWithReservationDTO;
+import tig.server.review.dto.ReviewWithSummaryResponseDto;
 import tig.server.review.service.ReviewService;
 
 import java.util.List;
@@ -42,9 +43,10 @@ public class ReviewController {
 
     @GetMapping("/club/{clubId}")
     @Operation(summary = "특정 업체의 모든 리뷰 조회")
-    public ResponseEntity<ApiResponse<List<ReviewResponse>>> getClubReviews(@PathVariable Long clubId) {
-        List<ReviewResponse> clubReviews = reviewService.getReviewsByClubId(clubId);
-        ApiResponse<List<ReviewResponse>> response = ApiResponse.of(200, "successfully get club's reviews", clubReviews);
+    public ResponseEntity<ApiResponse<ReviewWithSummaryResponseDto>> getClubReviews(@PathVariable Long clubId) {
+        ReviewWithSummaryResponseDto reviewsByClubId = reviewService.getReviewsByClubId(clubId);
+        //List<ReviewResponse> clubReviews = reviewService.getReviewsByClubId(clubId);
+        ApiResponse<ReviewWithSummaryResponseDto> response = ApiResponse.of(200, "successfully get club's reviews", reviewsByClubId);
         return ResponseEntity.ok(response);
     }
 

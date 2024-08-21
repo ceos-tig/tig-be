@@ -9,6 +9,7 @@ import tig.server.club.service.ClubService;
 import tig.server.global.exception.BusinessExceptionHandler;
 import tig.server.global.code.ErrorCode;
 import tig.server.member.service.MemberService;
+import tig.server.openai.service.OpenAIService;
 import tig.server.reservation.domain.Reservation;
 import tig.server.reservation.dto.ReservationResponse;
 import tig.server.reservation.mapper.ReservationMapper;
@@ -17,6 +18,7 @@ import tig.server.reservation.service.ReservationService;
 import tig.server.review.domain.Review;
 import tig.server.review.dto.ReviewRequest;
 import tig.server.review.dto.ReviewResponse;
+import tig.server.review.dto.ReviewWithSummaryResponseDto;
 import tig.server.review.dto.ReviewWithReservationDTO;
 import tig.server.review.mapper.ReviewMapper;
 import tig.server.review.repository.ReviewRepository;
@@ -36,6 +38,7 @@ public class ReviewService {
     private final MemberService memberService;
     private final ReservationService reservationService;
     private final ClubService clubService;
+    private final OpenAIService openAIService;
 
     private final ReviewMapper reviewMapper = ReviewMapper.INSTANCE;
     private final ReservationMapper reservationMapper = ReservationMapper.INSTANCE;
@@ -110,14 +113,19 @@ public class ReviewService {
                 .build();
     }
 
-    public List<ReviewResponse> getReviewsByClubId(Long clubId) {
+    public ReviewWithSummaryResponseDto getReviewsByClubId(Long clubId) {
         Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new BusinessExceptionHandler("club not found",ErrorCode.NOT_FOUND_ERROR));
 
         List<Reservation> reservations = club.getReservations();
 
-        // set userName, adultCount, teenagerCount, kidsCount, startTime
-        return reservations.stream()
+        StringBuilder prompt = null;
+        for (Reservation reservation : reservations) {
+            prompt.append(reservation.getReview().getContents() + " ");
+        }
+
+        String aiSummary = openAIService.reviewSummary(String.valueOf(prompt)).getChoices().get(0).getMessage().getContent();
+        List<ReviewResponse> responses = reservations.stream()
                 .filter(reservation -> Objects.nonNull(reservation.getReview()))
                 .map(reservation -> {
                     Review review = reservation.getReview();
@@ -133,6 +141,8 @@ public class ReviewService {
                             .build();
                 })
                 .collect(Collectors.toList());
+
+        return ReviewWithSummaryResponseDto.from(responses, aiSummary);
     }
 
     @Transactional
