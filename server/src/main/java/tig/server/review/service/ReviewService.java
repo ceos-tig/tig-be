@@ -120,11 +120,15 @@ public class ReviewService {
         List<Reservation> reservations = club.getReservations();
 
         StringBuilder prompt = null;
+        String aiSummary = null;
         for (Reservation reservation : reservations) {
             prompt.append(reservation.getReview().getContents() + " ");
         }
 
-        String aiSummary = openAIService.reviewSummary(String.valueOf(prompt)).getChoices().get(0).getMessage().getContent();
+        if(!prompt.isEmpty())
+            aiSummary = openAIService.reviewSummary(String.valueOf(prompt)).getChoices().get(0).getMessage().getContent();
+        else
+            aiSummary = "";
         List<ReviewResponse> responses = reservations.stream()
                 .filter(reservation -> Objects.nonNull(reservation.getReview()))
                 .map(reservation -> {
