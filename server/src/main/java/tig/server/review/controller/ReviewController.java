@@ -45,7 +45,6 @@ public class ReviewController {
     @Operation(summary = "특정 업체의 모든 리뷰 조회")
     public ResponseEntity<ApiResponse<ReviewWithSummaryResponseDto>> getClubReviews(@PathVariable Long clubId) {
         ReviewWithSummaryResponseDto reviewsByClubId = reviewService.getReviewsByClubId(clubId);
-        //List<ReviewResponse> clubReviews = reviewService.getReviewsByClubId(clubId);
         ApiResponse<ReviewWithSummaryResponseDto> response = ApiResponse.of(200, "successfully get club's reviews", reviewsByClubId);
         return ResponseEntity.ok(response);
     }
