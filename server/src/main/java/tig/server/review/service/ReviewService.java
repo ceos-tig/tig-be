@@ -119,16 +119,21 @@ public class ReviewService {
 
         List<Reservation> reservations = club.getReservations();
 
-        StringBuilder prompt = null;
+        StringBuilder prompt = new StringBuilder(); // StringBuilder 객체 초기화
         String aiSummary = null;
+
         for (Reservation reservation : reservations) {
-            prompt.append(reservation.getReview().getContents() + " ");
+            Review review = reservation.getReview();
+            if (review != null && review.getContents() != null) { // Review와 Contents가 null이 아닌지 확인
+                prompt.append(review.getContents() + " ");
+            }
         }
 
-        if(!prompt.isEmpty())
-            aiSummary = openAIService.reviewSummary(String.valueOf(prompt)).getChoices().get(0).getMessage().getContent();
+        if (prompt.length() > 0) // prompt가 비어있는지 확인
+            aiSummary = openAIService.reviewSummary(prompt.toString()).getChoices().get(0).getMessage().getContent();
         else
             aiSummary = "";
+
         List<ReviewResponse> responses = reservations.stream()
                 .filter(reservation -> Objects.nonNull(reservation.getReview()))
                 .map(reservation -> {
