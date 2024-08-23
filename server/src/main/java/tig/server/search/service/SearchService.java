@@ -32,7 +32,7 @@ public class SearchService {
     private final SearchMapper searchMapper = SearchMapper.INSTANCE;
     private final ClubMapper clubMapper = ClubMapper.INSTANCE;
 
-    public SearchResultDto findClubByNameContain(Long memberId, String request) {
+    public SearchResultDto findClubByNameContain(Long memberId, String request, boolean isKeyword) {
         String keywordWithoutSpaces = request.replaceAll(" ", "");
         List<Club> clubList = clubRepository.searchByKeyword(keywordWithoutSpaces);
 
@@ -81,10 +81,11 @@ public class SearchService {
                 searchResponseDtoList.add(searchResponseDto);
             }
         }
-
-        String now = LocalDateTime.now().toString();
-        SearchLogDto searchLogDto = new SearchLogDto(request,now);
-        searchLogService.saveRecentSearchLog(memberId,searchLogDto);
+        if (isKeyword) { // 검색어를 입력 했다면
+            String now = LocalDateTime.now().toString();
+            SearchLogDto searchLogDto = new SearchLogDto(request,now);
+            searchLogService.saveRecentSearchLog(memberId,searchLogDto);
+        }
 
         return new SearchResultDto(searchResponseDtoList, avgPointDto.getAvgLatitude(), avgPointDto.getAvgLongitude(), isResult);
     }

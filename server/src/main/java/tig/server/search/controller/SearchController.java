@@ -17,12 +17,13 @@ public class SearchController {
 
     @GetMapping("/user")
     public ResponseEntity<ApiResponse<SearchResultDto>> search(@LoginUser Member member,
-                                                               @RequestParam("search") String request) {
+                                                               @RequestParam("search") String request,
+                                                               @RequestParam("isKeyword") boolean isKeyword) {
         String passRequest = request.replaceAll("\\p{Z}", "");
         if (passRequest.endsWith("/")) {
             passRequest = passRequest.substring(0, passRequest.length() - 1);
         }
-        SearchResultDto clubList = searchService.findClubByNameContain(member.getId(), passRequest);
+        SearchResultDto clubList = searchService.findClubByNameContain(member.getId(), passRequest, isKeyword);
         ApiResponse<SearchResultDto> response = ApiResponse.of(200, "successfully searched!", clubList);
         return ResponseEntity.ok(response);
     }
