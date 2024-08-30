@@ -3,6 +3,7 @@ package tig.server.price.domain;
 import jakarta.persistence.*;
 import lombok.*;
 import tig.server.club.domain.Club;
+import tig.server.enums.Type;
 
 @Entity
 @Getter
@@ -16,6 +17,9 @@ public class Price {
 
     private Integer hour;
     private Integer price;
+
+    @Enumerated(EnumType.STRING)
+    private Type type;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "club_id")
