@@ -9,6 +9,7 @@ import tig.server.club.service.ClubService;
 import tig.server.global.exception.BusinessExceptionHandler;
 import tig.server.global.code.ErrorCode;
 import tig.server.member.service.MemberService;
+import tig.server.openai.service.OpenAIService;
 import tig.server.reservation.domain.Reservation;
 import tig.server.reservation.dto.ReservationResponse;
 import tig.server.reservation.mapper.ReservationMapper;
@@ -17,6 +18,7 @@ import tig.server.reservation.service.ReservationService;
 import tig.server.review.domain.Review;
 import tig.server.review.dto.ReviewRequest;
 import tig.server.review.dto.ReviewResponse;
+import tig.server.review.dto.ReviewWithSummaryResponseDto;
 import tig.server.review.dto.ReviewWithReservationDTO;
 import tig.server.review.mapper.ReviewMapper;
 import tig.server.review.repository.ReviewRepository;
@@ -36,6 +38,7 @@ public class ReviewService {
     private final MemberService memberService;
     private final ReservationService reservationService;
     private final ClubService clubService;
+    private final OpenAIService openAIService;
 
     private final ReviewMapper reviewMapper = ReviewMapper.INSTANCE;
     private final ReservationMapper reservationMapper = ReservationMapper.INSTANCE;
@@ -110,14 +113,28 @@ public class ReviewService {
                 .build();
     }
 
-    public List<ReviewResponse> getReviewsByClubId(Long clubId) {
+    public ReviewWithSummaryResponseDto getReviewsByClubId(Long clubId) {
         Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new BusinessExceptionHandler("club not found",ErrorCode.NOT_FOUND_ERROR));
 
         List<Reservation> reservations = club.getReservations();
 
-        // set userName, adultCount, teenagerCount, kidsCount, startTime
-        return reservations.stream()
+        StringBuilder prompt = new StringBuilder(); // StringBuilder 객체 초기화
+        String aiSummary = null;
+
+        for (Reservation reservation : reservations) {
+            Review review = reservation.getReview();
+            if (review != null && review.getContents() != null) { // Review와 Contents가 null이 아닌지 확인
+                prompt.append(review.getContents() + " ");
+            }
+        }
+
+        if (prompt.length() > 0) // prompt가 비어있는지 확인
+            aiSummary = openAIService.reviewSummary(prompt.toString()).getChoices().get(0).getMessage().getContent();
+        else
+            aiSummary = "";
+
+        List<ReviewResponse> responses = reservations.stream()
                 .filter(reservation -> Objects.nonNull(reservation.getReview()))
                 .map(reservation -> {
                     Review review = reservation.getReview();
@@ -133,6 +150,8 @@ public class ReviewService {
                             .build();
                 })
                 .collect(Collectors.toList());
+
+        return ReviewWithSummaryResponseDto.from(responses, aiSummary);
     }
 
     @Transactional
