@@ -27,6 +27,6 @@ public interface ClubRepository extends JpaRepository<Club, Long> {
     @Query("SELECT c FROM Club c WHERE REPLACE(c.address, ' ', '') LIKE %:keyword% OR c.address LIKE %:keyword%")
     List<Club> searchByAddress(@Param("keyword") String keyword);
 
-    @Query(value = "SELECT * FROM club c WHERE REPLACE(c.club_name, ' ', '') LIKE %:keyword% OR REPLACE(c.address, ' ', '') LIKE %:keyword%", nativeQuery = true)
+    @Query(value = "SELECT * FROM club c WHERE REPLACE(c.club_name, ' ', '') LIKE %:keyword% OR REPLACE(c.address, ' ', '') LIKE %:keyword% LIMIT 500", nativeQuery = true)
     List<Club> searchByKeyword(@Param("keyword") String keyword);
 }
