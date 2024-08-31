@@ -318,6 +318,7 @@ public class ClubService {
         // Use ConcurrentSkipListSet to maintain the nearest clubs in a thread-safe manner
         ConcurrentSkipListSet<ClubDistance> nearestClubs = allClubs.parallelStream()
                 .filter(club -> club.getLatitude() != null && club.getLongitude() != null) // Filter out clubs with null latitude or longitude
+                .filter(club -> club.getImageUrls() != null && !club.getImageUrls().isEmpty()) // Filter out clubs with null or empty imageUrls
                 .map(club -> new ClubDistance(club, distance(requestLatitude, requestLongitude, club.getLatitude(), club.getLongitude(), cosRequestLatitude)))
                 .collect(Collectors.toCollection(() -> new ConcurrentSkipListSet<>(Comparator.comparingDouble(ClubDistance::getDistance))));
 
@@ -405,6 +406,7 @@ public class ClubService {
         if (count >= size) {
             return allClubs.stream()
                     .map(clubMapper::entityToResponse)
+                    .filter(club -> club.getImageUrls() != null && !club.getImageUrls().isEmpty()) // Filter out clubs with null or empty imageUrls
                     .collect(Collectors.toList());
         }
 
