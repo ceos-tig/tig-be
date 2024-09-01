@@ -25,6 +25,7 @@ public class SwaggerConfig {
                 .components(new Components().addSecuritySchemes("bearerAuth", securityScheme))
                 .security(Arrays.asList(securityRequirement))
                 .servers(Arrays.asList(
+                        new Server().url("http://localhost:8080").description("Local server"),
                         new Server().url("https://api.tigleisure.com").description("Production server")
                 ));
     }
