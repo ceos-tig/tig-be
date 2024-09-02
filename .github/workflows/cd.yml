@@ -12,7 +12,7 @@ jobs:
 
     steps:
       - name: Checkout source code
-        uses: actions/checkout@master
+        uses: actions/checkout@v2
 
       - name: set JDK 17
         uses: actions/setup-java@v3
@@ -32,12 +32,12 @@ jobs:
           utcOffset: "+09:00"
 
       - name: Show Current Time
-        run: echo "CurrnetTime=$"
+        run: echo "CurrentTime=${{ steps.current-time.outputs.formattedTime }}"
         shell: bash
 
       - name: Build with Gradle
         working-directory: server/
-        run: ./gradlew clean build -Dspring.profiles.active=prod -x test  # build with Gradle, excluding tests
+        run: ./gradlew clean build -Dspring.profiles.active=deploy -x test  # build with Gradle, excluding tests
         shell: bash
 
       - name: List files for debugging
