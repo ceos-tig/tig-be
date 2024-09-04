@@ -40,7 +40,7 @@ public class Club extends BaseTimeEntity {
 
     // enums
     private Category category;
-    private Type type;
+    private Type type; //TODO : @Enumerated 넣어야 함
 
     // coordinates
     private Float latitude;
