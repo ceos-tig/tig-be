@@ -10,7 +10,7 @@ spring:
     database: mysql
     database-platform: org.hibernate.dialect.MySQL8Dialect
     hibernate:
-      ddl-auto: create-drop # update로 수정 필요
+      ddl-auto: update # update로 수정 필요
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect

@@ -1,9 +1,9 @@
 package tig.server.club.service;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import tig.server.amenity.dto.AmenityResponseDto;
 import tig.server.amenity.service.AmenityService;
 import tig.server.club.domain.Club;
 import tig.server.club.dto.*;
@@ -15,6 +15,15 @@ import tig.server.enums.District;
 import tig.server.enums.Facility;
 import tig.server.global.exception.BusinessExceptionHandler;
 import tig.server.global.code.ErrorCode;
+import tig.server.operatinghours.domain.OperatingHours;
+import tig.server.operatinghours.dto.OperatingHoursResponse;
+import tig.server.operatinghours.repository.OperatingHoursRepository;
+import tig.server.price.domain.Price;
+import tig.server.price.dto.PriceResponse;
+import tig.server.price.repository.PriceRepository;
+import tig.server.program.domain.Program;
+import tig.server.program.dto.ProgramResponse;
+import tig.server.program.repository.ProgramRepository;
 import tig.server.reservation.domain.Reservation;
 import tig.server.reservation.repository.ReservationRepository;
 import tig.server.review.domain.Review;
@@ -27,6 +36,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -35,6 +45,9 @@ public class ClubService {
     private final ClubRepository clubRepository;
     private final ReservationRepository reservationRepository;
     private final WishlistRepository wishlistRepository;
+    private final PriceRepository priceRepository;
+    private final OperatingHoursRepository operatingHoursRepository;
+    private final ProgramRepository programRepository;
 
     private final AmenityService amenityService;
 
@@ -46,8 +59,36 @@ public class ClubService {
 
     public List<ClubResponse> getAllClubs() {
         return clubRepository.findAll().stream()
-                .map(clubMapper::entityToResponse)
-                .map(this::calculateAvgRating)
+                .map(club -> {
+                    // 클럽과 연결된 프로그램 조회
+                    List<Program> programs = programRepository.findByClub_Id(club.getId());
+
+                    // 각 프로그램에 대한 가격 정보 조회
+                    List<PriceResponse> priceResponses = programs.stream()
+                            .flatMap(program -> priceRepository.findByProgram(program).stream())
+                            .map(price -> new PriceResponse(price.getDayOfWeek(), price.getStartTime(), price.getEndTime(), price.getPrice()))
+                            .collect(Collectors.toList());
+
+                    // 클럽의 운영 시간 정보 조회
+                    List<OperatingHours> operatingHours = operatingHoursRepository.findByClub_Id(club.getId());
+                    List<OperatingHoursResponse> operatingHoursResponses = operatingHours.stream()
+                            .map(hours -> new OperatingHoursResponse(hours.getDayOfWeek(), hours.getStartTime(), hours.getEndTime()))
+                            .collect(Collectors.toList());
+
+                    // 클럽의 프로그램 정보 설정
+                    List<ProgramResponse> programResponses = programs.stream()
+                            .map(program -> new ProgramResponse(program.getProgramId(), program.getProgramName().name()))
+                            .collect(Collectors.toList());
+
+                    // ClubResponse로 변환 후 필드 설정
+                    ClubResponse response = clubMapper.entityToResponse(club);
+                    response.setPrices(priceResponses);
+                    response.setOperatingHours(operatingHoursResponses);
+                    response.setPrograms(programResponses);
+
+                    // 평균 평점 계산
+                    return calculateAvgRating(response);
+                })
                 .collect(Collectors.toList());
     }
 
@@ -59,10 +100,32 @@ public class ClubService {
 
         // 편의시설 추가
         List<Facility> amenities = amenityService.getAmenitiesByClubId(club.getId());
+        // 클럽과 연결된 프로그램 조회
+        List<Program> programs = programRepository.findByClub_Id(club.getId());
+
+        // 각 프로그램에 대한 가격 정보 조회
+        List<PriceResponse> priceResponses = programs.stream()
+                .flatMap(program -> priceRepository.findByProgram(program).stream())
+                .map(price -> new PriceResponse(price.getDayOfWeek(), price.getStartTime(), price.getEndTime(), price.getPrice()))
+                .collect(Collectors.toList());
+
+        // 클럽의 운영 시간 정보 조회
+        List<OperatingHours> operatingHours = operatingHoursRepository.findByClub_Id(club.getId());
+        List<OperatingHoursResponse> operatingHoursResponses = operatingHours.stream()
+                .map(hours -> new OperatingHoursResponse(hours.getDayOfWeek(), hours.getStartTime(), hours.getEndTime()))
+                .collect(Collectors.toList());
+
+        // 클럽의 프로그램 정보 설정
+        List<ProgramResponse> programResponses = programs.stream()
+                .map(program -> new ProgramResponse(program.getProgramId(), program.getProgramName().name()))
+                .collect(Collectors.toList());
 
         ClubResponse clubResponse = clubMapper.entityToResponse(club);
-        clubResponse.setAmenities(amenities);
-        clubResponse.setPresignedImageUrls(club.getImageUrls());
+        clubResponse.setAmenities(amenities);  // 편의시설 설정
+        clubResponse.setPresignedImageUrls(club.getImageUrls());  // 이미지 URL 설정
+        clubResponse.setPrices(priceResponses);  // 가격 정보 설정
+        clubResponse.setOperatingHours(operatingHoursResponses);  // 운영 시간 정보 설정
+        clubResponse.setPrograms(programResponses);  // 프로그램 정보 설정
         return calculateAvgRating(clubResponse);
     }
 
@@ -70,12 +133,38 @@ public class ClubService {
         Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new BusinessExceptionHandler("club not found", ErrorCode.NOT_FOUND_ERROR));
         Optional<Wishlist> wishlist = wishlistRepository.findByMemberIdAndClubId(memberId, clubId);
-        List<String> CloudFrontImageUrls = club.getImageUrls();
 
-        List<Facility> amenities = amenityService.getAmenitiesByClubId(club.getId());
+        List<String> CloudFrontImageUrls = club.getImageUrls(); // 이미지 URL 설정
         club.setImageUrls(CloudFrontImageUrls);
+
+        List<Facility> amenities = amenityService.getAmenitiesByClubId(club.getId()); // 편의시설 조회
+
+        // 클럽과 연결된 프로그램 조회
+        List<Program> programs = programRepository.findByClub_Id(club.getId());
+
+        // 각 프로그램에 대한 가격 정보 조회
+        List<PriceResponse> priceResponses = programs.stream()
+                .flatMap(program -> priceRepository.findByProgram(program).stream())
+                .map(price -> new PriceResponse(price.getDayOfWeek(), price.getStartTime(), price.getEndTime(), price.getPrice()))
+                .collect(Collectors.toList());
+
+        // 클럽의 운영 시간 정보 조회
+        List<OperatingHours> operatingHours = operatingHoursRepository.findByClub_Id(club.getId());
+        List<OperatingHoursResponse> operatingHoursResponses = operatingHours.stream()
+                .map(hours -> new OperatingHoursResponse(hours.getDayOfWeek(), hours.getStartTime(), hours.getEndTime()))
+                .collect(Collectors.toList());
+
+        // 클럽의 프로그램 정보 설정
+        List<ProgramResponse> programResponses = programs.stream()
+                .map(program -> new ProgramResponse(program.getProgramId(), program.getProgramName().name()))
+                .collect(Collectors.toList());
+
         ClubResponse clubResponse = clubMapper.entityToResponse(club);
-        clubResponse.setAmenities(amenities);
+        clubResponse.setAmenities(amenities);  // 편의시설 설정
+        clubResponse.setPresignedImageUrls(CloudFrontImageUrls);  // 이미지 URL 설정
+        clubResponse.setPrices(priceResponses);  // 가격 정보 설정
+        clubResponse.setOperatingHours(operatingHoursResponses);  // 운영 시간 정보 설정
+        clubResponse.setPrograms(programResponses);  // 프로그램 정보 설정
 
         if (wishlist.isEmpty()) { // 해당 사용자는 해당 클럽에 좋아요 안누름
             clubResponse.setIsHeart(false);
@@ -86,28 +175,6 @@ public class ClubService {
     }
 
 
-//    @Transactional
-//    public ClubResponse createClub(ClubRequest clubRequest) {
-//        //Change image name to be unique
-//        clubRequest.setImageUrls(clubRequest.getImageUrls().stream()
-//                .map(s3Uploader::getUniqueFilename)
-//                .collect(Collectors.toList()));
-//
-//        //Upload image to s3
-//        List<String> presignedUrlList = s3Uploader.uploadFileList(clubRequest.getImageUrls());
-//
-//        //save club, set presigned url and cloudfront url to response
-//        Club club = clubMapper.requestToEntity(clubRequest);
-//        club = clubRepository.save(club);
-//        ClubResponse response = clubMapper.entityToResponse(club);
-//        response.setPresignedImageUrls(presignedUrlList);
-//
-//        response.setImageUrls(club.getImageUrls().stream()
-//                .map(s3Uploader::getImageUrl)
-//                .collect(Collectors.toList()));
-//
-//        return response;
-//    }
 
     private ClubResponse calculateAvgRating(ClubResponse clubResponse) {
         float avgRating = 0f;
@@ -173,7 +240,6 @@ public class ClubService {
         ClubService service = serviceProvider.getObject();
 
         List<ClubResponse> nearestClubs = service.optimizedParallelFindNearestClubs(requestLatitude, requestLongitude, 5).stream()
-                .map(clubMapper::entityToResponse)
                 .peek(clubResponse -> clubResponse.setPresignedImageUrls(clubResponse.getImageUrls()))
                 .collect(Collectors.toList());
 
@@ -308,7 +374,7 @@ public class ClubService {
                 .collect(Collectors.toList());
     }
 
-    public List<Club> optimizedParallelFindNearestClubs(float requestLatitude, float requestLongitude, int count) {
+    public List<ClubResponse> optimizedParallelFindNearestClubs(float requestLatitude, float requestLongitude, int count) {
         List<Club> allClubs = clubRepository.findAll();
 
         // Precompute cosine of request latitude
@@ -316,7 +382,7 @@ public class ClubService {
         float cosRequestLatitude = (float) Math.cos(requestLatitudeRad);
 
         // Use ConcurrentSkipListSet to maintain the nearest clubs in a thread-safe manner
-        ConcurrentSkipListSet<ClubDistance> nearestClubs = allClubs.parallelStream()
+        ConcurrentSkipListSet<ClubDistance> nearestClubs = allClubs.stream()
                 .filter(club -> club.getLatitude() != null && club.getLongitude() != null) // Filter out clubs with null latitude or longitude
                 .filter(club -> club.getImageUrls() != null && !club.getImageUrls().isEmpty()) // Filter out clubs with null or empty imageUrls
                 .map(club -> new ClubDistance(club, distance(requestLatitude, requestLongitude, club.getLatitude(), club.getLongitude(), cosRequestLatitude)))
@@ -325,7 +391,42 @@ public class ClubService {
         // Limit to the desired number of nearest clubs
         return nearestClubs.stream()
                 .limit(count)
-                .map(ClubDistance::getClub)
+                .map(clubDistance -> {
+                    Club club = clubDistance.getClub();
+
+                    // 클럽과 연결된 프로그램 조회
+                    List<Program> programs = programRepository.findByClub_Id(club.getId());
+
+                    // 각 프로그램에 대한 가격 정보 조회
+                    List<PriceResponse> priceResponses = programs.stream()
+                            .flatMap(program -> priceRepository.findByProgram(program).stream())  // 각 프로그램에 대한 가격 조회
+                            .map(price -> new PriceResponse(price.getDayOfWeek(), price.getStartTime(), price.getEndTime(), price.getPrice()))
+                            .toList();
+
+                    System.out.println(priceResponses.stream()
+                            .map(PriceResponse::getPrice)
+                            .toList().toString());
+
+                    // 클럽의 운영 시간 정보 조회
+                    List<OperatingHours> operatingHours = operatingHoursRepository.findByClub_Id(club.getId());
+
+                    // ClubResponse로 변환하여 각 필드 설정
+                    ClubResponse response = clubMapper.entityToResponse(club);
+                    response.setPrices(priceResponses);
+
+                    response.setOperatingHours(operatingHours.stream()
+                            .map(hours -> new OperatingHoursResponse(hours.getDayOfWeek(), hours.getStartTime(), hours.getEndTime()))
+                            .collect(Collectors.toList()));
+
+                    // 클럽의 프로그램 정보 설정
+                    List<ProgramResponse> programResponses = programs.stream()
+                            .map(program -> new ProgramResponse(program.getProgramId(), program.getProgramName().name()))
+                            .collect(Collectors.toList());
+
+                    response.setPrograms(programResponses);
+
+                    return response;
+                })
                 .collect(Collectors.toList());
     }
 
@@ -394,7 +495,34 @@ public class ClubService {
 
     public List<ClubResponse> getPopularClubs() {
         return clubRepository.findTop5ByOrderByRatingCountDesc().stream()
-                .map(clubMapper::entityToResponse)
+                .map(club -> {
+                    List<Program> programs = programRepository.findByClub_Id(club.getId());
+                    List<Price> prices = programs.stream()
+                            .flatMap(program -> priceRepository.findByProgram(program).stream())
+                            .toList();
+                    List<OperatingHours> operatingHours = operatingHoursRepository.findByClub_Id(club.getId());
+
+                    // DTO로 변환
+                    List<PriceResponse> priceResponses = prices.stream()
+                            .map(price -> new PriceResponse(price.getDayOfWeek(), price.getStartTime(), price.getEndTime(), price.getPrice()))
+                            .collect(Collectors.toList());
+
+                    List<OperatingHoursResponse> operatingHoursResponses = operatingHours.stream()
+                            .map(hours -> new OperatingHoursResponse(hours.getDayOfWeek(), hours.getStartTime(), hours.getEndTime()))
+                            .collect(Collectors.toList());
+
+                    List<ProgramResponse> programResponses = programs.stream()
+                            .map(program -> new ProgramResponse(program.getProgramId(), program.getProgramName().name()))
+                            .collect(Collectors.toList());
+
+                    // ClubResponse로 변환 및 설정
+                    ClubResponse clubResponse = clubMapper.entityToResponse(club);
+                    clubResponse.setPrices(priceResponses.isEmpty() ? Collections.emptyList() : priceResponses);
+                    clubResponse.setOperatingHours(operatingHoursResponses.isEmpty() ? Collections.emptyList() : operatingHoursResponses);
+                    clubResponse.setPrograms(programResponses.isEmpty() ? Collections.emptyList() : programResponses);
+
+                    return clubResponse;
+                })
                 .collect(Collectors.toList());
     }
 
@@ -405,21 +533,96 @@ public class ClubService {
         // If the count is greater than or equal to the size of the list, return the whole list
         if (count >= size) {
             return allClubs.stream()
-                    .map(clubMapper::entityToResponse)
-                    .filter(club -> club.getImageUrls() != null && !club.getImageUrls().isEmpty()) // Filter out clubs with null or empty imageUrls
+                    .map(club -> {
+                        // 클럽과 연결된 프로그램, 가격, 운영 시간 정보를 조회
+                        List<Program> programs = programRepository.findByClub_Id(club.getId());
+                        List<Price> prices = programs.stream()
+                                .flatMap(program -> priceRepository.findByProgram(program).stream())
+                                .toList();
+
+                        List<PriceResponse> priceResponses = prices.stream()
+                                .map(price -> new PriceResponse(price.getDayOfWeek(), price.getStartTime(), price.getEndTime(), price.getPrice()))
+                                .collect(Collectors.toList());
+
+                        List<OperatingHours> operatingHours = operatingHoursRepository.findByClub_Id(club.getId());
+                        List<OperatingHoursResponse> operatingHoursResponses = operatingHours.stream()
+                                .map(hours -> new OperatingHoursResponse(hours.getDayOfWeek(), hours.getStartTime(), hours.getEndTime()))
+                                .collect(Collectors.toList());
+
+                        List<ProgramResponse> programResponses = programs.stream()
+                                .map(program -> new ProgramResponse(program.getProgramId(), program.getProgramName().name()))
+                                .collect(Collectors.toList());
+
+                        // ClubResponse로 변환 후 필드 설정
+                        ClubResponse response = clubMapper.entityToResponse(club);
+                        response.setPrices(priceResponses);
+                        response.setOperatingHours(operatingHoursResponses);
+                        response.setPrograms(programResponses);
+
+                        return response;
+                    })
+                    //.filter(clubResponse -> clubResponse.getImageUrls() != null && !clubResponse.getImageUrls().isEmpty()) // Filter out clubs with null or empty imageUrls
                     .collect(Collectors.toList());
         }
 
         // Reservoir sampling algorithm
         List<ClubResponse> reservoir = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
-            reservoir.add(clubMapper.entityToResponse(allClubs.get(i)));
+            Club club = allClubs.get(i);
+
+            // 클럽과 연결된 프로그램, 가격, 운영 시간 정보를 조회
+            List<Program> programs = programRepository.findByClub_Id(club.getId());
+            List<PriceResponse> priceResponses = programs.stream()
+                    .flatMap(program -> priceRepository.findByProgram(program).stream())
+                    .map(price -> new PriceResponse(price.getDayOfWeek(), price.getStartTime(), price.getEndTime(), price.getPrice()))
+                    .collect(Collectors.toList());
+
+            List<OperatingHours> operatingHours = operatingHoursRepository.findByClub_Id(club.getId());
+            List<OperatingHoursResponse> operatingHoursResponses = operatingHours.stream()
+                    .map(hours -> new OperatingHoursResponse(hours.getDayOfWeek(), hours.getStartTime(), hours.getEndTime()))
+                    .collect(Collectors.toList());
+
+            List<ProgramResponse> programResponses = programs.stream()
+                    .map(program -> new ProgramResponse(program.getProgramId(), program.getProgramName().name()))
+                    .collect(Collectors.toList());
+
+            // ClubResponse로 변환 후 필드 설정
+            ClubResponse response = clubMapper.entityToResponse(club);
+            response.setPrices(priceResponses);
+            response.setOperatingHours(operatingHoursResponses);
+            response.setPrograms(programResponses);
+
+            reservoir.add(response);
         }
 
         for (int i = count; i < size; i++) {
             int j = ThreadLocalRandom.current().nextInt(i + 1);
             if (j < count) {
-                reservoir.set(j, clubMapper.entityToResponse(allClubs.get(i)));
+                Club club = allClubs.get(i);
+
+                // 클럽과 연결된 프로그램, 가격, 운영 시간 정보를 조회
+                List<Program> programs = programRepository.findByClub_Id(club.getId());
+                List<PriceResponse> priceResponses = programs.stream()
+                        .flatMap(program -> priceRepository.findByProgram(program).stream())
+                        .map(price -> new PriceResponse(price.getDayOfWeek(), price.getStartTime(), price.getEndTime(), price.getPrice()))
+                        .collect(Collectors.toList());
+
+                List<OperatingHours> operatingHours = operatingHoursRepository.findByClub_Id(club.getId());
+                List<OperatingHoursResponse> operatingHoursResponses = operatingHours.stream()
+                        .map(hours -> new OperatingHoursResponse(hours.getDayOfWeek(), hours.getStartTime(), hours.getEndTime()))
+                        .collect(Collectors.toList());
+
+                List<ProgramResponse> programResponses = programs.stream()
+                        .map(program -> new ProgramResponse(program.getProgramId(), program.getProgramName().name()))
+                        .collect(Collectors.toList());
+
+                // ClubResponse로 변환 후 필드 설정
+                ClubResponse response = clubMapper.entityToResponse(club);
+                response.setPrices(priceResponses);
+                response.setOperatingHours(operatingHoursResponses);
+                response.setPrograms(programResponses);
+
+                reservoir.set(j, response);
             }
         }
 

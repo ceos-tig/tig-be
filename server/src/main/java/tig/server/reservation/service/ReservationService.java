@@ -16,8 +16,15 @@ import tig.server.global.code.ErrorCode;
 import tig.server.member.domain.Member;
 import tig.server.member.mapper.MemberMapper;
 import tig.server.member.service.MemberService;
+import tig.server.operatinghours.domain.OperatingHours;
+import tig.server.operatinghours.dto.OperatingHoursResponse;
+import tig.server.operatinghours.repository.OperatingHoursRepository;
 import tig.server.payment.dto.PaymentResponseDto;
 import tig.server.payment.service.PaymentService;
+import tig.server.price.dto.PriceResponse;
+import tig.server.price.repository.PriceRepository;
+import tig.server.program.domain.Program;
+import tig.server.program.repository.ProgramRepository;
 import tig.server.reservation.domain.Reservation;
 import tig.server.reservation.dto.ReservationClubResponse;
 import tig.server.reservation.dto.ReservationRequest;
@@ -45,6 +52,10 @@ public class ReservationService {
     private final ReservationMapper reservationMapper;
 
     private final ClubRepository clubRepository;
+    private final ProgramRepository programRepository;
+    private final PriceRepository priceRepository;
+    private final OperatingHoursRepository operatingHoursRepository;
+
     private final ClubService clubService;
     private final PaymentService paymentService;
 
@@ -80,13 +91,13 @@ public class ReservationService {
 
         Club club = reservation.getClub();
         response.setType(club.getType());
-        response.setBusinessHours(club.getBusinessHours());
+        //response.setBusinessHours(club.getBusinessHours());
         response.setClubName(club.getClubName());
         response.setClubAddress(club.getAddress());
         response.setReservationId(reservation.getId());
         response.setClubId(club.getId());
         response.setType(club.getType());
-        response.setBusinessHours(club.getBusinessHours());
+        //response.setBusinessHours(club.getBusinessHours());
         response.setClubName(club.getClubName());
         response.setProvider(provider);
         response.setUpdatedAt(updatedAt);
@@ -150,7 +161,7 @@ public class ReservationService {
         response.setMemberId(member.getId());
         response.setClubId(clubId);
         response.setType(club.getType());
-        response.setBusinessHours(club.getBusinessHours());
+        //response.setBusinessHours(club.getBusinessHours());
         response.setClubName(club.getClubName());
         response.setPaymentId(reservation.getPaymentId());
         response.setGameCount(reservation.getGameCount());
@@ -354,11 +365,27 @@ public class ReservationService {
         Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new BusinessExceptionHandler("club not found", ErrorCode.NOT_FOUND_ERROR));
 
-        return new ReservationClubResponse().builder()
+        // 클럽과 연결된 프로그램 조회
+        List<Program> programs = programRepository.findByClub_Id(club.getId());
+
+        // 각 프로그램에 대한 가격 정보 조회
+        List<PriceResponse> priceResponses = programs.stream()
+                .flatMap(program -> priceRepository.findByProgram(program).stream())
+                .map(price -> new PriceResponse(price.getDayOfWeek(), price.getStartTime(), price.getEndTime(), price.getPrice()))
+                .collect(Collectors.toList());
+
+        // 클럽의 운영 시간 정보 조회
+        List<OperatingHours> operatingHours = operatingHoursRepository.findByClub_Id(club.getId());
+        List<OperatingHoursResponse> operatingHoursResponses = operatingHours.stream()
+                .map(hours -> new OperatingHoursResponse(hours.getDayOfWeek(), hours.getStartTime(), hours.getEndTime()))
+                .collect(Collectors.toList());
+
+        // ReservationClubResponse로 반환
+        return ReservationClubResponse.builder()
                 .clubName(club.getClubName())
                 .address(club.getAddress())
-                .price(club.getPrice())
-                .businessHours(club.getBusinessHours())
+                .prices(priceResponses)  // 가격 정보 설정
+                .operatingHours(operatingHoursResponses)  // 운영 시간 정보 설정
                 .build();
     }
 
@@ -372,9 +399,9 @@ public class ReservationService {
         if (response.getType() == null) {
             response.setType(entity.getClub().getType());
         }
-        if (response.getBusinessHours() == null) {
-            response.setBusinessHours(entity.getClub().getBusinessHours());
-        }
+//        if (response.getBusinessHours() == null) {
+//            response.setBusinessHours(entity.getClub().getBusinessHours());
+//        }
         if (response.getClubName() == null) {
             response.setClubName(entity.getClub().getClubName());
         }

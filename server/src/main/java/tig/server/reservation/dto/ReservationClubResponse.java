@@ -1,6 +1,10 @@
 package tig.server.reservation.dto;
 
 import lombok.*;
+import tig.server.operatinghours.dto.OperatingHoursResponse;
+import tig.server.price.dto.PriceResponse;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -11,6 +15,6 @@ import lombok.*;
 public class ReservationClubResponse {
     private String clubName;
     private String address;
-    private Integer price;
-    private String businessHours;
+    private List<PriceResponse> prices;
+    private List<OperatingHoursResponse> operatingHours;
 }

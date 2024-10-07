@@ -5,6 +5,9 @@ import lombok.*;
 import tig.server.enums.Category;
 import tig.server.enums.Facility;
 import tig.server.enums.Type;
+import tig.server.operatinghours.dto.OperatingHoursResponse;
+import tig.server.price.dto.PriceResponse;
+import tig.server.program.dto.ProgramResponse;
 
 import java.util.List;
 
@@ -34,8 +37,18 @@ public class ClubResponse {
     @Schema(type = "integer", example = "4.2")
     private Float avgRating;
 
-    @Schema(type = "integer", example = "30000")
-    private Integer price;
+//    @Schema(type = "integer", example = "30000")
+//    private Integer price;
+
+    // 가격과 운영 시간은 별도 리스트로 처리
+    @Schema(type = "array", description = "클럽의 가격 정보 리스트")
+    private List<PriceResponse> prices;  // PriceResponse 리스트 추가
+
+    @Schema(type = "array", description = "클럽의 운영 시간 정보 리스트")
+    private List<OperatingHoursResponse> operatingHours;  // OperatingHoursResponse 리스트 추가
+
+    @Schema(type = "array", description = "클럽의 프로그램 정보 리스트")
+    private List<ProgramResponse> programs;  // 프로그램 정보 리스트
 
     @Schema(type = "string", example = "010-1234-5678")
     private String phoneNumber;
@@ -43,8 +56,8 @@ public class ClubResponse {
     @Schema(type = "string", example = "https://instagram.com/tigballing")
     private String snsLink;
 
-    @Schema(type = "string", example = "10:00 - 3:00")
-    private String businessHours;
+//    @Schema(type = "string", example = "10:00 - 3:00")
+//    private String businessHours;
 
     @Schema(type = "float", example = "129.0921")
     private Float latitude;
