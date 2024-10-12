@@ -10,7 +10,7 @@ import tig.server.reservation.dto.ReservationResponse;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2024-10-06T16:44:15+0900",
+    date = "2024-10-12T23:12:44+0900",
     comments = "version: 1.5.1.Final, compiler: javac, environment: Java 17.0.7 (Oracle Corporation)"
 )
 @Component
@@ -43,6 +43,7 @@ public class ReservationMapperImpl implements ReservationMapper {
         reservation.message( reservationRequest.getMessage() );
         reservation.userName( reservationRequest.getUserName() );
         reservation.phoneNumber( reservationRequest.getPhoneNumber() );
+        reservation.programEnum( reservationRequest.getProgramEnum() );
 
         return reservation.build();
     }
@@ -77,6 +78,7 @@ public class ReservationMapperImpl implements ReservationMapper {
             reservationResponse.updatedAt( DateTimeFormatter.ISO_LOCAL_DATE_TIME.format( reservation.getUpdatedAt() ) );
         }
         reservationResponse.message( reservation.getMessage() );
+        reservationResponse.programEnum( reservation.getProgramEnum() );
 
         return reservationResponse.build();
     }
@@ -108,6 +110,7 @@ public class ReservationMapperImpl implements ReservationMapper {
         reservation.message( reservationResponse.getMessage() );
         reservation.userName( reservationResponse.getUserName() );
         reservation.phoneNumber( reservationResponse.getPhoneNumber() );
+        reservation.programEnum( reservationResponse.getProgramEnum() );
 
         return reservation.build();
     }
@@ -156,6 +159,9 @@ public class ReservationMapperImpl implements ReservationMapper {
         }
         if ( reservationRequest.getPhoneNumber() != null ) {
             reservation.setPhoneNumber( reservationRequest.getPhoneNumber() );
+        }
+        if ( reservationRequest.getProgramEnum() != null ) {
+            reservation.setProgramEnum( reservationRequest.getProgramEnum() );
         }
 
         return reservation;

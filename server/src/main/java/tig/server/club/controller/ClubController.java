@@ -55,10 +55,19 @@ public class ClubController {
 //        return ResponseEntity.status(201).body(response);
 //    }
 
-    @PostMapping("/home")
-    @Operation(summary = "홈 화면 업체 조회")
+    @PostMapping("/guest/home")
+    @Operation(summary = "홈 화면 업체 조회 : 비로그인")
     public ResponseEntity<ApiResponse<List<HomeResponse>>> getHomeClubs(@RequestBody HomeRequest homeRequest) {
         HomeResponse homeResponse = clubService.getHomeClubs(homeRequest);
+        ApiResponse<List<HomeResponse>> response = ApiResponse.of(200, "successfully retrieved home clubs", List.of(homeResponse));
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/user/home")
+    @Operation(summary = "홈 화면 업체 조회 : 로그인")
+    public ResponseEntity<ApiResponse<List<HomeResponse>>> getHomeClubsForLoginUser(@LoginUser Member member,
+                                                                                    @RequestBody HomeRequest homeRequest) {
+        HomeResponse homeResponse = clubService.getHomeClubsForLoginUser(homeRequest, member);
         ApiResponse<List<HomeResponse>> response = ApiResponse.of(200, "successfully retrieved home clubs", List.of(homeResponse));
         return ResponseEntity.ok(response);
     }

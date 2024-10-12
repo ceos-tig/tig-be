@@ -47,8 +47,8 @@ public class ClubResponse {
     @Schema(type = "array", description = "클럽의 운영 시간 정보 리스트")
     private List<OperatingHoursResponse> operatingHours;  // OperatingHoursResponse 리스트 추가
 
-    @Schema(type = "array", description = "클럽의 프로그램 정보 리스트")
-    private List<ProgramResponse> programs;  // 프로그램 정보 리스트
+//    @Schema(type = "array", description = "클럽의 프로그램 정보 리스트")
+//    private List<ProgramResponse> programs;  // 프로그램 정보 리스트
 
     @Schema(type = "string", example = "010-1234-5678")
     private String phoneNumber;
