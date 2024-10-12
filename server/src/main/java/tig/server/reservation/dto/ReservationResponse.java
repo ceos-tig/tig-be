@@ -51,9 +51,6 @@ public class ReservationResponse {
     @Schema(type = "string", example = "GAME")
     private Type type;
 
-    @Schema(type = "string", example = "10:00 - 3:00")
-    private String businessHours;
-
     @Schema(type = "string", example = "티그볼링장")
     private String clubName;
 
