@@ -21,8 +21,8 @@ import tig.server.operatinghours.dto.OperatingHoursResponse;
 import tig.server.operatinghours.repository.OperatingHoursRepository;
 import tig.server.payment.dto.PaymentResponseDto;
 import tig.server.payment.service.PaymentService;
-import tig.server.price.dto.PriceResponse;
-import tig.server.price.repository.PriceRepository;
+import tig.server.price.dto.*;
+import tig.server.price.repository.*;
 import tig.server.program.domain.Program;
 import tig.server.program.repository.ProgramRepository;
 import tig.server.reservation.domain.Reservation;
@@ -52,8 +52,14 @@ public class ReservationService {
     private final ReservationMapper reservationMapper;
 
     private final ClubRepository clubRepository;
-    private final ProgramRepository programRepository;
-    private final PriceRepository priceRepository;
+    private final TableTennisPriceRepository tableTennisPriceRepository;
+    private final BallingPriceRepository ballingPriceRepository;
+    private final BaseballPriceRepository baseballPriceRepository;
+    private final BilliardsPriceRepository billiardsPriceRepository;
+    private final FootballPriceRepository footballPriceRepository;
+    private final GolfPriceRepository golfPriceRepository;
+    private final SquashPriceRepository squashPriceRepository;
+    private final TennisPriceRepository tennisPriceRepository;
     private final OperatingHoursRepository operatingHoursRepository;
 
     private final ClubService clubService;
@@ -166,6 +172,7 @@ public class ReservationService {
         response.setPaymentId(reservation.getPaymentId());
         response.setGameCount(reservation.getGameCount());
         response.setReviewId(checkReviewed(reservation.getReview()));
+        response.setProgramEnum(reservation.getProgramEnum());
 
         // discord-webhook
         discordMessageProvider.sendApplicationMessage(EventMessage.RESERVATION_APPLICATION, response);
@@ -365,14 +372,8 @@ public class ReservationService {
         Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new BusinessExceptionHandler("club not found", ErrorCode.NOT_FOUND_ERROR));
 
-        // 클럽과 연결된 프로그램 조회
-        List<Program> programs = programRepository.findByClub_Id(club.getId());
-
-        // 각 프로그램에 대한 가격 정보 조회
-        List<PriceResponse> priceResponses = programs.stream()
-                .flatMap(program -> priceRepository.findByProgram(program).stream())
-                .map(price -> new PriceResponse(price.getDayOfWeek(), price.getStartTime(), price.getEndTime(), price.getPrice()))
-                .collect(Collectors.toList());
+        // 스포츠 프로그램별 가격 정보 조회
+        List<?> priceResponses = getPriceResponsesByCategory(club);
 
         // 클럽의 운영 시간 정보 조회
         List<OperatingHours> operatingHours = operatingHoursRepository.findByClub_Id(club.getId());
@@ -386,8 +387,62 @@ public class ReservationService {
                 .address(club.getAddress())
                 .prices(priceResponses)  // 가격 정보 설정
                 .operatingHours(operatingHoursResponses)  // 운영 시간 정보 설정
+                .category(club.getCategory())
                 .build();
     }
+
+    private List<?> getPriceResponsesByCategory(Club club) {
+        switch (club.getCategory()) {
+            case TABLE_TENNIS:
+                return tableTennisPriceRepository.findByClub(club).stream()
+                        .map(price -> new TableTennisPriceResponse(
+                                price.getProgramName(), price.getDurationType(), price.getPrice()))
+                        .collect(Collectors.toList());
+            case BALLING:
+                return ballingPriceRepository.findByClub(club).stream()
+                        .map(price -> new BallingPriceResponse(
+                                price.getProgramName(), price.getDayOfWeek(),
+                                price.getStartTime(), price.getEndTime(), price.getPrice()))
+                        .collect(Collectors.toList());
+            case GOLF:
+                return golfPriceRepository.findByClub(club).stream()
+                        .map(price -> new GolfPriceResponse(
+                                price.getProgramName(), price.getDayOfWeek(),
+                                price.getStartTime(), price.getEndTime(), price.getPrice()))
+                        .collect(Collectors.toList());
+            case BILLIARDS:
+                return billiardsPriceRepository.findByClub(club).stream()
+                        .map(price -> new BilliardsPriceResponse(
+                                price.getProgramName(), price.getDuration(), price.getPrice()))
+                        .collect(Collectors.toList());
+            case FOOTBALL:
+                return footballPriceRepository.findByClub(club).stream()
+                        .map(price -> new FootballPriceResponse(
+                                price.getProgramName(), price.getDuration(), price.getPrice()))
+                        .collect(Collectors.toList());
+            case BASEBALL:
+                return baseballPriceRepository.findByClub(club).stream()
+                        .map(price -> new BaseballPriceResponse(
+                                price.getProgramType(), price.getDuration(),
+                                price.getPrice()))
+                        .collect(Collectors.toList());
+            case TENNIS:
+                return tennisPriceRepository.findByClub(club).stream()
+                        .map(price -> new TennisPriceResponse(
+                                price.getProgramType(), price.getDayOfWeek(),
+                                price.getDuration(), price.getPrice()))
+                        .collect(Collectors.toList());
+            case SQUASH:
+                return squashPriceRepository.findByClub(club).stream()
+                        .map(price -> new SquashPriceResponse(
+                                price.getProgramName(), price.getDurationInMonths(),
+                                price.getPrice()))
+                        .collect(Collectors.toList());
+            default:
+                throw new BusinessExceptionHandler("Invalid program type", ErrorCode.NOT_VALID_ERROR);
+        }
+    }
+
 
     private ReservationResponse ensureNonNullFields(ReservationResponse response, Reservation entity) {
         if (response.getMemberId() == null) {

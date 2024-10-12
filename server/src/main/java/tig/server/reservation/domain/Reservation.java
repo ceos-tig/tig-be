@@ -6,6 +6,7 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 import tig.server.base.BaseTimeEntity;
 import tig.server.club.domain.Club;
+import tig.server.enums.ProgramEnum;
 import tig.server.enums.Status;
 import tig.server.member.domain.Member;
 import tig.server.review.domain.Review;
@@ -62,5 +63,8 @@ public class Reservation extends BaseTimeEntity {
     // 예약 정보 입력시 입력하는 필드
     private String userName;
     private String phoneNumber;
+
+    @Enumerated(EnumType.STRING)
+    private ProgramEnum programEnum;
 
 }

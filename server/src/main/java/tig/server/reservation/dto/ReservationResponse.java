@@ -2,6 +2,7 @@ package tig.server.reservation.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import tig.server.enums.ProgramEnum;
 import tig.server.enums.Status;
 import tig.server.enums.Type;
 
@@ -52,7 +53,7 @@ public class ReservationResponse {
     private Type type;
 
     @Schema(type = "string", example = "10:00 - 3:00")
-    private String businessHours;
+    private String businessHours; // TODO : 아마지워도 될듯
 
     @Schema(type = "string", example = "티그볼링장")
     private String clubName;
@@ -92,4 +93,7 @@ public class ReservationResponse {
 
     @Schema(type = "array", example = "[\"src/club/img1.jpg\", \"src/club/img2.jpg\"]")
     private List<String> imageUrls;
+
+    @Schema(type = "string", example = "서브 프로그램")
+    private ProgramEnum programEnum;
 }

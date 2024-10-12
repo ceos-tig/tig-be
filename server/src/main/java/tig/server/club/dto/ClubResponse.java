@@ -42,7 +42,7 @@ public class ClubResponse {
 
     // 가격과 운영 시간은 별도 리스트로 처리
     @Schema(type = "array", description = "클럽의 가격 정보 리스트")
-    private List<PriceResponse> prices;  // PriceResponse 리스트 추가
+    private List<?> prices;  // PriceResponse 리스트 추가
 
     @Schema(type = "array", description = "클럽의 운영 시간 정보 리스트")
     private List<OperatingHoursResponse> operatingHours;  // OperatingHoursResponse 리스트 추가

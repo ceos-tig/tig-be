@@ -39,7 +39,9 @@ public class Club extends BaseTimeEntity {
     private Integer ratingCount = 0;
 
     // enums
+    @Enumerated(EnumType.STRING)
     private Category category;
+    @Enumerated(EnumType.STRING)
     private Type type; //TODO : @Enumerated 넣어야 함
 
     // coordinates

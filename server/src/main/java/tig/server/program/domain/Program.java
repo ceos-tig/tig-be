@@ -13,7 +13,7 @@ import tig.server.enums.ProgramEnum;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Program extends BaseTimeEntity {
+public class Program extends BaseTimeEntity { //  TODO : 이 엔티티는 삭제 해도 됨.
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long programId;
