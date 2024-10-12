@@ -38,6 +38,7 @@ public class Member {
 
     private String profileImage;
 
+    @Column(length = 500)
     private String refreshToken;
 
     // Enum
