@@ -10,8 +10,8 @@ import tig.server.search.dto.SearchResponseDto;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2024-07-31T21:18:40+0900",
-    comments = "version: 1.5.1.Final, compiler: javac, environment: Java 17.0.5 (Oracle Corporation)"
+    date = "2024-10-12T23:12:44+0900",
+    comments = "version: 1.5.1.Final, compiler: javac, environment: Java 17.0.7 (Oracle Corporation)"
 )
 @Component
 public class SearchMapperImpl implements SearchMapper {
@@ -29,10 +29,8 @@ public class SearchMapperImpl implements SearchMapper {
         searchResponseDto.setAddress( club.getAddress() );
         searchResponseDto.setRatingSum( club.getRatingSum() );
         searchResponseDto.setRatingCount( club.getRatingCount() );
-        searchResponseDto.setPrice( club.getPrice() );
         searchResponseDto.setPhoneNumber( club.getPhoneNumber() );
         searchResponseDto.setSnsLink( club.getSnsLink() );
-        searchResponseDto.setBusinessHours( club.getBusinessHours() );
         searchResponseDto.setLatitude( club.getLatitude() );
         searchResponseDto.setLongitude( club.getLongitude() );
         searchResponseDto.setCategory( club.getCategory() );
@@ -57,17 +55,11 @@ public class SearchMapperImpl implements SearchMapper {
         if ( clubRequest.getAddress() != null ) {
             club.setAddress( clubRequest.getAddress() );
         }
-        if ( clubRequest.getPrice() != null ) {
-            club.setPrice( clubRequest.getPrice() );
-        }
         if ( clubRequest.getPhoneNumber() != null ) {
             club.setPhoneNumber( clubRequest.getPhoneNumber() );
         }
         if ( clubRequest.getSnsLink() != null ) {
             club.setSnsLink( clubRequest.getSnsLink() );
-        }
-        if ( clubRequest.getBusinessHours() != null ) {
-            club.setBusinessHours( clubRequest.getBusinessHours() );
         }
         if ( clubRequest.getRatingSum() != null ) {
             club.setRatingSum( clubRequest.getRatingSum() );

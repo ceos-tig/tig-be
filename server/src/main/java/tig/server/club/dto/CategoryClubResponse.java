@@ -30,4 +30,7 @@ public class CategoryClubResponse {
 
     @Schema(type = "string", example = "서울시 강남구 역삼동 123-45")
     private String address;
+
+    @Schema(type = "boolean", example = "true")
+    private Boolean isHeart;
 }

@@ -3,10 +3,10 @@ package tig.server.enums;
 public enum Category {
     FOOTBALL,
     BALLING,
-    POCKET_BALL,
+    BILLIARDS,
     TABLE_TENNIS,
     TENNIS,
-    SCREEN_GOLF,
+    GOLF,
     BASEBALL,
     SQUASH
 }

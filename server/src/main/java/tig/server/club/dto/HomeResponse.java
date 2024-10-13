@@ -1,5 +1,6 @@
 package tig.server.club.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import tig.server.club.domain.Club;
 import tig.server.enums.Category;
@@ -21,4 +22,7 @@ public class HomeResponse {
     private List<ClubResponse> recommendedClubs;
 
     Map<Category, List<CategoryClubResponse>> nearestClubsByCategory;
+
+    @Schema(type = "boolean", example = "true")
+    private Boolean isHeart;
 }

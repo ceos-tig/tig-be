@@ -2,6 +2,7 @@ package tig.server.reservation.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import tig.server.enums.ProgramEnum;
 import tig.server.enums.Status;
 import tig.server.enums.Type;
 
@@ -89,4 +90,7 @@ public class ReservationResponse {
 
     @Schema(type = "array", example = "[\"src/club/img1.jpg\", \"src/club/img2.jpg\"]")
     private List<String> imageUrls;
+
+    @Schema(type = "string", example = "서브 프로그램")
+    private ProgramEnum programEnum;
 }

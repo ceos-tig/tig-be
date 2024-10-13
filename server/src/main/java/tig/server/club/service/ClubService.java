@@ -1,9 +1,9 @@
 package tig.server.club.service;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import tig.server.amenity.dto.AmenityResponseDto;
 import tig.server.amenity.service.AmenityService;
 import tig.server.club.domain.Club;
 import tig.server.club.dto.*;
@@ -15,6 +15,12 @@ import tig.server.enums.District;
 import tig.server.enums.Facility;
 import tig.server.global.exception.BusinessExceptionHandler;
 import tig.server.global.code.ErrorCode;
+import tig.server.member.domain.Member;
+import tig.server.operatinghours.domain.OperatingHours;
+import tig.server.operatinghours.dto.OperatingHoursResponse;
+import tig.server.operatinghours.repository.OperatingHoursRepository;
+import tig.server.price.dto.*;
+import tig.server.price.repository.*;
 import tig.server.reservation.domain.Reservation;
 import tig.server.reservation.repository.ReservationRepository;
 import tig.server.review.domain.Review;
@@ -27,6 +33,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -35,6 +42,15 @@ public class ClubService {
     private final ClubRepository clubRepository;
     private final ReservationRepository reservationRepository;
     private final WishlistRepository wishlistRepository;
+    private final OperatingHoursRepository operatingHoursRepository;
+    private final TableTennisPriceRepository tableTennisPriceRepository;
+    private final BallingPriceRepository ballingPriceRepository;
+    private final BaseballPriceRepository baseballPriceRepository;
+    private final BilliardsPriceRepository billiardsPriceRepository;
+    private final FootballPriceRepository footballPriceRepository;
+    private final GolfPriceRepository golfPriceRepository;
+    private final SquashPriceRepository squashPriceRepository;
+    private final TennisPriceRepository tennisPriceRepository;
 
     private final AmenityService amenityService;
 
@@ -44,70 +60,141 @@ public class ClubService {
 
     private final ObjectProvider<ClubService> serviceProvider;
 
-    public List<ClubResponse> getAllClubs() {
-        return clubRepository.findAll().stream()
-                .map(clubMapper::entityToResponse)
-                .map(this::calculateAvgRating)
-                .collect(Collectors.toList());
-    }
+//    public List<ClubResponse> getAllClubs() { // 안쓰는중
+//        return clubRepository.findAll().stream()
+//                .map(club -> {
+//                    // 클럽과 연결된 프로그램 조회
+//                    List<Program> programs = programRepository.findByClub_Id(club.getId());
+//
+//                    // 각 프로그램에 대한 가격 정보 조회
+//                    List<PriceResponse> priceResponses = programs.stream()
+//                            .flatMap(program -> priceRepository.findByProgram(program).stream())
+//                            .map(price -> new PriceResponse(price.getDayOfWeek(), price.getStartTime(), price.getEndTime(), price.getPrice()))
+//                            .collect(Collectors.toList());
+//
+//                    // 클럽의 운영 시간 정보 조회
+//                    List<OperatingHours> operatingHours = operatingHoursRepository.findByClub_Id(club.getId());
+//                    List<OperatingHoursResponse> operatingHoursResponses = operatingHours.stream()
+//                            .map(hours -> new OperatingHoursResponse(hours.getDayOfWeek(), hours.getStartTime(), hours.getEndTime()))
+//                            .collect(Collectors.toList());
+//
+//                    // ClubResponse로 변환 후 필드 설정
+//                    ClubResponse response = clubMapper.entityToResponse(club);
+//                    response.setPrices(priceResponses);
+//                    response.setOperatingHours(operatingHoursResponses);
+//
+//                    // 평균 평점 계산
+//                    return calculateAvgRating(response);
+//                })
+//                .collect(Collectors.toList());
+//    }
 
     public ClubResponse getClubById(Long id) {
         Club club = clubRepository.findById(id)
                 .orElseThrow(() -> new BusinessExceptionHandler("club not found", ErrorCode.NOT_FOUND_ERROR));
-        List<String> CloudFrontImageUrl = s3Uploader.getImageUrls(club.getImageUrls());
-        club.setImageUrls(CloudFrontImageUrl);
+        List<String> imageUrls = s3Uploader.getImageUrls(club.getImageUrls());
+        club.setImageUrls(imageUrls);
 
-        // 편의시설 추가
         List<Facility> amenities = amenityService.getAmenitiesByClubId(club.getId());
+        List<?> priceResponses = getPriceResponsesByCategory(club);  // 가격 정보 조회
+
+        List<OperatingHours> operatingHours = operatingHoursRepository.findByClub_Id(club.getId());
+        List<OperatingHoursResponse> operatingHoursResponses = operatingHours.stream()
+                .map(hours -> new OperatingHoursResponse(hours.getDayOfWeek(), hours.getStartTime(), hours.getEndTime()))
+                .collect(Collectors.toList());
 
         ClubResponse clubResponse = clubMapper.entityToResponse(club);
         clubResponse.setAmenities(amenities);
-        clubResponse.setPresignedImageUrls(club.getImageUrls());
+        clubResponse.setPresignedImageUrls(imageUrls);
+        clubResponse.setPrices(priceResponses);
+        clubResponse.setOperatingHours(operatingHoursResponses);
+
         return calculateAvgRating(clubResponse);
+    }
+
+    private List<?> getPriceResponsesByCategory(Club club) {
+        switch (club.getCategory()) {
+            case TABLE_TENNIS:
+                return tableTennisPriceRepository.findByClub(club)
+                        .stream()
+                        .map(price -> new TableTennisPriceResponse(
+                                price.getProgramName(), price.getPrice(), price.getDurationType()))
+                        .collect(Collectors.toList());
+            case BALLING:
+                return ballingPriceRepository.findByClub(club)
+                        .stream()
+                        .map(price -> new BallingPriceResponse(
+                                price.getProgramName(), price.getDayOfWeek(),
+                                price.getStartTime(), price.getEndTime(), price.getPrice()))
+                        .collect(Collectors.toList());
+            case GOLF:
+                return golfPriceRepository.findByClub(club)
+                        .stream()
+                        .map(price -> new GolfPriceResponse(
+                                price.getProgramName(), price.getDayOfWeek(),
+                                price.getStartTime(), price.getEndTime(), price.getPrice()))
+                        .collect(Collectors.toList());
+            case BILLIARDS:
+                return billiardsPriceRepository.findByClub(club)
+                        .stream()
+                        .map(price -> new BilliardsPriceResponse(
+                                price.getProgramName(), price.getDuration(), price.getPrice()))
+                        .collect(Collectors.toList());
+            case FOOTBALL:
+                return footballPriceRepository.findByClub(club)
+                        .stream()
+                        .map(price -> new FootballPriceResponse(
+                                price.getProgramName(), price.getDuration(), price.getPrice()))
+                        .collect(Collectors.toList());
+            case BASEBALL:
+                return baseballPriceRepository.findByClub(club)
+                        .stream()
+                        .map(price -> new BaseballPriceResponse(
+                                price.getProgramType(), price.getDuration(), price.getPrice()))
+                        .collect(Collectors.toList());
+            case TENNIS:
+                return tennisPriceRepository.findByClub(club)
+                        .stream()
+                        .map(price -> new TennisPriceResponse(
+                                price.getProgramType(), price.getDayOfWeek(), price.getDuration(), price.getPrice()))
+                        .collect(Collectors.toList());
+            case SQUASH:
+                return squashPriceRepository.findByClub(club)
+                        .stream()
+                        .map(price -> new SquashPriceResponse(
+                                price.getProgramName(), price.getDurationInMonths(), price.getPrice()))
+                        .collect(Collectors.toList());
+            default:
+                throw new BusinessExceptionHandler("Invalid program type", ErrorCode.NOT_VALID_ERROR);
+        }
     }
 
     public ClubResponse getClubByIdForLoginUser(Long memberId, Long clubId) {
         Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new BusinessExceptionHandler("club not found", ErrorCode.NOT_FOUND_ERROR));
         Optional<Wishlist> wishlist = wishlistRepository.findByMemberIdAndClubId(memberId, clubId);
-        List<String> CloudFrontImageUrls = club.getImageUrls();
 
+        List<String> imageUrls = club.getImageUrls();
         List<Facility> amenities = amenityService.getAmenitiesByClubId(club.getId());
-        club.setImageUrls(CloudFrontImageUrls);
+        List<?> priceResponses = getPriceResponsesByCategory(club);  // 가격 정보 조회
+
+        List<OperatingHours> operatingHours = operatingHoursRepository.findByClub_Id(club.getId());
+        List<OperatingHoursResponse> operatingHoursResponses = operatingHours.stream()
+                .map(hours -> new OperatingHoursResponse(hours.getDayOfWeek(), hours.getStartTime(), hours.getEndTime()))
+                .collect(Collectors.toList());
+
         ClubResponse clubResponse = clubMapper.entityToResponse(club);
         clubResponse.setAmenities(amenities);
+        clubResponse.setPresignedImageUrls(imageUrls);
+        clubResponse.setPrices(priceResponses);
+        clubResponse.setOperatingHours(operatingHoursResponses);
 
-        if (wishlist.isEmpty()) { // 해당 사용자는 해당 클럽에 좋아요 안누름
-            clubResponse.setIsHeart(false);
-        } else { //해당 사용자는 해당 클럽에 좋아요 누름
-            clubResponse.setIsHeart(true);
-        }
+        clubResponse.setIsHeart(wishlist.isPresent());  // 좋아요 여부 설정
+
         return calculateAvgRating(clubResponse);
     }
 
 
-//    @Transactional
-//    public ClubResponse createClub(ClubRequest clubRequest) {
-//        //Change image name to be unique
-//        clubRequest.setImageUrls(clubRequest.getImageUrls().stream()
-//                .map(s3Uploader::getUniqueFilename)
-//                .collect(Collectors.toList()));
-//
-//        //Upload image to s3
-//        List<String> presignedUrlList = s3Uploader.uploadFileList(clubRequest.getImageUrls());
-//
-//        //save club, set presigned url and cloudfront url to response
-//        Club club = clubMapper.requestToEntity(clubRequest);
-//        club = clubRepository.save(club);
-//        ClubResponse response = clubMapper.entityToResponse(club);
-//        response.setPresignedImageUrls(presignedUrlList);
-//
-//        response.setImageUrls(club.getImageUrls().stream()
-//                .map(s3Uploader::getImageUrl)
-//                .collect(Collectors.toList()));
-//
-//        return response;
-//    }
 
     private ClubResponse calculateAvgRating(ClubResponse clubResponse) {
         float avgRating = 0f;
@@ -166,31 +253,86 @@ public class ClubService {
         return club;
     }
 
+    public HomeResponse getHomeClubsForLoginUser(HomeRequest homeRequest, Member member) {
+        Float requestLatitude = homeRequest.getLatitude();
+        Float requestLongitude = homeRequest.getLongitude();
+
+        ClubService service = serviceProvider.getObject();
+
+        // 사용자가 좋아요한 클럽 조회
+        Set<Long> likedClubIds = wishlistRepository.findAllByMemberId(member.getId())
+                .stream()
+                .map(wishlist -> wishlist.getClub().getId())
+                .collect(Collectors.toSet());
+
+        List<ClubResponse> nearestClubs = service.optimizedParallelFindNearestClubs(requestLatitude, requestLongitude, 5)
+                .stream()
+                .peek(clubResponse -> {
+                    clubResponse.setPresignedImageUrls(clubResponse.getImageUrls());  // 이미지 URL 설정
+                    clubResponse.setIsHeart(likedClubIds.contains(clubResponse.getId()));  // 좋아요 여부 설정
+                })
+                .collect(Collectors.toList());
+
+        List<ClubResponse> popularClubs = service.getPopularClubs().stream()
+                .peek(clubResponse -> {
+                    clubResponse.setPresignedImageUrls(clubResponse.getImageUrls());
+                    clubResponse.setIsHeart(likedClubIds.contains(clubResponse.getId()));  // 좋아요 여부 설정
+                })
+                .collect(Collectors.toList());
+
+        List<ClubResponse> recommendedClubs = service.getRecommendedClubs(10).stream()
+                .peek(clubResponse -> {
+                    clubResponse.setPresignedImageUrls(clubResponse.getImageUrls());
+                    clubResponse.setIsHeart(likedClubIds.contains(clubResponse.getId()));  // 좋아요 여부 설정
+                })
+                .collect(Collectors.toList());
+
+        Map<Category, List<CategoryClubResponse>> nearestClubsByCategory = service.findNearestClubsByCategory(requestLatitude, requestLongitude, 10);
+
+        nearestClubsByCategory.forEach((category, categoryClubResponses) ->
+                categoryClubResponses.forEach(categoryClubResponse -> {
+                    categoryClubResponse.setPresignedImageUrls(categoryClubResponse.getImageUrls());
+                    categoryClubResponse.setIsHeart(likedClubIds.contains(categoryClubResponse.getId()));  // 좋아요 여부 설정
+                })
+        );
+
+        return HomeResponse.builder()
+                .nearestClubs(nearestClubs)
+                .popularClubs(popularClubs)
+                .recommendedClubs(recommendedClubs)
+                .nearestClubsByCategory(nearestClubsByCategory)
+                .build();
+    }
+
     public HomeResponse getHomeClubs(HomeRequest homeRequest) {
         Float requestLatitude = homeRequest.getLatitude();
         Float requestLongitude = homeRequest.getLongitude();
 
         ClubService service = serviceProvider.getObject();
 
-        List<ClubResponse> nearestClubs = service.optimizedParallelFindNearestClubs(requestLatitude, requestLongitude, 5).stream()
-                .map(clubMapper::entityToResponse)
-                .peek(clubResponse -> clubResponse.setPresignedImageUrls(clubResponse.getImageUrls()))
+        List<ClubResponse> nearestClubs = service.optimizedParallelFindNearestClubs(requestLatitude, requestLongitude, 5)
+                .stream()
+                .peek(clubResponse -> clubResponse.setPresignedImageUrls(clubResponse.getImageUrls()))  // 이미지 URL 설정
                 .collect(Collectors.toList());
 
         List<ClubResponse> popularClubs = service.getPopularClubs().stream()
-                .peek(clubResponse -> clubResponse.setPresignedImageUrls(clubResponse.getImageUrls()))
+                .peek(clubResponse -> {
+                    clubResponse.setPresignedImageUrls(clubResponse.getImageUrls());
+                })
                 .collect(Collectors.toList());
 
         List<ClubResponse> recommendedClubs = service.getRecommendedClubs(10).stream()
-                .peek(clubResponse -> clubResponse.setPresignedImageUrls(clubResponse.getImageUrls()))
+                .peek(clubResponse -> {
+                    clubResponse.setPresignedImageUrls(clubResponse.getImageUrls());
+                })
                 .collect(Collectors.toList());
 
         Map<Category, List<CategoryClubResponse>> nearestClubsByCategory = service.findNearestClubsByCategory(requestLatitude, requestLongitude, 10);
 
         nearestClubsByCategory.forEach((category, categoryClubResponses) ->
-                categoryClubResponses.forEach(categoryClubResponse ->
-                        categoryClubResponse.setPresignedImageUrls(categoryClubResponse.getImageUrls())
-                )
+                categoryClubResponses.forEach(categoryClubResponse -> {
+                    categoryClubResponse.setPresignedImageUrls(categoryClubResponse.getImageUrls());
+                })
         );
 
         return HomeResponse.builder()
@@ -308,24 +450,54 @@ public class ClubService {
                 .collect(Collectors.toList());
     }
 
-    public List<Club> optimizedParallelFindNearestClubs(float requestLatitude, float requestLongitude, int count) {
+    public List<ClubResponse> optimizedParallelFindNearestClubs(float requestLatitude, float requestLongitude, int count) {
         List<Club> allClubs = clubRepository.findAll();
 
-        // Precompute cosine of request latitude
+        // 위도에 대한 코사인 값 미리 계산
         float requestLatitudeRad = (float) Math.toRadians(requestLatitude);
         float cosRequestLatitude = (float) Math.cos(requestLatitudeRad);
 
-        // Use ConcurrentSkipListSet to maintain the nearest clubs in a thread-safe manner
-        ConcurrentSkipListSet<ClubDistance> nearestClubs = allClubs.parallelStream()
-                .filter(club -> club.getLatitude() != null && club.getLongitude() != null) // Filter out clubs with null latitude or longitude
-                .filter(club -> club.getImageUrls() != null && !club.getImageUrls().isEmpty()) // Filter out clubs with null or empty imageUrls
-                .map(club -> new ClubDistance(club, distance(requestLatitude, requestLongitude, club.getLatitude(), club.getLongitude(), cosRequestLatitude)))
-                .collect(Collectors.toCollection(() -> new ConcurrentSkipListSet<>(Comparator.comparingDouble(ClubDistance::getDistance))));
+        // ConcurrentSkipListSet 사용하여 가장 가까운 클럽을 스레드 안전하게 유지
+        ConcurrentSkipListSet<ClubDistance> nearestClubs = allClubs.stream()
+                .filter(club -> club.getLatitude() != null && club.getLongitude() != null) // 유효한 위치 정보가 있는 클럽만 필터링
+                .filter(club -> {
+                    if (club.getImageUrls() == null || club.getImageUrls().isEmpty()) {
+                        club.setImageUrls(List.of("default_image_url"));
+                    }
+                    return true;
+                })
+                .map(club -> new ClubDistance(club,
+                        distance(requestLatitude, requestLongitude, club.getLatitude(), club.getLongitude(), cosRequestLatitude)))
+                .collect(Collectors.toCollection(() ->
+                        new ConcurrentSkipListSet<>(Comparator.comparingDouble(ClubDistance::getDistance))));
 
-        // Limit to the desired number of nearest clubs
+        // 가장 가까운 클럽 제한 수만큼 반환
         return nearestClubs.stream()
                 .limit(count)
-                .map(ClubDistance::getClub)
+                .map(clubDistance -> {
+                    Club club = clubDistance.getClub();
+
+                    // 평균 평점 계산
+                    Float avgRating = club.getRatingCount() == 0 ? null
+                            : club.getRatingSum() / club.getRatingCount();
+
+                    // 스포츠별 가격 정보 조회
+                    List<?> priceResponses = getPriceResponsesByCategory(club);
+
+                    // 운영 시간 정보 조회
+                    List<OperatingHours> operatingHours = operatingHoursRepository.findByClub_Id(club.getId());
+                    List<OperatingHoursResponse> operatingHoursResponses = operatingHours.stream()
+                            .map(hours -> new OperatingHoursResponse(hours.getDayOfWeek(), hours.getStartTime(), hours.getEndTime()))
+                            .collect(Collectors.toList());
+
+                    // 클럽 응답 객체 생성 및 설정
+                    ClubResponse response = clubMapper.entityToResponse(club);
+                    response.setPrices(priceResponses);  // 가격 정보 설정
+                    response.setOperatingHours(operatingHoursResponses);  // 운영 시간 정보 설정
+                    response.setAvgRating(avgRating);  // 평균 평점 설정
+
+                    return response;
+                })
                 .collect(Collectors.toList());
     }
 
@@ -388,13 +560,36 @@ public class ClubService {
                 club.getCategory().name(),
                 club.getId(),
                 club.getClubName(),
-                club.getAddress()
+                club.getAddress(),
+                false
         );
     }
 
     public List<ClubResponse> getPopularClubs() {
         return clubRepository.findTop5ByOrderByRatingCountDesc().stream()
-                .map(clubMapper::entityToResponse)
+                .map(club -> {
+                    List<OperatingHours> operatingHours = operatingHoursRepository.findByClub_Id(club.getId());
+
+                    // DTO 변환
+                    List<OperatingHoursResponse> operatingHoursResponses = operatingHours.stream()
+                            .map(hours -> new OperatingHoursResponse(hours.getDayOfWeek(), hours.getStartTime(), hours.getEndTime()))
+                            .collect(Collectors.toList());
+
+                    List<?> priceResponses = getPriceResponsesByCategory(club);
+
+                    // 평균 평점 계산
+                    Float avgRating = club.getRatingCount() == 0
+                            ? null
+                            : club.getRatingSum() / club.getRatingCount();
+
+                    // ClubResponse로 변환 및 설정
+                    ClubResponse clubResponse = clubMapper.entityToResponse(club);
+                    clubResponse.setPrices(priceResponses.isEmpty() ? Collections.emptyList() : priceResponses);
+                    clubResponse.setOperatingHours(operatingHoursResponses);
+                    clubResponse.setAvgRating(avgRating);  // 평균 평점 설정
+
+                    return clubResponse;
+                })
                 .collect(Collectors.toList());
     }
 
@@ -402,28 +597,51 @@ public class ClubService {
         List<Club> allClubs = clubRepository.findAll();
         int size = allClubs.size();
 
-        // If the count is greater than or equal to the size of the list, return the whole list
         if (count >= size) {
+            // 모든 클럽 반환
             return allClubs.stream()
-                    .map(clubMapper::entityToResponse)
-                    .filter(club -> club.getImageUrls() != null && !club.getImageUrls().isEmpty()) // Filter out clubs with null or empty imageUrls
+                    .map(this::buildClubResponse)
                     .collect(Collectors.toList());
         }
 
-        // Reservoir sampling algorithm
+        // Reservoir Sampling Algorithm
         List<ClubResponse> reservoir = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
-            reservoir.add(clubMapper.entityToResponse(allClubs.get(i)));
+            reservoir.add(buildClubResponse(allClubs.get(i)));
         }
 
         for (int i = count; i < size; i++) {
             int j = ThreadLocalRandom.current().nextInt(i + 1);
             if (j < count) {
-                reservoir.set(j, clubMapper.entityToResponse(allClubs.get(i)));
+                reservoir.set(j, buildClubResponse(allClubs.get(i)));
             }
         }
 
         return reservoir;
+    }
+
+    private ClubResponse buildClubResponse(Club club) {
+        List<OperatingHours> operatingHours = operatingHoursRepository.findByClub_Id(club.getId());
+
+        // DTO 변환
+        List<OperatingHoursResponse> operatingHoursResponses = operatingHours.stream()
+                .map(hours -> new OperatingHoursResponse(hours.getDayOfWeek(), hours.getStartTime(), hours.getEndTime()))
+                .collect(Collectors.toList());
+
+        List<?> priceResponses = getPriceResponsesByCategory(club);
+
+        // 평균 평점 계산
+        Float avgRating = club.getRatingCount() == 0
+                ? null
+                : club.getRatingSum() / club.getRatingCount();
+
+        // ClubResponse로 변환 및 설정
+        ClubResponse clubResponse = clubMapper.entityToResponse(club);
+        clubResponse.setPrices(priceResponses.isEmpty() ? Collections.emptyList() : priceResponses);
+        clubResponse.setOperatingHours(operatingHoursResponses);
+        clubResponse.setAvgRating(avgRating);  // 평균 평점 설정
+
+        return clubResponse;
     }
 
     private static class ClubDistance {
