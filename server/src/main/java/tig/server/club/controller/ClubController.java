@@ -23,13 +23,13 @@ public class ClubController {
 
     private final ClubService clubService;
 
-    @GetMapping("")
-    @Operation(summary = "전체 업체 조회")
-    public ResponseEntity<ApiResponse<List<ClubResponse>>> getAllClubs() {
-        List<ClubResponse> clubResponses = clubService.getAllClubs();
-        ApiResponse<List<ClubResponse>> response = ApiResponse.of(200, "successfully retrieved all clubs", clubResponses);
-        return ResponseEntity.ok(response);
-    }
+//    @GetMapping("")
+//    @Operation(summary = "전체 업체 조회")
+//    public ResponseEntity<ApiResponse<List<ClubResponse>>> getAllClubs() {
+//        List<ClubResponse> clubResponses = clubService.getAllClubs();
+//        ApiResponse<List<ClubResponse>> response = ApiResponse.of(200, "successfully retrieved all clubs", clubResponses);
+//        return ResponseEntity.ok(response);
+//    }
 
     @GetMapping("/user/{clubId}")
     @Operation(summary = "특정 업체 조회 : 로그인 된 사용자를 위함")
