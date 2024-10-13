@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import tig.server.club.domain.Club;
 import tig.server.enums.ProgramEnum;
-import tig.server.program.domain.Program;
 
 @Entity
 @Getter

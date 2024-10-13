@@ -6,8 +6,6 @@ import tig.server.enums.Category;
 import tig.server.enums.Facility;
 import tig.server.enums.Type;
 import tig.server.operatinghours.dto.OperatingHoursResponse;
-import tig.server.price.dto.PriceResponse;
-import tig.server.program.dto.ProgramResponse;
 
 import java.util.List;
 

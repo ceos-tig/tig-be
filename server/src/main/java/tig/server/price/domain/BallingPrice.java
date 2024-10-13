@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 import tig.server.club.domain.Club;
 import tig.server.enums.DayOfWeek;
 import tig.server.enums.ProgramEnum;
-import tig.server.program.domain.Program;
 
 import java.time.LocalTime;
 
