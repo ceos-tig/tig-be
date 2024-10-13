@@ -93,13 +93,11 @@ public class ReservationService {
 
         Club club = reservation.getClub();
         response.setType(club.getType());
-        //response.setBusinessHours(club.getBusinessHours());
         response.setClubName(club.getClubName());
         response.setClubAddress(club.getAddress());
         response.setReservationId(reservation.getId());
         response.setClubId(club.getId());
         response.setType(club.getType());
-        //response.setBusinessHours(club.getBusinessHours());
         response.setClubName(club.getClubName());
         response.setProvider(provider);
         response.setUpdatedAt(updatedAt);
@@ -163,7 +161,6 @@ public class ReservationService {
         response.setMemberId(member.getId());
         response.setClubId(clubId);
         response.setType(club.getType());
-        //response.setBusinessHours(club.getBusinessHours());
         response.setClubName(club.getClubName());
         response.setPaymentId(reservation.getPaymentId());
         response.setGameCount(reservation.getGameCount());
@@ -450,9 +447,6 @@ public class ReservationService {
         if (response.getType() == null) {
             response.setType(entity.getClub().getType());
         }
-//        if (response.getBusinessHours() == null) {
-//            response.setBusinessHours(entity.getClub().getBusinessHours());
-//        }
         if (response.getClubName() == null) {
             response.setClubName(entity.getClub().getClubName());
         }
