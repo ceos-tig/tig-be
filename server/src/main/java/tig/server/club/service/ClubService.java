@@ -151,13 +151,13 @@ public class ClubService {
                 return baseballPriceRepository.findByClub(club)
                         .stream()
                         .map(price -> new BaseballPriceResponse(
-                                price.getProgramType(), price.getPrice(),price.getInning()))
+                                price.getProgramName(), price.getPrice(),price.getInning()))
                         .collect(Collectors.toList());
             case TENNIS:
                 return tennisPriceRepository.findByClub(club)
                         .stream()
                         .map(price -> new TennisPriceResponse(
-                                price.getProgramType(), price.getDayOfWeek(),
+                                price.getProgramName(), price.getDayOfWeek(),
                                 price.getDuration(),
                                 price.getPrice(),
                                 price.getCountPerWeek()))
