@@ -27,7 +27,7 @@ public class TennisPrice {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "program_type", nullable = false)
-    private ProgramEnum programType;  // 예: 주 1회, 주 2회, 볼머신 등
+    private ProgramEnum programType;  // 볼머신, 테니스코트, 테니스레슨
 
     @Enumerated(EnumType.STRING)
     @Column(name = "day_of_week", nullable = false)
@@ -35,6 +35,9 @@ public class TennisPrice {
 
     @Column(name = "duration", nullable = true)
     private Integer duration;  // 볼머신 이용 시간(분 단위), 주 1회/2회의 경우 null로 설정 가능
+
+    @Column(name = "count_per_week", nullable = true)
+    private Integer countPerWeek;  // 주에 몇회 인지
 
     @Column(name = "price", nullable = false)
     private Integer price;  // 가격 정보

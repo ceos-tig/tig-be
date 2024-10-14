@@ -28,7 +28,7 @@ public class FootballPrice {
     @Column(name = "program_type", nullable = false)
     private ProgramEnum programName;  // 축구장 면 또는 프로그램 (정규수업, 레슨 등)
 
-    @Column(name = "duration", nullable = false)
+    @Column(name = "duration", nullable = true)
     private Integer duration;  // 시간 단위 (예: 1시간, 2시간 등)
 
     @Column(name = "price", nullable = false)

@@ -40,7 +40,13 @@ public class GolfPrice {
     @Column(name = "price", nullable = false)
     private Integer price;  // 해당 시간대의 가격
 
+    @Column(name = "duration", nullable = true)
+    private Integer duration;  // 시간 단위 (예: 30분, 60분 등)
+
+    @Column(name = "holes", nullable = true)
+    private Integer holes;  // 18, 9홀
+
     @Enumerated(EnumType.STRING)
     @Column(name = "program_name", nullable = false)
-    private ProgramEnum programName;  // 18홀, 9홀, 일일 이용권 등 구분
+    private ProgramEnum programName;
 }

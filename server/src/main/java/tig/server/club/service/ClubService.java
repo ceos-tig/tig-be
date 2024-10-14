@@ -118,7 +118,7 @@ public class ClubService {
                 return tableTennisPriceRepository.findByClub(club)
                         .stream()
                         .map(price -> new TableTennisPriceResponse(
-                                price.getProgramName(), price.getPrice(), price.getDurationType()))
+                                price.getProgramName(), price.getPrice(), price.getDuration()))
                         .collect(Collectors.toList());
             case BALLING:
                 return ballingPriceRepository.findByClub(club)
@@ -132,7 +132,8 @@ public class ClubService {
                         .stream()
                         .map(price -> new GolfPriceResponse(
                                 price.getProgramName(), price.getDayOfWeek(),
-                                price.getStartTime(), price.getEndTime(), price.getPrice()))
+                                price.getStartTime(), price.getEndTime(), price.getPrice(),
+                                price.getHoles(), price.getDuration()))
                         .collect(Collectors.toList());
             case BILLIARDS:
                 return billiardsPriceRepository.findByClub(club)
@@ -150,19 +151,25 @@ public class ClubService {
                 return baseballPriceRepository.findByClub(club)
                         .stream()
                         .map(price -> new BaseballPriceResponse(
-                                price.getProgramType(), price.getDuration(), price.getPrice()))
+                                price.getProgramType(), price.getPrice(),price.getInning()))
                         .collect(Collectors.toList());
             case TENNIS:
                 return tennisPriceRepository.findByClub(club)
                         .stream()
                         .map(price -> new TennisPriceResponse(
-                                price.getProgramType(), price.getDayOfWeek(), price.getDuration(), price.getPrice()))
+                                price.getProgramType(), price.getDayOfWeek(),
+                                price.getDuration(),
+                                price.getPrice(),
+                                price.getCountPerWeek()))
                         .collect(Collectors.toList());
             case SQUASH:
                 return squashPriceRepository.findByClub(club)
                         .stream()
                         .map(price -> new SquashPriceResponse(
-                                price.getProgramName(), price.getDurationInMonths(), price.getPrice()))
+                                price.getProgramName(),
+                                price.getDurationInMonths(),
+                                price.getPrice(),
+                                price.getLessonCount()))
                         .collect(Collectors.toList());
             default:
                 throw new BusinessExceptionHandler("Invalid program type", ErrorCode.NOT_VALID_ERROR);

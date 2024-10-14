@@ -28,7 +28,7 @@ public class BilliardsPrice {
     @Column(name = "program_type", nullable = false)
     private ProgramEnum programName;  // 중대, 대대, 3구, 4구, 포켓볼 등
 
-    @Column(name = "duration", nullable = false)
+    @Column(name = "duration", nullable = true)
     private Integer duration;  // 시간 단위 (예: 10분, 1시간)
 
     @Column(name = "price", nullable = false)

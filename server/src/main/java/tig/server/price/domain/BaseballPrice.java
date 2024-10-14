@@ -28,12 +28,9 @@ public class BaseballPrice {
     @Column(name = "program_type", nullable = false)
     private ProgramEnum programType;  // 예: 메이저룸, 마이너룸, 또는 타격 회수 등
 
-    @Column(name = "duration", nullable = false)
-    private Integer duration;  // 시간 단위 (예: 60분, 30분 등)
+    @Column(name = "inning", nullable = true)
+    private Integer inning; // 3회, 6회, 9회
 
     @Column(name = "price", nullable = false)
     private Integer price;  // 해당 시간에 따른 가격
-
-    //@Column(name = "hits", nullable = true)
-    //private Integer hits;  // 타격 회수 (선택적 필드)
 }

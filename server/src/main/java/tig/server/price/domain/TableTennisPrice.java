@@ -15,14 +15,14 @@ public class TableTennisPrice {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "program_name", nullable = false)
-    private ProgramEnum programName;  // 일반 볼링, 락 볼링 등
+    private ProgramEnum programName;  // 단식, 복식
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "club_id", nullable = false)  // Club 엔티티 참조
     private Club club;
 
-    @Column(name = "duration_type", nullable = false)
-    private Integer durationType;  // 시간 단위 (예: 30분, 1시간 등)
+    @Column(name = "duration", nullable = true)
+    private Integer duration;  // 시간 단위 (예: 30분, 1시간 등)
 
     @Column(name = "price", nullable = false)
     private Integer price;
