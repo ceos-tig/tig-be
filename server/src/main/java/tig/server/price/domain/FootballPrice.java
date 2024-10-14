@@ -9,7 +9,7 @@ import tig.server.club.domain.Club;
 import tig.server.enums.ProgramEnum;
 
 @Entity
-@Table(name = "SOCCER_PRICE")
+@Table(name = "FOOTBALL_PRICE")
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
