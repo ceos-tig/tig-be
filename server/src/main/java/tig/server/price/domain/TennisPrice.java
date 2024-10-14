@@ -26,8 +26,8 @@ public class TennisPrice {
     private Club club;  // 해당 클럽 정보
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "program_type", nullable = false)
-    private ProgramEnum programType;  // 볼머신, 테니스코트, 테니스레슨
+    @Column(name = "program_name", nullable = false)
+    private ProgramEnum programName;  // 볼머신, 테니스코트, 테니스레슨
 
     @Enumerated(EnumType.STRING)
     @Column(name = "day_of_week", nullable = false)

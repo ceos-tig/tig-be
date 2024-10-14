@@ -25,8 +25,8 @@ public class BaseballPrice {
     private Club club;  // 해당 구장의 클럽 정보
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "program_type", nullable = false)
-    private ProgramEnum programType;  // 예: 메이저룸, 마이너룸, 또는 타격 회수 등
+    @Column(name = "program_name", nullable = false)
+    private ProgramEnum programName;  // 예: 메이저룸, 마이너룸, 또는 타격 회수 등
 
     @Column(name = "inning", nullable = true)
     private Integer inning; // 3회, 6회, 9회

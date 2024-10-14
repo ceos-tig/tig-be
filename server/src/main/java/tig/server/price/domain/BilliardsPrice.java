@@ -25,7 +25,7 @@ public class BilliardsPrice {
     private Club club;  // 각 당구장이 속한 클럽 정보
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "program_type", nullable = false)
+    @Column(name = "program_name", nullable = false)
     private ProgramEnum programName;  // 중대, 대대, 3구, 4구, 포켓볼 등
 
     @Column(name = "duration", nullable = true)

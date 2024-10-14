@@ -25,7 +25,7 @@ public class FootballPrice {
     private Club club;  // 축구장이 속한 클럽 정보
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "program_type", nullable = false)
+    @Column(name = "program_name", nullable = false)
     private ProgramEnum programName;  // 축구장 면 또는 프로그램 (정규수업, 레슨 등)
 
     @Column(name = "duration", nullable = true)
