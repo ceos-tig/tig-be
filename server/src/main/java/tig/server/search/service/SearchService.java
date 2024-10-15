@@ -7,6 +7,12 @@ import tig.server.club.domain.Club;
 import tig.server.club.mapper.ClubMapper;
 import tig.server.club.repository.ClubRepository;
 import tig.server.club.service.ClubService;
+import tig.server.global.code.ErrorCode;
+import tig.server.global.exception.BusinessExceptionHandler;
+import tig.server.operatinghours.dto.OperatingHoursResponse;
+import tig.server.operatinghours.repository.OperatingHoursRepository;
+import tig.server.price.dto.*;
+import tig.server.price.repository.*;
 import tig.server.search.dto.AvgPointDto;
 import tig.server.search.dto.SearchLogDto;
 import tig.server.search.dto.SearchResponseDto;
@@ -25,6 +31,15 @@ import java.util.stream.Collectors;
 public class SearchService {
     private final ClubRepository clubRepository;
     private final WishlistRepository wishlistRepository;
+    private final TableTennisPriceRepository tableTennisPriceRepository;
+    private final BallingPriceRepository ballingPriceRepository;
+    private final BaseballPriceRepository baseballPriceRepository;
+    private final BilliardsPriceRepository billiardsPriceRepository;
+    private final FootballPriceRepository footballPriceRepository;
+    private final GolfPriceRepository golfPriceRepository;
+    private final SquashPriceRepository squashPriceRepository;
+    private final TennisPriceRepository tennisPriceRepository;
+    private final OperatingHoursRepository operatingHoursRepository;
 
     private final SearchLogService searchLogService;
     private final ClubService clubService;
@@ -40,54 +55,132 @@ public class SearchService {
         List<SearchResponseDto> searchResponseDtoList = new ArrayList<>();
         AvgPointDto avgPointDto;
 
-        if (clubList.isEmpty()) { // 검색 결과 없을떄
+        if (clubList.isEmpty()) { // 검색 결과 없을 때
             isResult = false;
             List<Club> recommendedClubList = clubService.getRecommendedClubs(2).stream()
                     .map(clubMapper::responseToEntity)
                     .toList();
             avgPointDto = calculateMidPoint(clubList);
+
             for (Club recommendedClub : recommendedClubList) {
-                Float distance = calculateDistance(avgPointDto, recommendedClub);
-                boolean isHeart = wishlistRepository.existsByClubIdAndMemberId(recommendedClub.getId(), memberId);
-                SearchResponseDto searchResponseDto = searchMapper.entityToResponse(recommendedClub);
-                searchResponseDto.setIsHeart(isHeart);
-                searchResponseDto.setDistance(distance);
-                // set ratingSum and ratingCount 0 if null
-                if (searchResponseDto.getRatingSum() == null) {
-                    searchResponseDto.setRatingSum(0f);
-                }
-                if (searchResponseDto.getRatingCount() == null) {
-                    searchResponseDto.setRatingCount(0);
-                }
+                SearchResponseDto searchResponseDto = buildSearchResponseDto(recommendedClub, memberId, avgPointDto);
                 searchResponseDtoList.add(searchResponseDto);
             }
         } else {
             avgPointDto = calculateMidPoint(clubList);
+
             for (Club club : clubList) {
-                Float distance = calculateDistance(avgPointDto, club);
-                boolean isHeart = wishlistRepository.existsByClubIdAndMemberId(club.getId(), memberId);
-                SearchResponseDto searchResponseDto = searchMapper.entityToResponse(club);
-                searchResponseDto.setIsHeart(isHeart);
-                searchResponseDto.setDistance(distance);
-
-                // set ratingSum and ratingCount 0 if null
-                if (searchResponseDto.getRatingSum() == null) {
-                    searchResponseDto.setRatingSum(0f);
-                }
-                if (searchResponseDto.getRatingCount() == null) {
-                    searchResponseDto.setRatingCount(0);
-                }
-
+                SearchResponseDto searchResponseDto = buildSearchResponseDto(club, memberId, avgPointDto);
                 searchResponseDtoList.add(searchResponseDto);
             }
         }
-        if (isKeyword) { // 검색어를 입력 했다면
+
+        if (isKeyword) { // 검색어를 입력했다면
             String now = LocalDateTime.now().toString();
-            SearchLogDto searchLogDto = new SearchLogDto(request,now);
-            searchLogService.saveRecentSearchLog(memberId,searchLogDto);
+            SearchLogDto searchLogDto = new SearchLogDto(request, now);
+            searchLogService.saveRecentSearchLog(memberId, searchLogDto);
         }
 
-        return new SearchResultDto(searchResponseDtoList, avgPointDto.getAvgLatitude(), avgPointDto.getAvgLongitude(), isResult);
+        return new SearchResultDto(
+                searchResponseDtoList,
+                avgPointDto.getAvgLatitude(),
+                avgPointDto.getAvgLongitude(),
+                isResult
+        );
+    }
+
+    private SearchResponseDto buildSearchResponseDto(Club club, Long memberId, AvgPointDto avgPointDto) {
+        Float distance = calculateDistance(avgPointDto, club);
+        boolean isHeart = wishlistRepository.existsByClubIdAndMemberId(club.getId(), memberId);
+
+        SearchResponseDto searchResponseDto = searchMapper.entityToResponse(club);
+        searchResponseDto.setIsHeart(isHeart);
+        searchResponseDto.setDistance(distance);
+
+        // 가격 정보 분기 처리
+        List<?> priceResponses = getPriceResponsesByCategory(club);
+        searchResponseDto.setPrices(priceResponses);
+
+        // 운영 시간 정보 설정
+        List<OperatingHoursResponse> operatingHoursResponses = operatingHoursRepository.findByClub_Id(club.getId()).stream()
+                .map(hours -> new OperatingHoursResponse(
+                        hours.getDayOfWeek(),
+                        hours.getStartTime(),
+                        hours.getEndTime()))
+                .toList();
+        searchResponseDto.setOperatingHours(operatingHoursResponses);
+
+        // Rating 초기화 (null일 경우)
+        if (searchResponseDto.getRatingSum() == null) {
+            searchResponseDto.setRatingSum(0f);
+        }
+        if (searchResponseDto.getRatingCount() == null) {
+            searchResponseDto.setRatingCount(0);
+        }
+
+
+        return searchResponseDto;
+    }
+
+    private List<?> getPriceResponsesByCategory(Club club) {
+        switch (club.getCategory()) {
+            case TABLE_TENNIS:
+                return tableTennisPriceRepository.findByClub(club)
+                        .stream()
+                        .map(price -> new TableTennisPriceResponse(
+                                price.getProgramName(), price.getPrice(), price.getDuration()))
+                        .collect(Collectors.toList());
+            case BALLING:
+                return ballingPriceRepository.findByClub(club)
+                        .stream()
+                        .map(price -> new BallingPriceResponse(
+                                price.getProgramName(), price.getDayOfWeek(),
+                                price.getStartTime(), price.getEndTime(), price.getPrice()))
+                        .collect(Collectors.toList());
+            case GOLF:
+                return golfPriceRepository.findByClub(club)
+                        .stream()
+                        .map(price -> new GolfPriceResponse(
+                                price.getProgramName(), price.getDayOfWeek(),
+                                price.getStartTime(), price.getEndTime(), price.getPrice(),
+                                price.getHoles(), price.getDuration()))
+                        .collect(Collectors.toList());
+            case BILLIARDS:
+                return billiardsPriceRepository.findByClub(club)
+                        .stream()
+                        .map(price -> new BilliardsPriceResponse(
+                                price.getProgramName(), price.getDuration(), price.getPrice()))
+                        .collect(Collectors.toList());
+            case FOOTBALL:
+                return footballPriceRepository.findByClub(club)
+                        .stream()
+                        .map(price -> new FootballPriceResponse(
+                                price.getProgramName(), price.getDuration(), price.getPrice()))
+                        .collect(Collectors.toList());
+            case BASEBALL:
+                return baseballPriceRepository.findByClub(club)
+                        .stream()
+                        .map(price -> new BaseballPriceResponse(
+                                price.getProgramName(), price.getPrice(), price.getInning()))
+                        .collect(Collectors.toList());
+            case TENNIS:
+                return tennisPriceRepository.findByClub(club)
+                        .stream()
+                        .map(price -> new TennisPriceResponse(
+                                price.getProgramName(), price.getDayOfWeek(),
+                                price.getDuration(), price.getPrice(),
+                                price.getCountPerWeek()))
+                        .collect(Collectors.toList());
+            case SQUASH:
+                return squashPriceRepository.findByClub(club)
+                        .stream()
+                        .map(price -> new SquashPriceResponse(
+                                price.getProgramName(), price.getDurationInMonths(),
+                                price.getPrice(), price.getLessonCount()))
+                        .collect(Collectors.toList());
+            default:
+                throw new BusinessExceptionHandler("Invalid program type", ErrorCode.NOT_VALID_ERROR);
+        }
     }
 
     public SearchResultDto findClubByNameContainIfNoLogin(String request) {
@@ -98,46 +191,59 @@ public class SearchService {
         List<SearchResponseDto> searchResponseDtoList = new ArrayList<>();
         AvgPointDto avgPointDto;
 
-        if (clubList.isEmpty()) { // 검색 결과 없을때
+        if (clubList.isEmpty()) { // 검색 결과가 없을 때
             isResult = false;
             List<Club> recommendedClubList = clubService.getRecommendedClubs(2).stream()
                     .map(clubMapper::responseToEntity)
                     .toList();
             avgPointDto = calculateMidPoint(recommendedClubList);
             for (Club recommendedClub : recommendedClubList) {
-                Float distance = calculateDistance(avgPointDto, recommendedClub);
-                SearchResponseDto searchResponseDto = searchMapper.entityToResponse(recommendedClub);
-                searchResponseDto.setDistance(distance);
-                // set ratingSum and ratingCount 0 if null
-                if (searchResponseDto.getRatingSum() == null) {
-                    searchResponseDto.setRatingSum(0f);
-                }
-                if (searchResponseDto.getRatingCount() == null) {
-                    searchResponseDto.setRatingCount(0);
-                }
+                SearchResponseDto searchResponseDto = buildSearchResponseIfNoLogin(recommendedClub, avgPointDto);
                 searchResponseDtoList.add(searchResponseDto);
             }
-        } else {
+        } else { // 검색 결과가 있을 때
             avgPointDto = calculateMidPoint(clubList);
             for (Club club : clubList) {
-                Float distance = calculateDistance(avgPointDto, club);
-                SearchResponseDto searchResponseDto = searchMapper.entityToResponse(club);
-                searchResponseDto.setDistance(distance);
-
-                // set ratingSum and ratingCount 0 if null
-                if (searchResponseDto.getRatingSum() == null) {
-                    searchResponseDto.setRatingSum(0f);
-                }
-                if (searchResponseDto.getRatingCount() == null) {
-                    searchResponseDto.setRatingCount(0);
-                }
-
+                SearchResponseDto searchResponseDto = buildSearchResponseIfNoLogin(club, avgPointDto);
                 searchResponseDtoList.add(searchResponseDto);
             }
         }
 
+        return new SearchResultDto(
+                searchResponseDtoList,
+                avgPointDto.getAvgLatitude(),
+                avgPointDto.getAvgLongitude(),
+                isResult
+        );
+    }
 
-        return new SearchResultDto(searchResponseDtoList, avgPointDto.getAvgLatitude(), avgPointDto.getAvgLongitude(), isResult);
+    private SearchResponseDto buildSearchResponseIfNoLogin(Club club, AvgPointDto avgPointDto) {
+        Float distance = calculateDistance(avgPointDto, club);
+        SearchResponseDto searchResponseDto = searchMapper.entityToResponse(club);
+        searchResponseDto.setDistance(distance);
+
+        // 가격 정보 설정
+        List<?> priceResponses = getPriceResponsesByCategory(club);
+        searchResponseDto.setPrices(priceResponses);
+
+        // 운영 시간 정보 설정
+        List<OperatingHoursResponse> operatingHoursResponses = operatingHoursRepository.findByClub_Id(club.getId()).stream()
+                .map(hours -> new OperatingHoursResponse(
+                        hours.getDayOfWeek(),
+                        hours.getStartTime(),
+                        hours.getEndTime()))
+                .toList();
+        searchResponseDto.setOperatingHours(operatingHoursResponses);
+
+        // 평점 초기화 (null일 경우)
+        if (searchResponseDto.getRatingSum() == null) {
+            searchResponseDto.setRatingSum(0f);
+        }
+        if (searchResponseDto.getRatingCount() == null) {
+            searchResponseDto.setRatingCount(0);
+        }
+
+        return searchResponseDto;
     }
 
     public static AvgPointDto calculateMidPoint(List<Club> clubList) {

@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import tig.server.enums.Category;
 import tig.server.enums.Type;
+import tig.server.operatinghours.dto.OperatingHoursResponse;
 import tig.server.wishlist.domain.Wishlist;
 
 import java.util.List;
@@ -27,17 +28,18 @@ public class SearchResponseDto {
     @Schema(type = "integer", example = "320")
     private Integer ratingCount;
 
-    @Schema(type = "integer", example = "30000")
-    private Integer price;
+    // 가격과 운영 시간은 별도 리스트로 처리
+    @Schema(type = "array", description = "클럽의 가격 정보 리스트")
+    private List<?> prices;  // PriceResponse 리스트 추가
+
+    @Schema(type = "array", description = "클럽의 운영 시간 정보 리스트")
+    private List<OperatingHoursResponse> operatingHours;  // OperatingHoursResponse 리스트 추가
 
     @Schema(type = "string", example = "010-1234-5678")
     private String phoneNumber;
 
     @Schema(type = "string", example = "https://instagram.com/tigballing")
     private String snsLink;
-
-    @Schema(type = "string", example = "10:00 - 3:00")
-    private String businessHours;
 
     @Schema(type = "float", example = "129.0921")
     private Float latitude;
