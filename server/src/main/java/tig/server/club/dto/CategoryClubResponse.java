@@ -19,6 +19,15 @@ public class CategoryClubResponse {
     @Schema(type = "list", example = "https://tig-s3.s3.ap-northeast-2.amazonaws.com/1/1.jpg")
     private List<String> imageUrls;
 
+    @Schema(type = "float", example = "13123.23")
+    private Float ratingSum;
+
+    @Schema(type = "integer", example = "320")
+    private Integer ratingCount;
+
+    @Schema(type = "integer", example = "4.2")
+    private Float avgRating;
+
     @Schema(type = "string", example = "탁구")
     private String category;
 

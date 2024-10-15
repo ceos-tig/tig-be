@@ -267,10 +267,7 @@ public class ClubService {
         ClubService service = serviceProvider.getObject();
 
         // 사용자가 좋아요한 클럽 조회
-        Set<Long> likedClubIds = wishlistRepository.findAllByMemberId(member.getId())
-                .stream()
-                .map(wishlist -> wishlist.getClub().getId())
-                .collect(Collectors.toSet());
+        Set<Long> likedClubIds = wishlistRepository.findLikedClubIds(member.getId());
 
         List<ClubResponse> nearestClubs = service.optimizedParallelFindNearestClubs(requestLatitude, requestLongitude, 5)
                 .stream()
@@ -458,53 +455,59 @@ public class ClubService {
     }
 
     public List<ClubResponse> optimizedParallelFindNearestClubs(float requestLatitude, float requestLongitude, int count) {
-        List<Club> allClubs = clubRepository.findAll();
+        List<Club> allClubs = clubRepository.findAll(); // 클럽 데이터 먼저 조회
+
+        // 모든 클럽의 운영 시간 한 번에 조회
+        Map<Long, List<OperatingHoursResponse>> operatingHoursMap = findOperatingHoursForAllClubs();
 
         // 위도에 대한 코사인 값 미리 계산
         float requestLatitudeRad = (float) Math.toRadians(requestLatitude);
         float cosRequestLatitude = (float) Math.cos(requestLatitudeRad);
 
-        // ConcurrentSkipListSet 사용하여 가장 가까운 클럽을 스레드 안전하게 유지
-        ConcurrentSkipListSet<ClubDistance> nearestClubs = allClubs.stream()
-                .filter(club -> club.getLatitude() != null && club.getLongitude() != null) // 유효한 위치 정보가 있는 클럽만 필터링
-                .peek(club -> {
-                    if (club.getImageUrls() == null || club.getImageUrls().isEmpty()) {
-                        club.setImageUrls(Collections.emptyList()); // 이미지가 없을 경우 빈 배열로 설정
-                    }
-                })
+        List<ClubDistance> nearestClubs = allClubs.parallelStream()
+                .filter(club -> club.getLatitude() != null && club.getLongitude() != null)
                 .map(club -> new ClubDistance(club,
                         distance(requestLatitude, requestLongitude, club.getLatitude(), club.getLongitude(), cosRequestLatitude)))
-                .collect(Collectors.toCollection(() ->
-                        new ConcurrentSkipListSet<>(Comparator.comparingDouble(ClubDistance::getDistance))));
+                .sorted(Comparator.comparingDouble(ClubDistance::getDistance))
+                .collect(Collectors.toList());
 
-        // 가장 가까운 클럽 제한 수만큼 반환
         return nearestClubs.stream()
                 .limit(count)
                 .map(clubDistance -> {
                     Club club = clubDistance.getClub();
 
                     // 평균 평점 계산
-                    Float avgRating = club.getRatingCount() == 0 ? null
-                            : club.getRatingSum() / club.getRatingCount();
+                    Float avgRating = club.getRatingCount() == 0 ? null : club.getRatingSum() / club.getRatingCount();
 
-                    // 스포츠별 가격 정보 조회
+                    // 가격 정보 조회
                     List<?> priceResponses = getPriceResponsesByCategory(club);
 
-                    // 운영 시간 정보 조회
-                    List<OperatingHours> operatingHours = operatingHoursRepository.findByClub_Id(club.getId());
-                    List<OperatingHoursResponse> operatingHoursResponses = operatingHours.stream()
-                            .map(hours -> new OperatingHoursResponse(hours.getDayOfWeek(), hours.getStartTime(), hours.getEndTime()))
-                            .collect(Collectors.toList());
+                    // 해당 클럽의 운영 시간 가져오기
+                    List<OperatingHoursResponse> operatingHoursResponses = operatingHoursMap.getOrDefault(club.getId(), Collections.emptyList());
 
-                    // 클럽 응답 객체 생성 및 설정
+                    // ClubResponse 생성 및 설정
                     ClubResponse response = clubMapper.entityToResponse(club);
-                    response.setPrices(priceResponses);  // 가격 정보 설정
-                    response.setOperatingHours(operatingHoursResponses);  // 운영 시간 정보 설정
-                    response.setAvgRating(avgRating);  // 평균 평점 설정
+                    response.setPrices(priceResponses);
+                    response.setOperatingHours(operatingHoursResponses);
+                    response.setAvgRating(avgRating);
 
                     return response;
                 })
                 .collect(Collectors.toList());
+    }
+
+    // 모든 클럽의 운영 시간을 한 번에 조회하여 클럽 ID별로 매핑
+    private Map<Long, List<OperatingHoursResponse>> findOperatingHoursForAllClubs() {
+        List<OperatingHours> allOperatingHours = operatingHoursRepository.findAll();
+
+        return allOperatingHours.stream()
+                .collect(Collectors.groupingBy(
+                        hours -> hours.getClub().getId(),  // 클럽 ID로 그룹화
+                        Collectors.mapping(
+                                hours -> new OperatingHoursResponse(hours.getDayOfWeek(), hours.getStartTime(), hours.getEndTime()),
+                                Collectors.toList()
+                        )
+                ));
     }
 
     private float distance(float lat1, float lon1, float lat2, float lon2, float cosRequestLatitude) {
@@ -559,14 +562,21 @@ public class ClubService {
 
     // Helper method to convert Club to CategoryClubResponse
     private CategoryClubResponse toCategoryClubResponse(Club club) {
+        // 평균 평점 계산
+        Float avgRating = (club.getRatingCount() == 0) ? null
+                : club.getRatingSum() / club.getRatingCount();
+
         return new CategoryClubResponse(
-                s3Uploader.getPresignedUrls(club.getId(), club.getImageUrls()),
-                club.getImageUrls(),
-                club.getCategory().name(),
-                club.getId(),
-                club.getClubName(),
-                club.getAddress(),
-                false
+                s3Uploader.getPresignedUrls(club.getId(), club.getImageUrls()),  // Presigned URLs 설정
+                club.getImageUrls(),  // 원본 이미지 URLs
+                club.getRatingSum(),  // 평점 합계 설정
+                club.getRatingCount(),  // 평점 개수 설정
+                avgRating, // 평균 평점 설정
+                club.getCategory().name(),  // 카테고리 이름
+                club.getId(),  // 클럽 ID
+                club.getClubName(),  // 클럽 이름
+                club.getAddress(),  // 클럽 주소
+                false  // isHeart 초기 값 설정
         );
     }
 
