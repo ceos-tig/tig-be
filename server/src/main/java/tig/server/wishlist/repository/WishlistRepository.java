@@ -12,6 +12,7 @@ import tig.server.wishlist.domain.Wishlist;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 public interface WishlistRepository extends JpaRepository<Wishlist, Long> {
@@ -22,6 +23,9 @@ public interface WishlistRepository extends JpaRepository<Wishlist, Long> {
     void softDeleteById(@Param("id") Long id);
 
     List<Wishlist> findAllByMemberId(Long memberId);
+
+    @Query("SELECT w.club.id FROM Wishlist w WHERE w.member.id = :memberId")
+    Set<Long> findLikedClubIds(@Param("memberId") Long memberId);
 
     Optional<Wishlist> findByMemberIdAndClubId(Long memberId, Long ClubId);
 
