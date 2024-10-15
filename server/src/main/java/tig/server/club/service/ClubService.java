@@ -467,11 +467,10 @@ public class ClubService {
         // ConcurrentSkipListSet 사용하여 가장 가까운 클럽을 스레드 안전하게 유지
         ConcurrentSkipListSet<ClubDistance> nearestClubs = allClubs.stream()
                 .filter(club -> club.getLatitude() != null && club.getLongitude() != null) // 유효한 위치 정보가 있는 클럽만 필터링
-                .filter(club -> {
+                .peek(club -> {
                     if (club.getImageUrls() == null || club.getImageUrls().isEmpty()) {
-                        club.setImageUrls(List.of("default_image_url"));
+                        club.setImageUrls(Collections.emptyList()); // 이미지가 없을 경우 빈 배열로 설정
                     }
-                    return true;
                 })
                 .map(club -> new ClubDistance(club,
                         distance(requestLatitude, requestLongitude, club.getLatitude(), club.getLongitude(), cosRequestLatitude)))
@@ -507,7 +506,6 @@ public class ClubService {
                 })
                 .collect(Collectors.toList());
     }
-
 
     private float distance(float lat1, float lon1, float lat2, float lon2, float cosRequestLatitude) {
         // Haversine formula to calculate the distance between two points on the Earth
