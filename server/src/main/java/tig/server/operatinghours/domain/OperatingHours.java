@@ -25,9 +25,9 @@ public class OperatingHours {
     @Column(name = "day_of_week", nullable = false)
     private DayOfWeek dayOfWeek;  // 요일 정보
 
-    @Column(name = "start_time", nullable = false)
+    @Column(name = "start_time", nullable = true)
     private LocalTime startTime;  // 시작 시간
 
-    @Column(name = "end_time", nullable = false)
+    @Column(name = "end_time", nullable = true)
     private LocalTime endTime;  // 종료 시간
 }

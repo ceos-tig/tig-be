@@ -31,6 +31,9 @@ public class BaseballPrice {
     @Column(name = "inning", nullable = true)
     private Integer inning; // 3회, 6회, 9회
 
+    @Column(name = "duration", nullable = true)
+    private Integer duration; // 분 단위로 시간 기록. 이닝을 기록 했을경우에는 null 가능
+
     @Column(name = "price", nullable = false)
     private Integer price;  // 해당 시간에 따른 가격
 }

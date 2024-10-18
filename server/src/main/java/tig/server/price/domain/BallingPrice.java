@@ -37,6 +37,9 @@ public class BallingPrice {
     @Column(name = "end_time", nullable = false)
     private LocalTime endTime;  // 종료 시간
 
+    @Column(name = "game_count", nullable = true)
+    private Integer gameCount;  // 해당 시간의 가격
+
     @Column(name = "price", nullable = false)
     private Integer price;  // 해당 시간의 가격
 
