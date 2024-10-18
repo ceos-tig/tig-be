@@ -17,5 +17,6 @@ public class BallingPriceResponse {
     private DayOfWeek dayOfWeek;  // 요일 정보 (MON, TUE 등)
     private LocalTime startTime;  // 시작 시간
     private LocalTime endTime;  // 종료 시간
+    private Integer gameCount;
     private Integer price;  // 해당 시간의 가격
 }

@@ -31,6 +31,9 @@ public class SquashPrice {
     @Column(name = "lesson_count", nullable = true)
     private Integer lessonCount;  // 레슨 1회, 레슨 2회 등등
 
+    @Column(name = "duration", nullable = true)
+    private Integer duration;  // 기간 (개월 단위, null 가능)
+
     @Column(name = "price", nullable = false)
     private Integer price;  // 해당 프로그램 가격
 }

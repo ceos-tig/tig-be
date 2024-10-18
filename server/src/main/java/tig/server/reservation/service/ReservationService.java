@@ -397,7 +397,8 @@ public class ReservationService {
                         .stream()
                         .map(price -> new BallingPriceResponse(
                                 price.getProgramName(), price.getDayOfWeek(),
-                                price.getStartTime(), price.getEndTime(), price.getPrice()))
+                                price.getStartTime(), price.getEndTime(),
+                                price.getGameCount(), price.getPrice()))
                         .collect(Collectors.toList());
             case GOLF:
                 return golfPriceRepository.findByClub(club)
@@ -423,7 +424,7 @@ public class ReservationService {
                 return baseballPriceRepository.findByClub(club)
                         .stream()
                         .map(price -> new BaseballPriceResponse(
-                                price.getProgramName(), price.getPrice(),price.getInning()))
+                                price.getProgramName(), price.getInning(),price.getDuration(), price.getPrice()))
                         .collect(Collectors.toList());
             case TENNIS:
                 return tennisPriceRepository.findByClub(club)
@@ -440,8 +441,9 @@ public class ReservationService {
                         .map(price -> new SquashPriceResponse(
                                 price.getProgramName(),
                                 price.getDurationInMonths(),
-                                price.getPrice(),
-                                price.getLessonCount()))
+                                price.getLessonCount(),
+                                price.getDuration(),
+                                price.getPrice()))
                         .collect(Collectors.toList());
             default:
                 throw new BusinessExceptionHandler("Invalid program type", ErrorCode.NOT_VALID_ERROR);
