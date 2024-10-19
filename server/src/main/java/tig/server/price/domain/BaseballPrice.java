@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import tig.server.club.domain.Club;
 import tig.server.enums.ProgramEnum;
 
+import java.time.LocalTime;
+
 @Entity
 @Table(name = "BASEBALL_PRICE")
 @Getter
@@ -33,6 +35,12 @@ public class BaseballPrice {
 
     @Column(name = "duration", nullable = true)
     private Integer duration; // 분 단위로 시간 기록. 이닝을 기록 했을경우에는 null 가능
+
+    @Column(name = "start_time")
+    private LocalTime startTime;  // 시작 시간
+
+    @Column(name = "end_time")
+    private LocalTime endTime;  // 종료 시간
 
     @Column(name = "price", nullable = false)
     private Integer price;  // 해당 시간에 따른 가격

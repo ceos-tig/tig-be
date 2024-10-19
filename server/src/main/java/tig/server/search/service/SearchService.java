@@ -162,7 +162,12 @@ public class SearchService {
                 return baseballPriceRepository.findByClub(club)
                         .stream()
                         .map(price -> new BaseballPriceResponse(
-                                price.getProgramName(), price.getInning(), price.getDuration(), price.getPrice()))
+                                price.getProgramName(),
+                                price.getInning(),
+                                price.getDuration(),
+                                price.getStartTime(),
+                                price.getEndTime(),
+                                price.getPrice()))
                         .collect(Collectors.toList());
             case TENNIS:
                 return tennisPriceRepository.findByClub(club)
