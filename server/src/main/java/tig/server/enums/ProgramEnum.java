@@ -31,6 +31,10 @@ public enum ProgramEnum {
     // Baseball Programs
     SCREEN_BASEBALL("스크린야구"),
     BASEBALL_PRACTICE("야구연습장"),
+    MAJOR_ROOM("메이저룸"),
+    MINOR_ROOM("마이너룸"),
+    PITCHING("피칭"),
+    BATTING("배팅"),
 
     // Tennis Programs
     TENNIS_COURT("테니스 코트"),
