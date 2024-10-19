@@ -23,6 +23,7 @@ import tig.server.review.dto.ReviewWithReservationDTO;
 import tig.server.review.mapper.ReviewMapper;
 import tig.server.review.repository.ReviewRepository;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -115,27 +116,35 @@ public class ReviewService {
 
     public ReviewWithSummaryResponseDto getReviewsByClubId(Long clubId) {
         Club club = clubRepository.findById(clubId)
-                .orElseThrow(() -> new BusinessExceptionHandler("club not found",ErrorCode.NOT_FOUND_ERROR));
+                .orElseThrow(() -> new BusinessExceptionHandler("club not found", ErrorCode.NOT_FOUND_ERROR));
 
         List<Reservation> reservations = club.getReservations();
 
-        StringBuilder prompt = new StringBuilder(); // StringBuilder 객체 초기화
-        String aiSummary = null;
+        // 리뷰가 존재하는 예약만 필터링하고 최신 50개의 리뷰를 가져오기
+        List<Review> latestReviews = reservations.stream()
+                .map(Reservation::getReview)
+                .filter(Objects::nonNull)  // Review가 null이 아닌 것만 필터링
+                .filter(review -> review.getContents() != null)  // Review의 내용이 null이 아닌 것만 필터링
+                .sorted(Comparator.comparing(review -> review.getReservation().getStartTime(), Comparator.reverseOrder()))  // 최신 순으로 정렬
+                .limit(50)  // 최신 50개 리뷰만 추출
+                .toList();
 
-        for (Reservation reservation : reservations) {
-            Review review = reservation.getReview();
-            if (review != null && review.getContents() != null) { // Review와 Contents가 null이 아닌지 확인
-                prompt.append(review.getContents() + " ");
-            }
+        String aiSummary="";
+        StringBuilder prompt = new StringBuilder(); // StringBuilder 객체 초기화
+
+        // 최신 50개의 리뷰 중 3개 이상일 때 AI 요약
+        if (latestReviews.size() >= 3) {
+            latestReviews.forEach(review -> prompt.append(review.getContents()).append(" "));
+            aiSummary = openAIService.reviewSummary(prompt.toString()).getChoices().get(0).getMessage().getContent();
+        } else {
+            aiSummary = "리뷰를 요약하기 위해서는 최소한 3개 이상의 리뷰가 필요해요.";
         }
 
-        if (prompt.length() > 0) // prompt가 비어있는지 확인
-            aiSummary = openAIService.reviewSummary(prompt.toString()).getChoices().get(0).getMessage().getContent();
-        else
-            aiSummary = "";
-
+        // 최신 50개의 리뷰에 해당하는 응답 생성
         List<ReviewResponse> responses = reservations.stream()
                 .filter(reservation -> Objects.nonNull(reservation.getReview()))
+                .sorted(Comparator.comparing(Reservation::getStartTime, Comparator.reverseOrder())) // 최신 순으로 정렬
+                .limit(50)  // 최신 50개의 리뷰만 추출
                 .map(reservation -> {
                     Review review = reservation.getReview();
                     return ReviewResponse.builder()

@@ -20,10 +20,9 @@ public class OpenAIService {
     private final RestTemplate restTemplate;
 
     public OpenAIResposneDto reviewSummary(String prompt) {
-        String systemContent = "You are an AI model that summarizes user reviews in one sentence.";
+        String systemContent = "You are an AI model that summarizes reviews in one line. Make sure to answer in Korean and summarize it in one sentence if possible.";
         OpenAIRequestDto request = new OpenAIRequestDto(model,systemContent,prompt);
         OpenAIResposneDto response = restTemplate.postForObject(apiUrl, request, OpenAIResposneDto.class);
-        System.out.println("AI 요약 결과 : " + response.getChoices().get(0).getMessage().getContent());
         return response;
     }
 }
