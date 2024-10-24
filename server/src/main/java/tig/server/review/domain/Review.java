@@ -27,5 +27,6 @@ public class Review extends BaseTimeEntity {
     private Reservation reservation;
 
     private Float rating;
+    @Column(length = 500)
     private String contents;
 }
