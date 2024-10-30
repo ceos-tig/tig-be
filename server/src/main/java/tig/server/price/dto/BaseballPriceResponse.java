@@ -12,7 +12,7 @@ import java.time.LocalTime;
 @NoArgsConstructor
 public class BaseballPriceResponse {
 
-    private ProgramEnum programType;  // 메이저룸, 마이너룸, 몇 회
+    private ProgramEnum programName;  // 메이저룸, 마이너룸, 몇 회
     private Integer inning;  // 몇 이닝
     private Integer duration;  // 시간 단위 (예: 60분, 30분 등)
     private LocalTime startTime; // 시작 시간
