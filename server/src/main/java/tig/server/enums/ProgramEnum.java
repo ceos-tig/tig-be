@@ -14,6 +14,7 @@ public enum ProgramEnum {
     SINGLE("단식"),
     DOUBLE("복식"),
     ONEDAY("일일권"),
+    TIME("시간권"),
 
     // Balling Programs
     NORMAL_BALLING("일반 볼링"),
