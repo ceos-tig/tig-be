@@ -13,8 +13,10 @@ public interface ClubMapper {
     @Mapping(target = "id", ignore = true)
     Club requestToEntity(ClubRequest clubRequest);
 
+    @Mapping(source = "id", target = "clubId") // id를 clubId로 매핑
     ClubResponse entityToResponse(Club club);
 
+    @Mapping(source = "clubId", target = "id") // clubId를 id로 매핑
     Club responseToEntity(ClubResponse clubResponse);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
