@@ -18,7 +18,7 @@ import java.util.List;
 public class ClubResponse {
 
     @Schema(type = "integer", example = "1")
-    private Long id;
+    private Long clubId;
 
     @Schema(type = "string", example = "티그볼링장")
     private String clubName;
@@ -34,9 +34,6 @@ public class ClubResponse {
 
     @Schema(type = "integer", example = "4.2")
     private Float avgRating;
-
-//    @Schema(type = "integer", example = "30000")
-//    private Integer price;
 
     // 가격과 운영 시간은 별도 리스트로 처리
     @Schema(type = "array", description = "클럽의 가격 정보 리스트")
