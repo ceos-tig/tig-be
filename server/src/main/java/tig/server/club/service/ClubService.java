@@ -280,21 +280,21 @@ public class ClubService {
                 .stream()
                 .peek(clubResponse -> {
                     clubResponse.setPresignedImageUrls(clubResponse.getImageUrls());  // 이미지 URL 설정
-                    clubResponse.setIsHeart(likedClubIds.contains(clubResponse.getId()));  // 좋아요 여부 설정
+                    clubResponse.setIsHeart(likedClubIds.contains(clubResponse.getClubId()));  // 좋아요 여부 설정
                 })
                 .collect(Collectors.toList());
 
         List<ClubResponse> popularClubs = service.getPopularClubs().stream()
                 .peek(clubResponse -> {
                     clubResponse.setPresignedImageUrls(clubResponse.getImageUrls());
-                    clubResponse.setIsHeart(likedClubIds.contains(clubResponse.getId()));  // 좋아요 여부 설정
+                    clubResponse.setIsHeart(likedClubIds.contains(clubResponse.getClubId()));  // 좋아요 여부 설정
                 })
                 .collect(Collectors.toList());
 
         List<ClubResponse> recommendedClubs = service.getRecommendedClubs(10).stream()
                 .peek(clubResponse -> {
                     clubResponse.setPresignedImageUrls(clubResponse.getImageUrls());
-                    clubResponse.setIsHeart(likedClubIds.contains(clubResponse.getId()));  // 좋아요 여부 설정
+                    clubResponse.setIsHeart(likedClubIds.contains(clubResponse.getClubId()));  // 좋아요 여부 설정
                 })
                 .collect(Collectors.toList());
 
