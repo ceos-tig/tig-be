@@ -50,6 +50,7 @@ jobs:
       - name: Build and push Docker image
         run: |
           docker-compose -f docker-compose.yml up --build
+          docker-compose down  # 실행 종료 및 정리
           docker push nimikgnoej/tig 
 
       # 8. 원격 서버에 배포
