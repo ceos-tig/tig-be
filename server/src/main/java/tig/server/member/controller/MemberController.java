@@ -17,6 +17,7 @@ import tig.server.global.response.ApiResponse;
 import tig.server.global.exception.BusinessExceptionHandler;
 import tig.server.global.code.ErrorCode;
 import tig.server.member.domain.Member;
+import tig.server.member.dto.FeedbackRequestDto;
 import tig.server.member.dto.MemberResponse;
 import tig.server.member.dto.RefreshTokenResponseDto;
 import tig.server.member.mapper.MemberMapper;
@@ -120,6 +121,15 @@ public class MemberController {
     public ResponseEntity<ApiResponse<Void>> logout(@LoginUser Member member) {
         memberService.logout(member.getId());
         ApiResponse<Void> response = ApiResponse.of(200, "successfully logged out!", null);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "피드백 입력")
+    @PostMapping("/feedback")
+    public ResponseEntity<ApiResponse<Void>> feedback(@LoginUser Member member,
+                                                      @RequestBody FeedbackRequestDto feedbackRequestDto) {
+        memberService.feedback(member.getId(),feedbackRequestDto.getMessage());
+        ApiResponse<Void> response = ApiResponse.of(200, "successfully sended feedback", null);
         return ResponseEntity.ok(response);
     }
 }

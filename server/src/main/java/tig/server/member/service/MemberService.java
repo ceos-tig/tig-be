@@ -8,6 +8,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tig.server.enums.MemberRoleEnum;
+import tig.server.feedback.domain.Feedback;
+import tig.server.feedback.repository.FeedbackRepository;
 import tig.server.global.exception.BusinessExceptionHandler;
 import tig.server.global.code.ErrorCode;
 import tig.server.jwt.TokenProvider;
@@ -33,6 +35,7 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final TokenProvider tokenProvider;
+    private final FeedbackRepository feedbackRepository;
 
     private final MemberMapper memberMapper;
 
@@ -179,5 +182,17 @@ public class MemberService {
         redisTemplateRT.opsForValue().set(key, "blacklisted", tokenProvider.getRefreshTokenExpiration(member.getRefreshToken()), TimeUnit.MILLISECONDS);
 
         member.updateRefreshToken(null);
+    }
+
+    @Transactional
+    public void feedback(Long memberId, String message){
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new BusinessExceptionHandler("member not found", ErrorCode.NOT_FOUND_ERROR));
+
+        Feedback feedback = Feedback.builder()
+                .member(member)
+                .message(message)
+                .build();
+        feedbackRepository.save(feedback);
     }
 }
