@@ -303,7 +303,7 @@ public class ClubService {
         nearestClubsByCategory.forEach((category, categoryClubResponses) ->
                 categoryClubResponses.forEach(categoryClubResponse -> {
                     categoryClubResponse.setPresignedImageUrls(categoryClubResponse.getImageUrls());
-                    categoryClubResponse.setIsHeart(likedClubIds.contains(categoryClubResponse.getId()));  // 좋아요 여부 설정
+                    categoryClubResponse.setIsHeart(likedClubIds.contains(categoryClubResponse.getClubId()));  // 좋아요 여부 설정
                 })
         );
 
