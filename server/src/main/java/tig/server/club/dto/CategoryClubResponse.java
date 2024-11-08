@@ -32,7 +32,7 @@ public class CategoryClubResponse {
     private String category;
 
     @Schema(type = "long", example = "1")
-    private Long id;
+    private Long clubId;
 
     @Schema(type = "string", example = "티그 탁구장")
     private String clubName;
