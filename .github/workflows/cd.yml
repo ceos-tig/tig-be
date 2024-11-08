@@ -17,11 +17,11 @@ jobs:
 
       # 2. Gradle Wrapper 권한 설정
       - name: Set Gradle permissions
-        run: chmod +x ./gradlew
+        run: chmod +x server/gradlew
 
       # 3. Gradle 빌드 실행
       - name: Build with Gradle
-        run: ./gradlew clean build
+        run: server/gradlew clean build
 
       # 4. .env 파일 생성
       - name: Create .env file
