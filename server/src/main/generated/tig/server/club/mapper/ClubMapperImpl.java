@@ -10,7 +10,7 @@ import tig.server.club.dto.ClubResponse;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2024-10-12T23:12:44+0900",
+    date = "2024-11-09T20:31:42+0900",
     comments = "version: 1.5.1.Final, compiler: javac, environment: Java 17.0.7 (Oracle Corporation)"
 )
 @Component
@@ -50,7 +50,7 @@ public class ClubMapperImpl implements ClubMapper {
 
         ClubResponse.ClubResponseBuilder clubResponse = ClubResponse.builder();
 
-        clubResponse.id( club.getId() );
+        clubResponse.clubId( club.getId() );
         clubResponse.clubName( club.getClubName() );
         clubResponse.address( club.getAddress() );
         clubResponse.ratingSum( club.getRatingSum() );
@@ -77,7 +77,7 @@ public class ClubMapperImpl implements ClubMapper {
 
         Club.ClubBuilder club = Club.builder();
 
-        club.id( clubResponse.getId() );
+        club.id( clubResponse.getClubId() );
         club.clubName( clubResponse.getClubName() );
         club.address( clubResponse.getAddress() );
         club.phoneNumber( clubResponse.getPhoneNumber() );
