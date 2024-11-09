@@ -91,6 +91,6 @@ public class ReservationResponse {
     @Schema(type = "array", example = "[\"src/club/img1.jpg\", \"src/club/img2.jpg\"]")
     private List<String> imageUrls;
 
-    @Schema(type = "string", example = "서브 프로그램")
-    private ProgramEnum programEnum;
+    @Schema(type = "string", example = "평일 일반볼링 2인")
+    private String gameDescription;
 }

@@ -165,7 +165,7 @@ public class ReservationService {
         response.setPaymentId(reservation.getPaymentId());
         response.setGameCount(reservation.getGameCount());
         response.setReviewId(checkReviewed(reservation.getReview()));
-        response.setProgramEnum(reservation.getProgramEnum());
+        response.setGameDescription(reservation.getGameDescription());
 
         // discord-webhook
         discordMessageProvider.sendApplicationMessage(EventMessage.RESERVATION_APPLICATION, response);

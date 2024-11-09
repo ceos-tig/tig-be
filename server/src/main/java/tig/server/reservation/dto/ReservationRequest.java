@@ -57,6 +57,6 @@ public class ReservationRequest {
     @Schema(type = "string", example = "예약할때 입력하는 전화번호")
     private String phoneNumber;
 
-    @Schema(type = "string", example = "서브 프로그램")
-    private ProgramEnum programEnum;
+    @Schema(type = "string", example = "평일 일반볼링 2인")
+    private String gameDescription;
 }

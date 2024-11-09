@@ -67,4 +67,5 @@ public class Reservation extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private ProgramEnum programEnum;
 
+    private String gameDescription;
 }
