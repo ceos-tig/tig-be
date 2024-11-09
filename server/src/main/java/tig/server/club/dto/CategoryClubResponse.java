@@ -2,6 +2,7 @@ package tig.server.club.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import tig.server.operatinghours.dto.OperatingHoursResponse;
 
 import java.util.List;
 
@@ -27,6 +28,10 @@ public class CategoryClubResponse {
 
     @Schema(type = "integer", example = "4.2")
     private Float avgRating;
+
+    // 가격과 운영 시간은 별도 리스트로 처리
+    @Schema(type = "array", description = "클럽의 가격 정보 리스트")
+    private List<?> prices;  // PriceResponse 리스트 추가
 
     @Schema(type = "string", example = "탁구")
     private String category;
