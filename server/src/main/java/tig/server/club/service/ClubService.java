@@ -573,18 +573,22 @@ public class ClubService {
         Float avgRating = (club.getRatingCount() == 0) ? null
                 : club.getRatingSum() / club.getRatingCount();
 
-        return new CategoryClubResponse(
-                s3Uploader.getPresignedUrls(club.getId(), club.getImageUrls()),  // Presigned URLs 설정
-                club.getImageUrls(),  // 원본 이미지 URLs
-                club.getRatingSum(),  // 평점 합계 설정
-                club.getRatingCount(),  // 평점 개수 설정
-                avgRating, // 평균 평점 설정
-                club.getCategory().name(),  // 카테고리 이름
-                club.getId(),  // 클럽 ID
-                club.getClubName(),  // 클럽 이름
-                club.getAddress(),  // 클럽 주소
-                false  // isHeart 초기 값 설정
-        );
+        // 스포츠별 가격 정보 조회
+        List<?> priceResponses = getPriceResponsesByCategory(club);
+
+        return CategoryClubResponse.builder()
+                .presignedImageUrls(s3Uploader.getPresignedUrls(club.getId(), club.getImageUrls()))  // Presigned URLs 설정
+                .imageUrls(club.getImageUrls())  // 원본 이미지 URLs
+                .ratingSum(club.getRatingSum())  // 평점 합계 설정
+                .ratingCount(club.getRatingCount())  // 평점 개수 설정
+                .avgRating(avgRating) // 평균 평점 설정
+                .category(club.getCategory().name())  // 카테고리 이름
+                .clubId(club.getId())  // 클럽 ID
+                .clubName(club.getClubName())  // 클럽 이름
+                .address(club.getAddress())  // 클럽 주소
+                .isHeart(false)  // isHeart 초기 값 설정
+                .prices(priceResponses)  // 가격 정보 설정
+                .build();
     }
 
     public List<ClubResponse> getPopularClubs() {
