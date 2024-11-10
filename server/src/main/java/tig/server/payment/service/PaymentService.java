@@ -63,33 +63,31 @@ public class PaymentService {
 
     /*=====================*/
     public PaymentCompleteResponseDto completePayment(PaymentRequestDto paymentRequestDto) {
-        Integer paymentPrice = 0; // BE에서 검증한 가격
-        Club paymentTargetClub = clubRepository.findById(Long.valueOf(paymentRequestDto.getClubId()))
-                .orElseThrow(() -> new BusinessExceptionHandler("club not found", ErrorCode.NOT_FOUND_ERROR));
         String paymentId = paymentRequestDto.getPaymentId();
 
         /**
-         *  예상 결제 금액 계산
+         *  예상 결제 금액 계산 -> 가격 테이블 정규화로 인해 FE에서 세부적인 예약 내역을 넘겨주어야만 백엔드에서 가격 계산 가능
          *  */
-        if (paymentTargetClub.getType().equals(Type.GAME)) { // '게임당' 업체
-            paymentPrice = paymentRequestDto.getClubPrice() * paymentRequestDto.getGameCount();
-        } else { // '시간당' 업체
-            // 날짜 형식 지정
-            DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+//        if (paymentTargetClub.getType().equals(Type.GAME)) { // '게임당' 업체
+//            paymentPrice = paymentRequestDto.getClubPrice() * paymentRequestDto.getGameCount();
+//        } else { // '시간당' 업체
+//            // 날짜 형식 지정
+//            DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+//
+//            // 문자열을 LocalDateTime으로 변환
+//            LocalDateTime startTime = LocalDateTime.parse(paymentRequestDto.getStartTime(), formatter);
+//            LocalDateTime endTime = LocalDateTime.parse(paymentRequestDto.getEndTime(), formatter);
+//
+//            // 시간 차이 계산
+//            Duration duration = Duration.between(startTime, endTime);
+//            long minutes = duration.toMinutes(); // 분 단위 차이
+//            double hours = minutes / 60.0; // 시간 단위로 변환 (소수점 포함)
+//
+//            // 결제 금액 계산
+//            paymentPrice = (int) Math.round(paymentRequestDto.getClubPrice() * hours);
+//        }
 
-            // 문자열을 LocalDateTime으로 변환
-            LocalDateTime startTime = LocalDateTime.parse(paymentRequestDto.getStartTime(), formatter);
-            LocalDateTime endTime = LocalDateTime.parse(paymentRequestDto.getEndTime(), formatter);
-
-            // 시간 차이 계산
-            Duration duration = Duration.between(startTime, endTime);
-            long minutes = duration.toMinutes(); // 분 단위 차이
-            double hours = minutes / 60.0; // 시간 단위로 변환 (소수점 포함)
-
-            // 결제 금액 계산
-            paymentPrice = (int) Math.round(paymentRequestDto.getClubPrice() * hours);
-        }
-
+        Integer requestPrice = paymentRequestDto.getPaymentPrice();
         // 포트원 결제내역 단건조회 API 호출
         PaymentResponseDto paymentResponseDto = getPaymentResponse(paymentId).block();
         log.info(paymentResponseDto.getOrderName());
@@ -97,9 +95,9 @@ public class PaymentService {
          * 가격 비교 진행
          * */
         PaymentCompleteResponseDto response = null;
-        System.out.println("BE에서 계산한 금액 = " + paymentPrice);
-        System.out.println("포트원에서 조회한 금액 = " + paymentResponseDto.getAmount().getTotal());
-        if(paymentPrice.equals(paymentResponseDto.getAmount().getTotal())){ // 결제된 금액과 상품의 금액이 같을 경우
+        log.info("FE에서 계산한 금액 = {}", requestPrice);
+        log.info("포트원에서 조회한 금액 = {}", paymentResponseDto.getAmount().getTotal());
+        if(requestPrice.equals(paymentResponseDto.getAmount().getTotal())){ // 결제된 금액과 상품의 금액이 같을 경우
             switch (paymentResponseDto.getStatus()) {
                 case "VIRTUAL_ACCOUNT_ISSUED":
                     // 가상 계좌가 발급된 상태입니다.
@@ -107,12 +105,13 @@ public class PaymentService {
                     break;
                 case "PAID":
                     // 결제 완료
-                    response = PaymentCompleteResponseDto.fromPay(paymentResponseDto.getStatus(),
+                    response = PaymentCompleteResponseDto.fromPay(
+                            paymentResponseDto.getStatus(),
                             paymentResponseDto.getId(),
                             paymentResponseDto.getMethod().getProvider(),
                             paymentResponseDto.getOrderName(),
-                            paymentResponseDto.getAmount().getTotal())
-                    ;
+                            paymentResponseDto.getAmount().getTotal()
+                    );
                     break;
                 default:
                     throw new BusinessExceptionHandler("Unknown payment status",ErrorCode.BAD_REQUEST_ERROR);
