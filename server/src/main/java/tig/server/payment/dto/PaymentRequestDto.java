@@ -2,7 +2,6 @@ package tig.server.payment.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
-import tig.server.enums.Status;
 
 @Getter
 public class PaymentRequestDto {
@@ -26,9 +25,6 @@ public class PaymentRequestDto {
 
     @Schema(type = "integer", example = "3")
     private Integer gameCount;
-
-    @Schema(type = "integer", example = "30000")
-    private Integer clubPrice;
 
     @Schema(type = "integer", example = "3")
     private Integer clubId;
