@@ -7,6 +7,8 @@ import tig.server.club.domain.Club;
 import tig.server.club.mapper.ClubMapper;
 import tig.server.club.repository.ClubRepository;
 import tig.server.club.service.ClubService;
+import tig.server.coupon.domain.Coupon;
+import tig.server.coupon.repository.CouponRepository;
 import tig.server.discord.DiscordMessageProvider;
 import tig.server.discord.EventMessage;
 import tig.server.enums.Status;
@@ -64,6 +66,7 @@ public class ReservationService {
     private final ClubMapper clubMapper;
 
     private final DiscordMessageProvider discordMessageProvider;
+    private final CouponRepository couponRepository;
 
     public List<ReservationResponse> getAllReservations() {
         return reservationRepository.findAll().stream()
@@ -116,7 +119,12 @@ public class ReservationService {
 
     @Transactional
     public ReservationResponse createReservation(Member member, Long clubId, ReservationRequest reservationRequest) throws ParseException {
-        System.out.println(member.getId());
+        if(reservationRequest.getCouponId() != -1){ // 쿠폰 사용했다면
+            Coupon usedCoupon = couponRepository.findById(reservationRequest.getCouponId())
+                    .orElseThrow(() -> new BusinessExceptionHandler("coupon not found", ErrorCode.NOT_FOUND_ERROR));
+
+            usedCoupon.markAsDeleted();
+        }
 
         Club club = clubMapper.responseToEntity(clubService.getClubById(clubId));
         System.out.println(club.getId());

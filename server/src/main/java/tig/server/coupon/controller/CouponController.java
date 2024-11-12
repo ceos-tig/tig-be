@@ -40,7 +40,7 @@ public class CouponController {
     @PostMapping("/issue")
     public ResponseEntity<ApiResponse<Void>> issueCoupon(@LoginUser Member member,
                                                       @RequestBody CouponIdRequestDto couponIdRequestDto) {
-        couponService.issueCoupon(couponIdRequestDto.getCouponId());
+        couponService.issueCoupon(member.getId(),couponIdRequestDto.getCouponId());
         ApiResponse<Void> response = ApiResponse.of(200, "successfully issued coupon", null);
         return ResponseEntity.ok(response);
     }
