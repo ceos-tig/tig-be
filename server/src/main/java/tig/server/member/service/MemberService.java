@@ -25,6 +25,8 @@ import tig.server.member.mapper.MemberMapper;
 import tig.server.member.repository.MemberRepository;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -116,12 +118,17 @@ public class MemberService {
                     .refreshToken(refreshToken)
                     .build();
 
+            // 한국 시간으로 쿠폰 만료일 설정
+            LocalDateTime expireDate = ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
+                    .plusDays(30)
+                    .toLocalDateTime();
+
             Coupon coupon = Coupon.builder()
                     .member(member)
                     .description("신규회원 3000원 할인 쿠폰")
                     .discount(3000)
                     .name("신규회원 3000원 할인 쿠폰")
-                    .expireDate(LocalDateTime.now().plusDays(30)) // 회원가입 날짜로부터 30일 후 설정
+                    .expireDate(expireDate)
                     .build();
 
             couponRepository.save(coupon);
@@ -153,12 +160,17 @@ public class MemberService {
                     .refreshToken(refreshToken)
                     .build();
 
+            // 한국 시간으로 쿠폰 만료일 설정
+            LocalDateTime expireDate = ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
+                    .plusDays(30)
+                    .toLocalDateTime();
+
             Coupon coupon = Coupon.builder()
                     .member(member)
                     .description("신규회원 3000원 할인 쿠폰")
                     .discount(3000)
                     .name("신규회원 3000원 할인 쿠폰")
-                    .expireDate(LocalDateTime.now().plusDays(30)) // 회원가입 날짜로부터 30일 후 설정
+                    .expireDate(expireDate)
                     .build();
 
             couponRepository.save(coupon);
