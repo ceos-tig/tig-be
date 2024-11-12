@@ -7,6 +7,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tig.server.coupon.domain.Coupon;
+import tig.server.coupon.repository.CouponRepository;
 import tig.server.enums.MemberRoleEnum;
 import tig.server.feedback.domain.Feedback;
 import tig.server.feedback.repository.FeedbackRepository;
@@ -22,6 +24,7 @@ import tig.server.member.dto.RefreshTokenResponseDto;
 import tig.server.member.mapper.MemberMapper;
 import tig.server.member.repository.MemberRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -36,6 +39,7 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final TokenProvider tokenProvider;
     private final FeedbackRepository feedbackRepository;
+    private final CouponRepository couponRepository;
 
     private final MemberMapper memberMapper;
 
@@ -112,6 +116,15 @@ public class MemberService {
                     .refreshToken(refreshToken)
                     .build();
 
+            Coupon coupon = Coupon.builder()
+                    .member(member)
+                    .description("신규회원 3000원 할인 쿠폰")
+                    .discount(3000)
+                    .name("신규회원 3000원 할인 쿠폰")
+                    .expireDate(LocalDateTime.now().plusDays(30)) // 회원가입 날짜로부터 30일 후 설정
+                    .build();
+
+            couponRepository.save(coupon);
             memberRepository.save(member);
             return LoginMemberResponseDto.fromMember(member, accessToken);
         }
@@ -140,6 +153,15 @@ public class MemberService {
                     .refreshToken(refreshToken)
                     .build();
 
+            Coupon coupon = Coupon.builder()
+                    .member(member)
+                    .description("신규회원 3000원 할인 쿠폰")
+                    .discount(3000)
+                    .name("신규회원 3000원 할인 쿠폰")
+                    .expireDate(LocalDateTime.now().plusDays(30)) // 회원가입 날짜로부터 30일 후 설정
+                    .build();
+
+            couponRepository.save(coupon);
             memberRepository.save(member);
             return LoginMemberResponseDto.fromMember(member, accessToken);
         }
