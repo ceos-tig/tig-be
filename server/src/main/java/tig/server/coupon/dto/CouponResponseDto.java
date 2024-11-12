@@ -10,6 +10,9 @@ import tig.server.coupon.domain.Coupon;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class CouponResponseDto {
 
+    @Schema(type = "long", example = "1")
+    private Long couponId;
+
     @Schema(type = "integer", example = "5000")
     private Integer discount;
 
@@ -25,6 +28,7 @@ public class CouponResponseDto {
     // 정적 팩토리 메서드
     public static CouponResponseDto from(Coupon coupon) {
         return new CouponResponseDto(
+                coupon.getId(),
                 coupon.getDiscount(),
                 coupon.getName(),
                 coupon.getDescription(),
