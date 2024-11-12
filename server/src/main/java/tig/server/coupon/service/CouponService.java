@@ -14,6 +14,7 @@ import tig.server.global.exception.BusinessExceptionHandler;
 import tig.server.member.domain.Member;
 import tig.server.member.repository.MemberRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -51,8 +52,25 @@ public class CouponService {
         }
     }
 
-    public void issueCoupon(String couponId) {
-        CouponCode coupon = couponCodeRepository.findByCode(couponId)
+    public void issueCoupon(Long memberId, String couponId) {
+        CouponCode code = couponCodeRepository.findByCode(couponId)
                 .orElseThrow(() -> new BusinessExceptionHandler("coupon id not found", ErrorCode.NOT_FOUND_ERROR));
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new BusinessExceptionHandler("member not found", ErrorCode.NOT_FOUND_ERROR));
+
+        code.markAsUsed(); // 코드가 사용됨을 표시
+
+        for (int i = 0; i < 5; i++) { // 10000원 * 5
+            Coupon issuedCoupon = Coupon.builder()
+                    .name("단체 회원 쿠폰")
+                    .description("단체 회원(동아리 및 동호회)을 위한 10,000원 쿠폰")
+                    .discount(10000)
+                    .expireDate(LocalDateTime.now().plusDays(30)) // 현재 날짜로부터 30일 후 만료
+                    .member(member)
+                    .build();
+
+            couponRepository.save(issuedCoupon);
+        }
     }
 }
