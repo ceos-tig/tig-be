@@ -59,4 +59,7 @@ public class ReservationRequest {
 
     @Schema(type = "string", example = "평일 일반볼링 2인")
     private String gameDescription;
+
+    @Schema(type = "integer", example = "2")
+    private Long couponId;
 }
