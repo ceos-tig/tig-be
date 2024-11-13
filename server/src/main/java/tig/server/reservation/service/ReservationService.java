@@ -79,10 +79,21 @@ public class ReservationService {
                 .orElseThrow(() -> new BusinessExceptionHandler("reservation not found",ErrorCode.NOT_FOUND_ERROR));
         ReservationResponse response = reservationMapper.entityToResponse(reservation);
 
-        // get response from portone
-        PaymentResponseDto paymentResponseDto = paymentService.getPaymentResponse(response.getPaymentId()).block();
-        String provider = paymentResponseDto.getMethod().getProvider();
-        String updatedAt = paymentResponseDto.getUpdatedAt();
+        String updatedAt = null;
+        String provider = null;
+        if (reservation.getPrice() > 0) { // 0원 초과 결제 (정상 가격 결제)
+            // get response from portone
+            PaymentResponseDto paymentResponseDto = paymentService.getPaymentResponse(response.getPaymentId()).block();
+            provider = paymentResponseDto.getMethod().getProvider();
+            updatedAt = paymentResponseDto.getUpdatedAt();
+        } else { // 0원 이하 결제
+            provider = reservation.getProvider();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+            updatedAt = reservation.getUpdatedAt()
+                    .atZone(ZoneId.of("Asia/Seoul"))
+                    .format(formatter);
+        }
+
 
         // Convert updatedAt to Korean time
         try {
