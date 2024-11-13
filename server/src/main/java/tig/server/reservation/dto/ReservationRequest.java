@@ -62,4 +62,7 @@ public class ReservationRequest {
 
     @Schema(type = "integer", example = "2")
     private Long couponId;
+
+    @Schema(type = "string", example = "KAKAO_PAY")
+    private String provider;
 }

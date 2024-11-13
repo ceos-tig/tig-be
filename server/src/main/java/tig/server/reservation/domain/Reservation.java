@@ -68,4 +68,6 @@ public class Reservation extends BaseTimeEntity {
     private ProgramEnum programEnum;
 
     private String gameDescription;
+
+    private String provider;
 }
