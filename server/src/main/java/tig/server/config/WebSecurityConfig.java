@@ -85,7 +85,7 @@ public class WebSecurityConfig {
                                         ,"/api/v1/reservation/declined"
                                         ,"/api/v1/reservation/decline/{reservationId}"
                                         ).hasRole("ADMIN") // ADMIN 권한만 접근 가능한 경로
-                                //.anyRequest().hasRole("USER")
+                                .anyRequest().permitAll() // 그 외의 요청은 로그인하지 않은 사용자도 접근 가능
                 );
         http.addFilterBefore(jwtExceptionHandlerFilter(), JwtAuthenticationFilter.class);
 
