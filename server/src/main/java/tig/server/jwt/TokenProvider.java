@@ -21,6 +21,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import tig.server.global.exception.BusinessExceptionHandler;
 import tig.server.global.code.ErrorCode;
+import tig.server.member.domain.Member;
+import tig.server.member.repository.MemberRepository;
 
 import java.io.IOException;
 import java.security.Key;
@@ -36,6 +38,7 @@ public class TokenProvider implements InitializingBean {
     private static final long REFRESH_TOKEN_VALIDITY_SECONDS_TEST = 10; // 테스트용 RT는 1분
     private static final long ACCESS_TOKEN_VALIDITY_SECONDS = 24 * 60 * 60; // access token은 24시간
     private static final long REFRESH_TOKEN_VALIDITY_SECONDS = 24 * 60 * 60 * 14; // refresh token은 2주일
+    private final MemberRepository memberRepository;
 
     private Key key;
     private final UserDetailsService userDetailsService;
@@ -112,13 +115,22 @@ public class TokenProvider implements InitializingBean {
     public String createAccessToken(String username, String uniqueId) {
         long now = (new Date()).getTime();
         Date validity = new Date(now + ACCESS_TOKEN_VALIDITY_SECONDS * 1000);
+        String role = getUserRole(uniqueId);
 
         return Jwts.builder()
                 .setSubject(username)
                 .claim("uniqueId", uniqueId) // 커스텀 클레임으로 uniqueId 추가
+                .claim("role", role)
                 .signWith(key, SignatureAlgorithm.HS512)
                 .setExpiration(validity)
                 .compact();
+    }
+
+    public String getUserRole(String uniqueId) {
+        Member member = memberRepository.findByUniqueId(uniqueId)
+                .orElseThrow(() -> new BusinessExceptionHandler("member not found", ErrorCode.NOT_FOUND_ERROR));
+
+        return member.getMemberRoleEnum().name();
     }
 
     public String getTokenUserId(String token) {
