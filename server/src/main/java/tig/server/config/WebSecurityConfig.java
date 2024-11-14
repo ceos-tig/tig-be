@@ -84,7 +84,6 @@ public class WebSecurityConfig {
                                         ,"/api/v1/reservation/confirm/{reservationId}"
                                         ,"/api/v1/reservation/declined"
                                         ,"/api/v1/reservation/decline/{reservationId}"
-                                        ,"/api/v1/member/{memberId}"
                                         ).hasRole("ADMIN") // ADMIN 권한만 접근 가능한 경로
                                 .anyRequest().hasRole("USER")
                 );
