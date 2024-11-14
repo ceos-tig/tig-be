@@ -77,6 +77,16 @@ public class WebSecurityConfig {
                                         ,"/v3/api-docs/**"
                                         ,"/**" // 개발 편의를 위해
                                 ).permitAll()
+                                .requestMatchers(
+                                        "/api/v1/reservation"
+                                        ,"/api/v1/reservation/tbc"
+                                        ,"/api/v1/reservation/tbc/{reservationId}"
+                                        ,"/api/v1/reservation/confirmed"
+                                        ,"/api/v1/reservation/confirm/{reservationId}"
+                                        ,"/api/v1/reservation/declined"
+                                        ,"/api/v1/reservation/decline/{reservationId}"
+                                        ,"/api/v1/member/{memberId}"
+                                        ).hasRole("ADMIN") // ADMIN 권한만 접근 가능한 경로
                                 .anyRequest().hasRole("USER")
                 );
         http.addFilterBefore(jwtExceptionHandlerFilter(), JwtAuthenticationFilter.class);
