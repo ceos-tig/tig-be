@@ -16,6 +16,8 @@ import tig.server.member.domain.Member;
 import tig.server.member.repository.MemberRepository;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -39,7 +41,7 @@ public class CouponService {
     }
 
     @Transactional
-    public void registerCoupon(Long memberId , String couponId){
+    public void registerCoupon(Long memberId, String couponId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new BusinessExceptionHandler("member not found", ErrorCode.NOT_FOUND_ERROR));
 
@@ -49,11 +51,21 @@ public class CouponService {
         code.markAsUsed();
 
         for (int i = 0; i < 5; i++) { // 10000원 * 5
+            // 현재 한국 시간으로부터 30일 뒤의 23:59:59 계산
+            ZoneId koreaZoneId = ZoneId.of("Asia/Seoul");
+            LocalDateTime expireDate = ZonedDateTime.now(koreaZoneId)
+                    .plusDays(30)
+                    .withHour(23)
+                    .withMinute(59)
+                    .withSecond(59)
+                    .withNano(0)
+                    .toLocalDateTime();
+
             Coupon issuedCoupon = Coupon.builder()
                     .name("단체 회원 쿠폰")
                     .description("단체 회원(동아리 및 동호회)을 위한 10,000원 쿠폰")
                     .discount(10000)
-                    .expireDate(LocalDateTime.now().plusDays(30)) // 현재 날짜로부터 30일 후 만료
+                    .expireDate(expireDate) // 만료 날짜 설정
                     .member(member)
                     .build();
 
