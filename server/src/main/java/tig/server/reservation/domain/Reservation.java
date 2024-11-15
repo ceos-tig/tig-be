@@ -70,4 +70,6 @@ public class Reservation extends BaseTimeEntity {
     private String gameDescription;
 
     private String provider;
+
+    private Integer couponDiscountPrice;
 }

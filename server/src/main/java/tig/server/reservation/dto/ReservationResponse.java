@@ -93,4 +93,7 @@ public class ReservationResponse {
 
     @Schema(type = "string", example = "평일 일반볼링 2인")
     private String gameDescription;
+
+    @Schema(type = "integer", example = "3000")
+    private String couponDiscountPrice;
 }
