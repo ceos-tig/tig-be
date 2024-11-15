@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tig.server.annotation.LoginUser;
+import tig.server.coupon.dto.CouponCodeResponseDto;
 import tig.server.coupon.dto.CouponIdRequestDto;
 import tig.server.coupon.dto.CouponResponseDto;
 import tig.server.coupon.service.CouponService;
@@ -27,7 +28,7 @@ public class CouponController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "ADMIN : 동아리에 대한 쿠폰 코드 생성 후 코드 등록")
+    @Operation(summary = "발급된 쿠폰 번호로 쿠폰 등록")
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<Void>> registerCoupon(@LoginUser Member member,
                                                             @RequestBody CouponIdRequestDto couponIdRequestDto) {
@@ -36,12 +37,11 @@ public class CouponController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "쿠폰 발급(쿠폰 코드 사용) -> 아직 개발중")
-    @PostMapping("/issue")
-    public ResponseEntity<ApiResponse<Void>> issueCoupon(@LoginUser Member member,
-                                                      @RequestBody CouponIdRequestDto couponIdRequestDto) {
-        couponService.issueCoupon(member.getId(),couponIdRequestDto.getCouponId());
-        ApiResponse<Void> response = ApiResponse.of(200, "successfully issued coupon", null);
+    @Operation(summary = "ADMIN : 쿠폰 코드 발급")
+    @GetMapping("/issue")
+    public ResponseEntity<ApiResponse<CouponCodeResponseDto>> issueCouponCode() {
+        CouponCodeResponseDto couponCodeResponseDto = couponService.issueCouponCode();
+        ApiResponse<CouponCodeResponseDto> response = ApiResponse.of(200, "successfully issued coupon", couponCodeResponseDto);
         return ResponseEntity.ok(response);
     }
 }
