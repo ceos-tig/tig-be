@@ -119,9 +119,13 @@ public class MemberService {
                     .refreshToken(refreshToken)
                     .build();
 
-            // 한국 시간으로 쿠폰 만료일 설정
-            LocalDateTime expireDate = ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
+            ZoneId koreaZoneId = ZoneId.of("Asia/Seoul");
+            LocalDateTime expireDate = ZonedDateTime.now(koreaZoneId)
                     .plusDays(30)
+                    .withHour(23)
+                    .withMinute(59)
+                    .withSecond(59)
+                    .withNano(0)
                     .toLocalDateTime();
 
             Coupon coupon = Coupon.builder()

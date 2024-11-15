@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Where(clause = "is_deleted = false") // 기본적으로 isDeleted가 false인 데이터만 조회
+@Where(clause = "is_deleted = false")
 public class Coupon {
 
     @Id
