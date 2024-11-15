@@ -145,11 +145,12 @@ public class MemberService {
         String username = googleInfoResponseDto.getName();
         String uniqueId = "google_" + googleInfoResponseDto.getSub();
 
-        String accessToken = tokenProvider.createAccessToken(username, uniqueId);
+        String accessToken = null;
         String refreshToken = tokenProvider.createRefreshToken(username, uniqueId);
 
         Optional<Member> findMember = memberRepository.findByUniqueId(uniqueId);
         if (findMember.isPresent()) { // 있는 사용자
+            accessToken = tokenProvider.createAccessToken(username, uniqueId);
             Member existMember = findMember.get();
             existMember.updateRefreshToken(refreshToken);
             return LoginMemberResponseDto.fromMember(existMember, accessToken);
@@ -178,6 +179,8 @@ public class MemberService {
 
             couponRepository.save(coupon);
             memberRepository.save(member);
+
+            accessToken = tokenProvider.createAccessToken(username, uniqueId);
             return LoginMemberResponseDto.fromMember(member, accessToken);
         }
     }
