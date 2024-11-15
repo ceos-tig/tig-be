@@ -137,7 +137,7 @@ public class ReviewService {
             latestReviews.forEach(review -> prompt.append(review.getContents()).append(" "));
             aiSummary = openAIService.reviewSummary(prompt.toString()).getChoices().get(0).getMessage().getContent();
         } else {
-            aiSummary = "리뷰를 요약하기 위해서는 최소한 3개 이상의 리뷰가 필요해요.";
+            aiSummary = "";
         }
 
         // 최신 50개의 리뷰에 해당하는 응답 생성
