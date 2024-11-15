@@ -72,4 +72,10 @@ public class Reservation extends BaseTimeEntity {
     private String provider;
 
     private Integer couponDiscountPrice;
+
+
+    //* 연관관계 편의 메서드 *//
+    public void addCouponDiscountPrice(Integer couponDiscountPrice) {
+        this.couponDiscountPrice = couponDiscountPrice;
+    }
 }

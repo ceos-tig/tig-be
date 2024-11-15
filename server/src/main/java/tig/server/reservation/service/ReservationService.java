@@ -130,8 +130,9 @@ public class ReservationService {
 
     @Transactional
     public ReservationResponse createReservation(Member member, Long clubId, ReservationRequest reservationRequest) throws ParseException {
+        Coupon usedCoupon = null;
         if(reservationRequest.getCouponId() != -1){ // 쿠폰 사용했다면
-            Coupon usedCoupon = couponRepository.findById(reservationRequest.getCouponId())
+            usedCoupon = couponRepository.findById(reservationRequest.getCouponId())
                     .orElseThrow(() -> new BusinessExceptionHandler("coupon not found", ErrorCode.NOT_FOUND_ERROR));
 
             usedCoupon.markAsDeleted();
@@ -143,6 +144,9 @@ public class ReservationService {
         Reservation reservation = reservationMapper.requestToEntity(reservationRequest);
         reservation.setMember(member);
         reservation.setClub(club);
+
+        if (usedCoupon != null) reservation.addCouponDiscountPrice(usedCoupon.getDiscount());
+        else reservation.addCouponDiscountPrice(0);
 
         if (club.getType() == Type.GAME) {
             reservationRequest.setEndTime("2000-01-01T00:00:00");
