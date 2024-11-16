@@ -86,4 +86,13 @@ public class CouponService {
 
         return new CouponCodeResponseDto(generatedCode);
     }
+
+
+    @Transactional
+    public void markExpiredCouponsAsDeleted() {
+        List<Coupon> expiredCoupons = couponRepository.findExpiredCoupons();
+        for (Coupon coupon : expiredCoupons) {
+            coupon.markAsDeleted(); // isDeleted 필드 true로 설정
+        }
+    }
 }
