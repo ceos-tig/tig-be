@@ -321,7 +321,7 @@ public class ClubService {
 
         ClubService service = serviceProvider.getObject();
 
-        List<ClubResponse> nearestClubs = service.optimizedParallelFindNearestClubs(requestLatitude, requestLongitude, 5)
+        List<ClubResponse> nearestClubs = service.optimizedParallelFindNearestClubsTest(requestLatitude, requestLongitude, 5)
                 .stream()
                 .peek(clubResponse -> clubResponse.setPresignedImageUrls(clubResponse.getImageUrls()))  // 이미지 URL 설정
                 .collect(Collectors.toList());
