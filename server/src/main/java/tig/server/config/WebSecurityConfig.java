@@ -81,7 +81,7 @@ public class WebSecurityConfig {
                                         ,"/api/v1/reservation/tbc"
                                         ,"/api/v1/reservation/tbc/{reservationId}"
                                         ,"/api/v1/reservation/confirmed"
-                                        ,"/api/v1/reservation/confirm/{reservationId}"
+                                        ,"/api/v1/reservation/confirm/**"
                                         ,"/api/v1/reservation/declined"
                                         ,"/api/v1/reservation/decline/{reservationId}"
                                         ,"/api/v1/coupon/issue"
