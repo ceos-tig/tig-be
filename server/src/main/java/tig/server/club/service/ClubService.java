@@ -276,7 +276,7 @@ public class ClubService {
         // 사용자가 좋아요한 클럽 조회
         Set<Long> likedClubIds = wishlistRepository.findLikedClubIds(member.getId());
 
-        List<ClubResponse> nearestClubs = service.optimizedParallelFindNearestClubsTest(requestLatitude, requestLongitude, 5)
+        List<ClubResponse> nearestClubs = service.optimizedParallelFindNearestClubs(requestLatitude, requestLongitude, 5)
                 .stream()
                 .peek(clubResponse -> {
                     clubResponse.setPresignedImageUrls(clubResponse.getImageUrls());  // 이미지 URL 설정
@@ -321,7 +321,7 @@ public class ClubService {
 
         ClubService service = serviceProvider.getObject();
 
-        List<ClubResponse> nearestClubs = service.optimizedParallelFindNearestClubsTest(requestLatitude, requestLongitude, 5)
+        List<ClubResponse> nearestClubs = service.optimizedParallelFindNearestClubs(requestLatitude, requestLongitude, 5)
                 .stream()
                 .peek(clubResponse -> clubResponse.setPresignedImageUrls(clubResponse.getImageUrls()))  // 이미지 URL 설정
                 .collect(Collectors.toList());
@@ -477,62 +477,6 @@ public class ClubService {
                         distance(requestLatitude, requestLongitude, club.getLatitude(), club.getLongitude(), cosRequestLatitude)))
                 .sorted(Comparator.comparingDouble(ClubDistance::getDistance))
                 .collect(Collectors.toList());
-
-        return nearestClubs.stream()
-                .limit(count)
-                .map(clubDistance -> {
-                    Club club = clubDistance.getClub();
-
-                    // 평균 평점 계산
-                    Float avgRating = club.getRatingCount() == 0 ? null : club.getRatingSum() / club.getRatingCount();
-
-                    // 가격 정보 조회
-                    List<?> priceResponses = getPriceResponsesByCategory(club);
-
-                    // 해당 클럽의 운영 시간 가져오기
-                    List<OperatingHoursResponse> operatingHoursResponses = operatingHoursMap.getOrDefault(club.getId(), Collections.emptyList());
-
-                    // ClubResponse 생성 및 설정
-                    ClubResponse response = clubMapper.entityToResponse(club);
-                    response.setPrices(priceResponses);
-                    response.setOperatingHours(operatingHoursResponses);
-                    response.setAvgRating(avgRating);
-
-                    return response;
-                })
-                .collect(Collectors.toList());
-    }
-
-    public List<ClubResponse> optimizedParallelFindNearestClubsTest(float requestLatitude, float requestLongitude, int count) {
-        List<Club> allClubs = clubRepository.findAll(); // 모든 클럽 데이터 조회
-        Map<Long, List<OperatingHoursResponse>> operatingHoursMap = findOperatingHoursForAllClubs(); // 운영 시간 조회
-
-        // 위도에 대한 코사인 값 미리 계산
-        float requestLatitudeRad = (float) Math.toRadians(requestLatitude);
-        float cosRequestLatitude = (float) Math.cos(requestLatitudeRad);
-
-        // PriorityQueue를 사용해 가장 가까운 count개의 클럽 유지
-        PriorityQueue<ClubDistance> maxHeap = new PriorityQueue<>(
-                Comparator.comparingDouble(ClubDistance::getDistance).reversed() // 거리 기준 내림차순
-        );
-
-        for (Club club : allClubs) {
-            if (club.getLatitude() == null || club.getLongitude() == null) continue;
-
-            double distance = distance(requestLatitude, requestLongitude, club.getLatitude(), club.getLongitude(), cosRequestLatitude);
-            ClubDistance clubDistance = new ClubDistance(club, distance);
-
-            maxHeap.add(clubDistance);
-
-            // PriorityQueue 크기를 count로 제한
-            if (maxHeap.size() > count) {
-                maxHeap.poll(); // 가장 먼 클럽 제거
-            }
-        }
-
-        // PriorityQueue에서 가까운 클럽 가져오기
-        List<ClubDistance> nearestClubs = new ArrayList<>(maxHeap);
-        nearestClubs.sort(Comparator.comparingDouble(ClubDistance::getDistance)); // 거리 기준 오름차순 정렬
 
         return nearestClubs.stream()
                 .limit(count)
