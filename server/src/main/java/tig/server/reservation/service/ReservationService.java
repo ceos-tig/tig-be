@@ -141,16 +141,12 @@ public class ReservationService {
             usedCoupon.markAsDeleted();
         }
 
-        log.info("reservationRequest.getMessage() : {}", reservationRequest.getMessage());
-
         Club club = clubMapper.responseToEntity(clubService.getClubById(clubId));
         System.out.println(club.getId());
 
         Reservation reservation = reservationMapper.requestToEntity(reservationRequest);
         reservation.setMember(member);
         reservation.setClub(club);
-
-        log.info("reservation Entity.getMessage() : {}", reservation.getMessage());
 
         if (usedCoupon != null) reservation.addCouponDiscountPrice(usedCoupon.getDiscount());
         else reservation.addCouponDiscountPrice(0);
@@ -196,8 +192,6 @@ public class ReservationService {
         response.setGameCount(reservation.getGameCount());
         response.setReviewId(checkReviewed(reservation.getReview()));
         response.setGameDescription(reservation.getGameDescription());
-
-        log.info("reservationResponse.getMessage() : {}", response.getMessage());
 
         // discord-webhook
         discordMessageProvider.sendApplicationMessage(EventMessage.RESERVATION_APPLICATION, response);
