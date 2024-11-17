@@ -80,9 +80,6 @@ public class MemberController {
     @GetMapping("/member")
     @Operation(summary = "로그인 된 사용자 조회")
     public ResponseEntity<ApiResponse<MemberResponse>> getLoginMember(@LoginUser Member member) {
-        log.info("[Member name] : {}", member.getName());
-        log.info("[Member uniqueId] : {}", member.getUniqueId());
-        log.info("[Member email] : {}", member.getEmail());
         MemberResponse memberResponse = memberMapper.entityToResponse(member);
         ApiResponse<MemberResponse> response = ApiResponse.of(200, "Current logged in member info", memberResponse);
 

@@ -142,7 +142,6 @@ public class ReservationService {
         }
 
         Club club = clubMapper.responseToEntity(clubService.getClubById(clubId));
-        System.out.println(club.getId());
 
         Reservation reservation = reservationMapper.requestToEntity(reservationRequest);
         reservation.setMember(member);
