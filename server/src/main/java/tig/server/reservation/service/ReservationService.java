@@ -1,6 +1,7 @@
 package tig.server.reservation.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tig.server.club.domain.Club;
@@ -350,6 +351,23 @@ public class ReservationService {
 
         reservation.setStatus(Status.DONE);
         reservationRepository.save(reservation);
+    }
+
+    @Scheduled(cron = "0 * * * * *") // 매 분의 0초에 실행
+    @Transactional
+    public void updateReservationsToDone() {
+        // 현재 시간 가져오기
+        LocalDateTime now = LocalDateTime.now();
+
+        // CONFIRMED 상태이고, 예약 시간이 현재 시간보다 이전인 예약 조회
+        List<Reservation> reservationsToUpdate = reservationRepository.findByStatusAndStartTimeBefore(Status.CONFIRMED, now);
+
+        // 상태를 DONE으로 업데이트
+        for (Reservation reservation : reservationsToUpdate) {
+            reservation.setStatus(Status.DONE);
+        }
+
+        reservationRepository.saveAll(reservationsToUpdate); // 일괄 저장
     }
     
     private ReservationResponse doneReservation(ReservationResponse reservationResponse, Reservation reservation) {

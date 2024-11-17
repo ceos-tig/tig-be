@@ -10,6 +10,7 @@ import tig.server.enums.Status;
 import tig.server.reservation.domain.Reservation;
 import tig.server.review.domain.Review;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,5 +30,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     void softDeleteById(@Param("id") Long id);
 
     List<Reservation> findByReview(Review review);
+
+    List<Reservation> findByStatusAndStartTimeBefore(Status status, LocalDateTime now);
 
 }
