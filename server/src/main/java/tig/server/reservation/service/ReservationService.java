@@ -353,7 +353,7 @@ public class ReservationService {
         reservationRepository.save(reservation);
     }
 
-    @Scheduled(cron = "0 * * * * *") // 매 분의 0초에 실행
+    @Scheduled(cron = "0 1,31 * * * *") // 매시 1분과 31분에 실행
     @Transactional
     public void updateReservationsToDone() {
         // 현재 시간 가져오기
