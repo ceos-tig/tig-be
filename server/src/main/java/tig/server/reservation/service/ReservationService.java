@@ -1,6 +1,7 @@
 package tig.server.reservation.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,6 +43,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -139,12 +141,16 @@ public class ReservationService {
             usedCoupon.markAsDeleted();
         }
 
+        log.info("reservationRequest.getMessage() : {}", reservationRequest.getMessage());
+
         Club club = clubMapper.responseToEntity(clubService.getClubById(clubId));
         System.out.println(club.getId());
 
         Reservation reservation = reservationMapper.requestToEntity(reservationRequest);
         reservation.setMember(member);
         reservation.setClub(club);
+
+        log.info("reservation Entity.getMessage() : {}", reservation.getMessage());
 
         if (usedCoupon != null) reservation.addCouponDiscountPrice(usedCoupon.getDiscount());
         else reservation.addCouponDiscountPrice(0);
@@ -190,6 +196,8 @@ public class ReservationService {
         response.setGameCount(reservation.getGameCount());
         response.setReviewId(checkReviewed(reservation.getReview()));
         response.setGameDescription(reservation.getGameDescription());
+
+        log.info("reservationResponse.getMessage() : {}", response.getMessage());
 
         // discord-webhook
         discordMessageProvider.sendApplicationMessage(EventMessage.RESERVATION_APPLICATION, response);
