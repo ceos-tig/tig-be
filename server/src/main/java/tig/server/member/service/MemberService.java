@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tig.server.coupon.domain.Coupon;
 import tig.server.coupon.repository.CouponRepository;
+import tig.server.discord.DiscordMessageProvider;
+import tig.server.discord.EventMessage;
 import tig.server.enums.MemberRoleEnum;
 import tig.server.feedback.domain.Feedback;
 import tig.server.feedback.repository.FeedbackRepository;
@@ -44,6 +46,8 @@ public class MemberService {
     private final CouponRepository couponRepository;
 
     private final MemberMapper memberMapper;
+
+    private final DiscordMessageProvider discordMessageProvider;
 
     @Transactional
     public void saveOrUpdateRefreshToken(String uniqueId,String refreshToken) {
@@ -140,6 +144,8 @@ public class MemberService {
             memberRepository.save(member);
 
             accessToken = tokenProvider.createAccessToken(username, uniqueId);
+
+            discordMessageProvider.sendJoinMessage(EventMessage.SIGN_UP_EVENT);
             return LoginMemberResponseDto.fromMember(member, accessToken);
         }
     }
@@ -185,6 +191,7 @@ public class MemberService {
             memberRepository.save(member);
 
             accessToken = tokenProvider.createAccessToken(username, uniqueId);
+            discordMessageProvider.sendJoinMessage(EventMessage.SIGN_UP_EVENT);
             return LoginMemberResponseDto.fromMember(member, accessToken);
         }
     }
