@@ -61,10 +61,12 @@ jobs:
       # 2. .pem 파일 권한 설정
       - name: Set permission for .pem file
         run: chmod 600 tig-key-pair.pem
-#
-#      # 3. 호스트 키를 SSH 신뢰 목록에 추가
-#      - name: Add EC2 host to known_hosts
-#        run: ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
+
+      # 3. Add EC2 host to known_hosts
+      - name: Add EC2 host to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
 
       # 4. EC2에 docker-compose.yml 전송
       - name: Copy docker-compose.yml to EC2
