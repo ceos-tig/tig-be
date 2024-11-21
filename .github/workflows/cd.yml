@@ -51,8 +51,7 @@ jobs:
       - name: Build and push Docker image
         run: |
           docker-compose build
-          docker tag nimikgnoej/tig-web nimikgnoej/tig-web:blue
-          docker tag nimikgnoej/tig-web nimikgnoej/tig-web:green
+          
           docker push nimikgnoej/tig-web:blue
           docker push nimikgnoej/tig-web:green
           docker push nimikgnoej/tig-nginx
