@@ -22,17 +22,6 @@ services:
       - .env
     container_name: app_green
 
-#  web:
-#    image: nimikgnoej/tig-web:latest
-#    build:
-#      context: .
-#      dockerfile: Dockerfile
-#    ports:
-#      - "8080:8080" # 내부적으로는 8080 사용
-#    env_file:
-#      - .env
-#    container_name: app
-
   nginx:
     image: nimikgnoej/tig-nginx:latest
     build:

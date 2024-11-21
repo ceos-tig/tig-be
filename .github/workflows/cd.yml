@@ -74,7 +74,11 @@ jobs:
       - name: Copy docker-compose.yml to EC2
         run: scp -i tig-key-pair.pem ${{ github.workspace }}/docker-compose.yml ubuntu@${{ secrets.SERVER_IP }}:~
 
-      # 5. 블루/그린 배포 스크립트 실행
+      # 5. EC2에 nginx.conf 전송
+      - name: Copy nginx.conf to EC2
+        run: scp -i tig-key-pair.pem ${{ github.workspace }}/nginx/nginx.conf ubuntu@${{ secrets.SERVER_IP }}:/home/ubuntu/nginx.conf
+
+      # 6. 블루/그린 배포 스크립트 실행
       - name: SSH to EC2 and run deployment
         uses: appleboy/ssh-action@master
         with:
@@ -99,7 +103,7 @@ jobs:
 
               # Nginx 설정 업데이트
               echo "Updating Nginx to route traffic to GREEN"
-              sed -i 's/http:\/\/blue_backend/http:\/\/green_backend/' /etc/nginx/nginx.conf
+              sed -i 's/http:\/\/blue_backend/http:\/\/green_backend/' /home/ubuntu/nginx.conf
               nginx -s reload
 
               # 블루 환경 중지
@@ -121,7 +125,7 @@ jobs:
 
               # Nginx 설정 업데이트
               echo "Updating Nginx to route traffic to BLUE"
-              sed -i 's/http:\/\/green_backend/http:\/\/blue_backend/' /etc/nginx/nginx.conf
+              sed -i 's/http:\/\/blue_backend/http:\/\/green_backend/' /home/ubuntu/nginx.conf
               nginx -s reload
 
               # 그린 환경 중지
