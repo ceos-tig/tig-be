@@ -68,9 +68,12 @@ jobs:
           mkdir -p ~/.ssh
           ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
 
+      - name: Check docker-compose.yml existence
+        run: ls -al ${{ github.workspace }}/docker-compose.yml
+
       # 4. EC2에 docker-compose.yml 전송
       - name: Copy docker-compose.yml to EC2
-        run: scp -i tig-key-pair.pem /Users/runner/work/tig-be/docker-compose.yml ubuntu@${{ secrets.SERVER_IP }}:~
+        run: scp -i tig-key-pair.pem ${{ github.workspace }}/docker-compose.yml ubuntu@${{ secrets.SERVER_IP }}:~
 
       # 9. 원격 서버에 배포
       - name: SSH to EC2 and run deployment
