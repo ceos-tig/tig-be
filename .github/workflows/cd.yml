@@ -51,7 +51,8 @@ jobs:
       - name: Build and push Docker image
         run: |
           docker-compose build
-          
+          docker tag nimikgnoej/tig-web nimikgnoej/tig-web:blue
+          docker tag nimikgnoej/tig-web nimikgnoej/tig-web:green
           docker push nimikgnoej/tig-web:blue
           docker push nimikgnoej/tig-web:green
           docker push nimikgnoej/tig-nginx
@@ -70,13 +71,11 @@ jobs:
           mkdir -p ~/.ssh
           ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
 
-      # 4. EC2에 docker-compose.yml 및 nginx.conf 전송
-      - name: Copy configuration files to EC2
-        run: |
-          scp -i tig-key-pair.pem ${{ github.workspace }}/docker-compose.yml ubuntu@${{ secrets.SERVER_IP }}:~
-          scp -i tig-key-pair.pem ${{ github.workspace }}/nginx/nginx.conf ubuntu@${{ secrets.SERVER_IP }}:~
+      # 4. EC2에 docker-compose.yml 전송
+      - name: Copy docker-compose.yml to EC2
+        run: scp -i tig-key-pair.pem ${{ github.workspace }}/docker-compose.yml ubuntu@${{ secrets.SERVER_IP }}:~
 
-      # 9. 블루/그린 배포를 위한 스크립트 실행
+      # 5. 블루/그린 배포 스크립트 실행
       - name: SSH to EC2 and run deployment
         uses: appleboy/ssh-action@master
         with:
@@ -84,31 +83,50 @@ jobs:
           username: ubuntu
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            # Nginx 설정 적용
-            echo "Updating Nginx configuration"
-            sudo mv ~/nginx.conf /etc/nginx/nginx.conf
-            sudo nginx -s reload
+            # 현재 활성화된 환경 확인
+            IS_GREEN=$(docker ps | grep green)
+            if [ -z "$IS_GREEN" ]; then
+              # 현재 환경이 블루 -> 그린으로 전환
+              echo "Switching from BLUE to GREEN"
+              docker-compose pull green
+              docker-compose up -d green
 
-            # 블루 환경 설정 (개발/테스트)
-            echo "Setting up Blue environment (Development/Test)"
-            docker-compose -f docker-compose.yml up -d blue
+              # Health Check
+              echo "Performing health check for GREEN"
+              until [ "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8082/tig/health)" == "200" ]; do
+                echo "Waiting for GREEN environment to be healthy..."
+                sleep 5
+              done
 
-            # 블루 환경 Health Check
-            echo "Checking Blue environment health"
-            until [ "$(curl -s -o /dev/null -w ''%{http_code}'' http://localhost:8081/tig/health)" == "200" ]; do
-              echo "Waiting for Blue environment to be healthy..."
-              sleep 5
-            done
-            echo "Blue environment is healthy!"
+              # Nginx 설정 업데이트
+              echo "Updating Nginx to route traffic to GREEN"
+              sed -i 's/http:\/\/blue_backend/http:\/\/green_backend/' /etc/nginx/nginx.conf
+              nginx -s reload
 
-            # 그린 환경 설정 (운영)
-            echo "Setting up Green environment (Production)"
-            docker-compose -f docker-compose.yml up -d green
+              # 블루 환경 중지
+              echo "Stopping BLUE environment"
+              docker-compose stop blue
+              docker-compose rm -f blue
+            else
+              # 현재 환경이 그린 -> 블루로 전환
+              echo "Switching from GREEN to BLUE"
+              docker-compose pull blue
+              docker-compose up -d blue
 
-            # 그린 환경 Health Check
-            echo "Checking Green environment health"
-            until [ "$(curl -s -o /dev/null -w ''%{http_code}'' http://localhost:8082/tig/health)" == "200" ]; do
-              echo "Waiting for Green environment to be healthy..."
-              sleep 5
-            done
-            echo "Green environment is healthy!"
+              # Health Check
+              echo "Performing health check for BLUE"
+              until [ "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8081/tig/health)" == "200" ]; do
+                echo "Waiting for BLUE environment to be healthy..."
+                sleep 5
+              done
+
+              # Nginx 설정 업데이트
+              echo "Updating Nginx to route traffic to BLUE"
+              sed -i 's/http:\/\/green_backend/http:\/\/blue_backend/' /etc/nginx/nginx.conf
+              nginx -s reload
+
+              # 그린 환경 중지
+              echo "Stopping GREEN environment"
+              docker-compose stop green
+              docker-compose rm -f green
+            fi
