@@ -65,8 +65,8 @@ jobs:
             docker ps -a -q | xargs -r docker rm --force
             docker images -q | xargs -r docker rmi --force
             
-            docker pull nimikgnoej/tig-web:latest
-            docker pull nimikgnoej/tig-nginx:latest
+            docker pull nimikgnoej/tig-web
+            docker pull nimikgnoej/tig-nginx
             
             docker-compose down
             docker-compose up -d
