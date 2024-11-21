@@ -1,11 +1,21 @@
 version: '3.8'
 services:
   web:
-    image: nimikgnoej/tig
     build:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8080:8080"
+      - "8080:8080" # 내부적으로는 8080 사용
     env_file:
       - .env
+    container_name: app
+
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile # nginx에 대한 Dockerfile
+    ports:
+      - "80:80" # 외부로 노출되는 포트
+    depends_on:
+      - web # web 서비스 실행 이후 시작
+    container_name: nginx
