@@ -54,7 +54,12 @@ jobs:
           docker push nimikgnoej/tig-web
           docker push nimikgnoej/tig-nginx
 
-      # 8. 원격 서버에 배포
+      # 8. EC2에 docker-compose.yml 업로드
+      - name: Upload docker-compose.yml to EC2
+        run: |
+          scp -i "/Users/jeong-kimin/Desktop/tig-key-pair.pem" /Users/jeong-kimin/Desktop/tig-be/docker-compose.yml ubuntu@ec2-13-209-131-90.ap-northeast-2.compute.amazonaws.com:~
+
+      # 9. 원격 서버에 배포
       - name: SSH to EC2 and run deployment
         uses: appleboy/ssh-action@master
         with:
