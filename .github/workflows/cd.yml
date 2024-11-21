@@ -65,6 +65,5 @@ jobs:
             docker ps -a -q | xargs docker rm --force
             docker images -q | xargs docker rmi --force
             docker pull nimikgnoej/tig
-#           docker run -d -p 8080:8080 --env-file ./.env nimikgnoej/tig
             docker pull nimikgnoej/nginx 
-            docker-compose -f docker-compose.yml up -d # NGINX와 web 서비스 모두 실행
+            docker-compose -f docker-compose.yml up -d
