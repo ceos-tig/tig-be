@@ -10,7 +10,7 @@ import tig.server.reservation.dto.ReservationResponse;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2024-10-12T23:12:44+0900",
+    date = "2024-11-19T18:54:48+0900",
     comments = "version: 1.5.1.Final, compiler: javac, environment: Java 17.0.7 (Oracle Corporation)"
 )
 @Component
@@ -43,7 +43,8 @@ public class ReservationMapperImpl implements ReservationMapper {
         reservation.message( reservationRequest.getMessage() );
         reservation.userName( reservationRequest.getUserName() );
         reservation.phoneNumber( reservationRequest.getPhoneNumber() );
-        reservation.programEnum( reservationRequest.getProgramEnum() );
+        reservation.gameDescription( reservationRequest.getGameDescription() );
+        reservation.provider( reservationRequest.getProvider() );
 
         return reservation.build();
     }
@@ -74,11 +75,15 @@ public class ReservationMapperImpl implements ReservationMapper {
         reservationResponse.phoneNumber( reservation.getPhoneNumber() );
         reservationResponse.userName( reservation.getUserName() );
         reservationResponse.paymentId( reservation.getPaymentId() );
+        reservationResponse.provider( reservation.getProvider() );
         if ( reservation.getUpdatedAt() != null ) {
             reservationResponse.updatedAt( DateTimeFormatter.ISO_LOCAL_DATE_TIME.format( reservation.getUpdatedAt() ) );
         }
         reservationResponse.message( reservation.getMessage() );
-        reservationResponse.programEnum( reservation.getProgramEnum() );
+        reservationResponse.gameDescription( reservation.getGameDescription() );
+        if ( reservation.getCouponDiscountPrice() != null ) {
+            reservationResponse.couponDiscountPrice( String.valueOf( reservation.getCouponDiscountPrice() ) );
+        }
 
         return reservationResponse.build();
     }
@@ -110,7 +115,11 @@ public class ReservationMapperImpl implements ReservationMapper {
         reservation.message( reservationResponse.getMessage() );
         reservation.userName( reservationResponse.getUserName() );
         reservation.phoneNumber( reservationResponse.getPhoneNumber() );
-        reservation.programEnum( reservationResponse.getProgramEnum() );
+        reservation.gameDescription( reservationResponse.getGameDescription() );
+        reservation.provider( reservationResponse.getProvider() );
+        if ( reservationResponse.getCouponDiscountPrice() != null ) {
+            reservation.couponDiscountPrice( Integer.parseInt( reservationResponse.getCouponDiscountPrice() ) );
+        }
 
         return reservation.build();
     }
@@ -160,8 +169,11 @@ public class ReservationMapperImpl implements ReservationMapper {
         if ( reservationRequest.getPhoneNumber() != null ) {
             reservation.setPhoneNumber( reservationRequest.getPhoneNumber() );
         }
-        if ( reservationRequest.getProgramEnum() != null ) {
-            reservation.setProgramEnum( reservationRequest.getProgramEnum() );
+        if ( reservationRequest.getGameDescription() != null ) {
+            reservation.setGameDescription( reservationRequest.getGameDescription() );
+        }
+        if ( reservationRequest.getProvider() != null ) {
+            reservation.setProvider( reservationRequest.getProvider() );
         }
 
         return reservation;

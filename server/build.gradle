@@ -84,6 +84,9 @@ dependencies {
 	// redis
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
+	//actuator
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
 
 	implementation group: 'org.javassist', name: 'javassist', version: '3.15.0-GA'
 	implementation 'io.netty:netty-resolver-dns-native-macos:4.1.68.Final:osx-aarch_64'
