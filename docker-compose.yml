@@ -1,15 +1,37 @@
 version: '3.8'
 services:
-  web:
-    image: nimikgnoej/tig-web:latest
+  blue:
     build:
       context: .
       dockerfile: Dockerfile
+    image: nimikgnoej/tig-web:blue # 블루 환경용 이미지 태그
     ports:
-      - "8080:8080" # 내부적으로는 8080 사용
+      - "8081:8080" # 블루 환경 포트
     env_file:
       - .env
-    container_name: app
+    container_name: app_blue
+
+  green:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: nimikgnoej/tig-web:green # 그린 환경용 이미지 태그
+    ports:
+      - "8082:8080" # 그린 환경 포트
+    env_file:
+      - .env
+    container_name: app_green
+
+#  web:
+#    image: nimikgnoej/tig-web:latest
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+#    ports:
+#      - "8080:8080" # 내부적으로는 8080 사용
+#    env_file:
+#      - .env
+#    container_name: app
 
   nginx:
     image: nimikgnoej/tig-nginx:latest
@@ -19,5 +41,6 @@ services:
     ports:
       - "80:80" # 외부로 노출되는 포트
     depends_on:
-      - web # web 서비스 실행 이후 시작
+      - blue
+      - green
     container_name: nginx
