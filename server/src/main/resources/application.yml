@@ -5,7 +5,7 @@ spring:
       host: ${EC2_PUBLIC_IP}
       password: ${REDIS_PASSWORD}
   profiles:
-    active: dev
+    active: deploy
   config:
     import: optional:file:.env[.properties]
   sql:

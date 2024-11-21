@@ -1,6 +1,7 @@
 version: '3.8'
 services:
   web:
+    image: nimikgnoej/tig-web:latest
     build:
       context: .
       dockerfile: Dockerfile
@@ -11,6 +12,7 @@ services:
     container_name: app
 
   nginx:
+    image: nimikgnoej/tig-nginx:latest
     build:
       context: ./nginx
       dockerfile: Dockerfile # nginx에 대한 Dockerfile

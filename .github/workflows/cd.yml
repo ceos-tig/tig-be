@@ -49,10 +49,13 @@ jobs:
       # 7. Docker 빌드 및 푸시
       - name: Build and push Docker image
         run: |
-          docker-compose -f docker-compose.yml up -d --build 
-          docker-compose down
-          docker push nimikgnoej/tig 
-          docker push nimikgnoej/nginx # NGINX 이미지도 푸시
+          docker-compose build
+
+          docker tag tig-be-web:latest nimikgnoej/tig-web:latest
+          docker tag tig-be-nginx:latest nimikgnoej/tig-nginx:latest
+          
+          docker push nimikgnoej/tig-web:latest
+          docker push nimikgnoej/tig-nginx:latest
 
       # 8. 원격 서버에 배포
       - name: SSH to EC2 and run deployment
@@ -62,8 +65,11 @@ jobs:
           username: ubuntu
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            docker ps -a -q | xargs docker rm --force
-            docker images -q | xargs docker rmi --force
-            docker pull nimikgnoej/tig
-            docker pull nimikgnoej/nginx 
-            docker-compose -f docker-compose.yml up -d
+            docker ps -a -q | xargs -r docker rm --force
+            docker images -q | xargs -r docker rmi --force
+            
+            docker pull nimikgnoej/tig-web:latest
+            docker pull nimikgnoej/tig-nginx:latest
+            
+            docker-compose down
+            docker-compose up -d
