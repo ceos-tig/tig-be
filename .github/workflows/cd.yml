@@ -143,6 +143,11 @@ jobs:
               # Nginx 설정 업데이트
               echo "Updating Nginx to route traffic to BLUE"
               sed -i 's/http:\/\/green_backend/http:\/\/blue_backend/' /home/ubuntu/nginx.conf
+              # nginx.conf 파일을 Nginx 컨테이너로 복사
+              docker cp /home/ubuntu/nginx.conf nginx:/etc/nginx/nginx.conf
+              # 설정 파일 검증
+              docker exec nginx nginx -t
+              # 설정 재적용
               docker exec nginx nginx -s reload
 
               # 그린 환경 정리
@@ -178,6 +183,11 @@ jobs:
               # Nginx 설정 업데이트
               echo "Updating Nginx to route traffic to GREEN"
               sed -i 's/http:\/\/blue_backend/http:\/\/green_backend/' /home/ubuntu/nginx.conf
+              # nginx.conf 파일을 Nginx 컨테이너로 복사
+              docker cp /home/ubuntu/nginx.conf nginx:/etc/nginx/nginx.conf
+              # 설정 파일 검증
+              docker exec nginx nginx -t
+              # 설정 재적용
               docker exec nginx nginx -s reload
           
               # 블루 환경 정리
