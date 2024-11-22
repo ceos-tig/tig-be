@@ -42,4 +42,8 @@ public class Coupon {
     public void markAsDeleted() {
         this.isDeleted = true;
     }
+
+    public void restore(){
+        this.isDeleted = false;
+    }
 }
