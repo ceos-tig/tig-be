@@ -100,7 +100,7 @@ jobs:
             if [ -z "$IS_GREEN" ] && [ -z "$IS_BLUE" ]; then
               echo "No active environment detected. Starting fresh deployment with GREEN environment."
               # 그린 환경으로 초기화
-              docker-compose pull green
+              docker-compose pull green nginx
               docker-compose up -d green nginx
 
               # Health Check
@@ -123,7 +123,7 @@ jobs:
               echo "Currently running GREEN environment. Switching to BLUE."
 
               # 블루 환경 준비
-              docker-compose pull blue
+              docker-compose pull blue nginx
               docker-compose up -d blue nginx
 
               # Health Check
@@ -158,7 +158,7 @@ jobs:
               echo "Currently running BLUE environment. Switching to GREEN."
           
               # 그린 환경 준비
-              docker-compose pull green
+              docker-compose pull green nginx
               docker-compose up -d green nginx
           
               # Health Check
