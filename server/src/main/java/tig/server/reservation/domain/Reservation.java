@@ -78,4 +78,8 @@ public class Reservation extends BaseTimeEntity {
     public void addCouponDiscountPrice(Integer couponDiscountPrice) {
         this.couponDiscountPrice = couponDiscountPrice;
     }
+
+    public void minusCouponDiscountPrice(Integer couponDiscountPrice) {
+        this.couponDiscountPrice -= couponDiscountPrice;
+    }
 }

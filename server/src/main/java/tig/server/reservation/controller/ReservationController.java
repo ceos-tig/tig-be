@@ -81,8 +81,10 @@ public class ReservationController {
 
     @PostMapping("/cancel/{reservationId}")
     @Operation(summary = "특정 예약 취소")
-    public ResponseEntity<ApiResponse<Void>> cancelReservation(@PathVariable Long reservationId) throws ParseException {
-        reservationService.cancelReservationById(reservationId);
+    public ResponseEntity<ApiResponse<Void>> cancelReservation(@PathVariable("reservationId") Long reservationId,
+                                                               @RequestParam(required = false, value = "couponId") Long couponId
+    ) throws ParseException {
+        reservationService.cancelReservationById(reservationId,couponId);
         ApiResponse<Void> response = ApiResponse.of(200, "successfully canceled reservation", null);
         return ResponseEntity.ok(response);
     }
