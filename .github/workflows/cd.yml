@@ -93,6 +93,17 @@ jobs:
           username: ubuntu
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
+            # 기존 Nginx 이미지와 컨테이너 삭제
+            echo "Removing old Nginx container and image"
+            docker stop nginx || true
+            docker rm nginx || true
+            docker rmi nimikgnoej/tig-nginx || true
+
+            # Nginx 최신 이미지 Pull 및 실행
+            echo "Pulling and starting latest Nginx image"
+            docker pull nimikgnoej/tig-nginx:latest
+            docker-compose up -d nginx
+            
             # 현재 활성화된 환경 확인
             IS_GREEN=$(docker ps | grep green)
             if [ -z "$IS_GREEN" ]; then
