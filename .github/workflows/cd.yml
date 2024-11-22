@@ -47,7 +47,14 @@ jobs:
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-      # 7. Docker 빌드 및 푸시
+      # 7. 기존 이미지 삭제
+      - name: Remove existing Docker images
+        run: |
+          docker rmi nimikgnoej/tig-web:blue || true
+          docker rmi nimikgnoej/tig-web:green || true
+          docker rmi nimikgnoej/tig-nginx:latest || true
+
+      # 8. Docker 빌드 및 푸시
       - name: Build and push Docker image
         run: |
           docker-compose build
@@ -56,29 +63,29 @@ jobs:
           docker push nimikgnoej/tig-web:green
           docker push nimikgnoej/tig-nginx
 
-      # 8. Secrets에서 .pem 파일 생성
+      # 9. Secrets에서 .pem 파일 생성
       - name: Create .pem file from secret
         run: echo "${{ secrets.SERVER_SSH_KEY }}" > tig-key-pair.pem
 
-      # 9. .pem 파일 권한 설정
+      # 10. .pem 파일 권한 설정
       - name: Set permission for .pem file
         run: chmod 600 tig-key-pair.pem
 
-      # 10. Add EC2 host to known_hosts
+      # 11. Add EC2 host to known_hosts
       - name: Add EC2 host to known_hosts
         run: |
           mkdir -p ~/.ssh
           ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
 
-      # 11. EC2에 docker-compose.yml 전송
+      # 12. EC2에 docker-compose.yml 전송
       - name: Copy docker-compose.yml to EC2
         run: scp -i tig-key-pair.pem ${{ github.workspace }}/docker-compose.yml ubuntu@${{ secrets.SERVER_IP }}:~
 
-      # 12. EC2에 nginx.conf 전송
+      # 13. EC2에 nginx.conf 전송
       - name: Copy nginx.conf to EC2
         run: scp -i tig-key-pair.pem ${{ github.workspace }}/nginx/nginx.conf ubuntu@${{ secrets.SERVER_IP }}:/home/ubuntu/nginx.conf
 
-      # 13. 블루/그린 배포 스크립트 실행
+      # 14. 블루/그린 배포 스크립트 실행
       - name: SSH to EC2 and run deployment
         uses: appleboy/ssh-action@master
         with:
@@ -134,4 +141,3 @@ jobs:
               docker-compose stop green
               docker-compose rm -f green
               docker rmi nimikgnoej/tig-web:green || true
-            fi
