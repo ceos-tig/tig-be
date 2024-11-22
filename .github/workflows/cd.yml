@@ -93,22 +93,13 @@ jobs:
           username: ubuntu
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            # 기존 Nginx 이미지와 컨테이너 삭제
-            echo "Removing old Nginx container and image"
-            docker stop nginx || true
-            docker rm nginx || true
-            docker rmi nimikgnoej/tig-nginx || true
-
-            # Nginx 최신 이미지 Pull 및 실행
-            echo "Pulling and starting latest Nginx image"
-            docker pull nimikgnoej/tig-nginx:latest
-            docker-compose up -d nginx
-            
             # 현재 활성화된 환경 확인
-            IS_GREEN=$(docker ps | grep green)
-            if [ -z "$IS_GREEN" ]; then
-              # 현재 환경이 블루 -> 그린으로 전환
-              echo "Switching from BLUE to GREEN"
+            IS_GREEN=$(docker ps | grep app_green)
+            IS_BLUE=$(docker ps | grep app_blue)
+            
+            if [ -z "$IS_GREEN" ] && [ -z "$IS_BLUE" ]; then
+              echo "No active environment detected. Starting fresh deployment with GREEN environment."
+              # 그린 환경으로 초기화
               docker-compose pull green
               docker-compose up -d green nginx
 
@@ -125,20 +116,13 @@ jobs:
                   exit 1
                 fi
               done
+              echo "GREEN environment is healthy. Deployment completed."
+              exit 0
+            fi  
+            if [ -n "$IS_GREEN" ]; then
+              echo "Currently running GREEN environment. Switching to BLUE."
 
-              # Nginx 설정 업데이트
-              echo "Updating Nginx to route traffic to GREEN"
-              sed -i 's/http:\/\/blue_backend/http:\/\/green_backend/' /home/ubuntu/nginx.conf
-              docker exec nginx nginx -s reload # Nginx 설정 반영
-
-              # 블루 환경 정리
-              echo "Cleaning up BLUE environment"
-              docker-compose stop blue
-              docker-compose rm -f blue
-              docker rmi nimikgnoej/tig-web:blue || true
-            else
-              # 현재 환경이 그린 -> 블루로 전환
-              echo "Switching from GREEN to BLUE"
+              # 블루 환경 준비
               docker-compose pull blue
               docker-compose up -d blue nginx
 
@@ -166,4 +150,36 @@ jobs:
               docker-compose stop green
               docker-compose rm -f green
               docker rmi nimikgnoej/tig-web:green || true
+            
+            elif [ -n "$IS_BLUE" ]; then
+              echo "Currently running BLUE environment. Switching to GREEN."
+          
+              # 그린 환경 준비
+              docker-compose pull green
+              docker-compose up -d green nginx
+          
+              # Health Check
+              echo "Performing health check for GREEN"
+              MAX_RETRIES=10
+              RETRY_COUNT=0
+              until [ "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8082/tig/health)" == "200" ]; do
+                echo "Waiting for GREEN environment to be healthy..."
+                sleep 5
+                RETRY_COUNT=$((RETRY_COUNT + 1))
+                if [ "$RETRY_COUNT" -ge "$MAX_RETRIES" ]; then
+                  echo "Health check for GREEN environment failed after $MAX_RETRIES retries."
+                  exit 1
+                fi
+              done
+          
+              # Nginx 설정 업데이트
+              echo "Updating Nginx to route traffic to GREEN"
+              sed -i 's/http:\/\/blue_backend/http:\/\/green_backend/' /home/ubuntu/nginx.conf
+              docker exec nginx nginx -s reload
+          
+              # 블루 환경 정리
+              echo "Cleaning up BLUE environment"
+              docker-compose stop blue
+              docker-compose rm -f blue
+              docker rmi nimikgnoej/tig-web:blue || true
             fi
