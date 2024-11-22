@@ -12,9 +12,9 @@ services:
       - .env
     environment:
       - SERVER_PORT=8080 # 내부적으로 Spring Boot는 8080으로 실행
-    container_name: app_blue
+    container_name: app-blue
     networks:
-      - app_network
+      - app-network
 
   green:
     build:
@@ -27,9 +27,9 @@ services:
       - .env
     environment:
       - SERVER_PORT=8080 # 내부적으로 Spring Boot는 8080으로 실행
-    container_name: app_green
+    container_name: app-green
     networks:
-      - app_network
+      - app-network
 
   nginx:
     image: nimikgnoej/tig-nginx:latest
@@ -43,8 +43,8 @@ services:
       - green
     container_name: nginx
     networks:
-      - app_network
+      - app-network
 
 networks:
-  app_network:
+  app-network:
     driver: bridge
