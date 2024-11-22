@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,8 +20,16 @@ public class StatusController {
     @GetMapping("/status")
     public ResponseEntity<Map<String, Object>> getStatus() {
         Map<String, Object> response = new HashMap<>();
-        response.put("environment", port == 8081 ? "BLUE" : "GREEN"); // 환경 정보
-        response.put("port", port); // 현재 포트 정보
+
+        // 환경 정보
+        response.put("environment", port == 8081 ? "BLUE" : "GREEN");
+        response.put("port", port);
+
+
+        // 서버 상태 정보
+        response.put("serverTime", LocalDateTime.now().toString());
+        response.put("status", "UP"); // 기본적으로 정상 상태를 표시
+
         return ResponseEntity.ok(response);
     }
 }
