@@ -5,7 +5,7 @@ spring:
       host: ${EC2_PUBLIC_IP}
       password: ${REDIS_PASSWORD}
   profiles:
-    active: dev
+    active: deploy
   config:
     import: optional:file:.env[.properties]
   sql:
@@ -16,7 +16,6 @@ spring:
       matching-strategy: ant_path_matcher
 
 management:
-  endpoint:
   endpoints:
     web:
       base-path: /tig
