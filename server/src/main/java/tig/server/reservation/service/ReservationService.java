@@ -244,10 +244,17 @@ public class ReservationService {
 
 
     @Transactional
-    public void cancelReservationById(Long reservationId) throws ParseException {
+    public void cancelReservationById(Long reservationId, Long couponId) throws ParseException {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new BusinessExceptionHandler("reservation not found",ErrorCode.NOT_FOUND_ERROR));
 
+        Coupon coupon = null;
+        if (couponId != null) { // 쿠폰을 사용했다면 "쿠폰 사용 취소"를 위해 검색
+            coupon = couponRepository.findByIdIgnoringSoftDelete(couponId)
+                    .orElseThrow(() -> new BusinessExceptionHandler("coupon not found", ErrorCode.NOT_FOUND_ERROR));
+            reservation.minusCouponDiscountPrice(coupon.getDiscount());
+            coupon.restore();
+        }
         // Define the list of valid statuses
         List<Status> validStatuses = Arrays.asList(Status.TBC, Status.CONFIRMED);
 
