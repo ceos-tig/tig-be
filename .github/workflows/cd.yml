@@ -56,29 +56,29 @@ jobs:
           docker push nimikgnoej/tig-web:green
           docker push nimikgnoej/tig-nginx
 
-      # 1. Secrets에서 .pem 파일 생성
+      # 8. Secrets에서 .pem 파일 생성
       - name: Create .pem file from secret
         run: echo "${{ secrets.SERVER_SSH_KEY }}" > tig-key-pair.pem
 
-      # 2. .pem 파일 권한 설정
+      # 9. .pem 파일 권한 설정
       - name: Set permission for .pem file
         run: chmod 600 tig-key-pair.pem
 
-      # 3. Add EC2 host to known_hosts
+      # 10. Add EC2 host to known_hosts
       - name: Add EC2 host to known_hosts
         run: |
           mkdir -p ~/.ssh
           ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
 
-      # 4. EC2에 docker-compose.yml 전송
+      # 11. EC2에 docker-compose.yml 전송
       - name: Copy docker-compose.yml to EC2
         run: scp -i tig-key-pair.pem ${{ github.workspace }}/docker-compose.yml ubuntu@${{ secrets.SERVER_IP }}:~
 
-      # 5. EC2에 nginx.conf 전송
+      # 12. EC2에 nginx.conf 전송
       - name: Copy nginx.conf to EC2
         run: scp -i tig-key-pair.pem ${{ github.workspace }}/nginx/nginx.conf ubuntu@${{ secrets.SERVER_IP }}:/home/ubuntu/nginx.conf
 
-      # 6. 블루/그린 배포 스크립트 실행
+      # 13. 블루/그린 배포 스크립트 실행
       - name: SSH to EC2 and run deployment
         uses: appleboy/ssh-action@master
         with:
@@ -106,10 +106,11 @@ jobs:
               sed -i 's/http:\/\/blue_backend/http:\/\/green_backend/' /home/ubuntu/nginx.conf
               nginx -s reload
 
-              # 블루 환경 중지
-              echo "Stopping BLUE environment"
+              # 블루 환경 정리
+              echo "Cleaning up BLUE environment"
               docker-compose stop blue
               docker-compose rm -f blue
+              docker rmi nimikgnoej/tig-web:blue || true
             else
               # 현재 환경이 그린 -> 블루로 전환
               echo "Switching from GREEN to BLUE"
@@ -125,11 +126,12 @@ jobs:
 
               # Nginx 설정 업데이트
               echo "Updating Nginx to route traffic to BLUE"
-              sed -i 's/http:\/\/blue_backend/http:\/\/green_backend/' /home/ubuntu/nginx.conf
+              sed -i 's/http:\/\/green_backend/http:\/\/blue_backend/' /home/ubuntu/nginx.conf
               nginx -s reload
 
-              # 그린 환경 중지
-              echo "Stopping GREEN environment"
+              # 그린 환경 정리
+              echo "Cleaning up GREEN environment"
               docker-compose stop green
               docker-compose rm -f green
+              docker rmi nimikgnoej/tig-web:green || true
             fi
