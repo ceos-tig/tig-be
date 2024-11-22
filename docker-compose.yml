@@ -10,6 +10,8 @@ services:
       - "8081:8080" # 블루 환경 포트
     env_file:
       - .env
+    environment:
+      - SERVER_PORT=8080 # 내부적으로 Spring Boot는 8080으로 실행
     container_name: app_blue
     networks:
       - app_network
@@ -23,6 +25,8 @@ services:
       - "8082:8080" # 그린 환경 포트
     env_file:
       - .env
+    environment:
+      - SERVER_PORT=8080 # 내부적으로 Spring Boot는 8080으로 실행
     container_name: app_green
     networks:
       - app_network

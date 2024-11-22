@@ -5,7 +5,7 @@ spring:
       host: ${EC2_PUBLIC_IP}
       password: ${REDIS_PASSWORD}
   profiles:
-    active: deploy
+    active: dev
   config:
     import: optional:file:.env[.properties]
   sql:
@@ -23,7 +23,7 @@ management:
 
 
 server:
-  port: 8080
+  port: ${SERVER_PORT:8080}
   compression:
     enabled: true
     mime-types: text/html,application/json
