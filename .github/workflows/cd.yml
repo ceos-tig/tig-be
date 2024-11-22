@@ -94,8 +94,8 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
             # 현재 활성화된 환경 확인
-            IS_GREEN=$(docker ps | grep app_green)
-            IS_BLUE=$(docker ps | grep app_blue)
+            IS_GREEN=$(docker ps | grep app-green)
+            IS_BLUE=$(docker ps | grep app-blue)
             
             if [ -z "$IS_GREEN" ] && [ -z "$IS_BLUE" ]; then
               echo "No active environment detected. Starting fresh deployment with GREEN environment."
@@ -150,6 +150,9 @@ jobs:
               docker-compose stop green
               docker-compose rm -f green
               docker rmi nimikgnoej/tig-web:green || true
+              # 사용하지 않는 이미지 정리
+              echo "Removing unused images..."
+              docker image prune -f
             
             elif [ -n "$IS_BLUE" ]; then
               echo "Currently running BLUE environment. Switching to GREEN."
@@ -182,4 +185,7 @@ jobs:
               docker-compose stop blue
               docker-compose rm -f blue
               docker rmi nimikgnoej/tig-web:blue || true
+              # 사용하지 않는 이미지 정리
+              echo "Removing unused images..."
+              docker image prune -f
             fi
