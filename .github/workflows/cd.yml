@@ -18,138 +18,78 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      # 1. 소스 코드 체크아웃
+      # 소스 코드 체크아웃
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # 2. Gradle Wrapper 권한 설정
-      - name: Set Gradle permissions
-        run: chmod +x server/gradlew
-
-      # 3. Gradle 빌드 실행
+      # Gradle 빌드 실행
       - name: Build with Gradle
         working-directory: server
         run: ./gradlew clean build
 
-      # 4. .env 파일 생성
-      - name: Create .env file
-        run: |
-          echo "${{ secrets.ENV_FILE }}" > .env
-
-      # 5. Docker Compose 설치
+      # Docker Compose 설치
       - name: Install Docker Compose
         run: |
           sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
           sudo chmod +x /usr/local/bin/docker-compose
           docker-compose --version
 
-      # 6. Docker 로그인
+      # Docker 로그인
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-      # 7. 기존 이미지 삭제
-      - name: Remove existing Docker images
-        run: |
-          docker rmi nimikgnoej/tig-web:blue || true
-          docker rmi nimikgnoej/tig-web:green || true
-          docker rmi nimikgnoej/tig-nginx:latest || true
-
-      # 8. Docker 빌드 및 푸시
-      - name: Build and push Docker image
+      # Docker 이미지 빌드 및 푸시
+      - name: Build and push Docker images
         run: |
           docker-compose build
-          
           docker push nimikgnoej/tig-web:blue
           docker push nimikgnoej/tig-web:green
           docker push nimikgnoej/tig-nginx
 
-      # 9. Secrets에서 .pem 파일 생성
-      - name: Create .pem file from secret
-        run: echo "${{ secrets.SERVER_SSH_KEY }}" > tig-key-pair.pem
-
-      # 10. .pem 파일 권한 설정
-      - name: Set permission for .pem file
-        run: chmod 600 tig-key-pair.pem
-
-      # 11. Add EC2 host to known_hosts
-      - name: Add EC2 host to known_hosts
+      # Docker 이미지 정리
+      - name: Clean up local Docker images
         run: |
-          mkdir -p ~/.ssh
-          ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
+          docker images -q | xargs docker rmi --force || true
 
-      # 12. EC2에 docker-compose.yml 전송
-      - name: Copy docker-compose.yml to EC2
-        run: scp -i tig-key-pair.pem ${{ github.workspace }}/docker-compose.yml ubuntu@${{ secrets.SERVER_IP }}:~
+      # Nginx 컨테이너와 이미지 정리
+      - name: Remove old Nginx container and image
+        run: |
+          docker ps -a -q --filter "name=nginx" | xargs docker rm --force || true
+          docker images --filter=reference="nimikgnoej/tig-nginx:latest" -q | xargs docker rmi --force || true
 
-      # 13. EC2에 nginx.conf 전송
-      - name: Copy nginx.conf to EC2
+      # Nginx 설정 전송
+      - name: Copy Nginx configuration
         run: scp -i tig-key-pair.pem ${{ github.workspace }}/nginx/nginx.conf ubuntu@${{ secrets.SERVER_IP }}:/home/ubuntu/nginx.conf
 
-      # 14. 블루/그린 배포 스크립트 실행
-      - name: SSH to EC2 and run deployment
+      # 배포 스크립트 실행
+      - name: SSH to EC2 and deploy
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SERVER_IP }}
           username: ubuntu
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            # 기존 Nginx 이미지와 컨테이너 삭제
-            echo "Removing old Nginx container and image"
-            docker stop nginx || true
-            docker rm nginx || true
-            docker rmi nimikgnoej/tig-nginx || true
-
-            # Nginx 최신 이미지 Pull 및 실행
-            echo "Pulling and starting latest Nginx image"
-            docker pull nimikgnoej/tig-nginx:latest
-            docker-compose up -d nginx
-            
-            # 현재 활성화된 환경 확인
             IS_GREEN=$(docker ps | grep green)
             if [ -z "$IS_GREEN" ]; then
-              # 현재 환경이 블루 -> 그린으로 전환
               echo "Switching from BLUE to GREEN"
               docker-compose pull green
-              docker-compose up -d green nginx
-
-              # Health Check
-              echo "Performing health check for GREEN"
-              until [ "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8082/tig/health)" == "200" ]; do
-                echo "Waiting for GREEN environment to be healthy..."
-                sleep 5
-              done
-
-              # Nginx 설정 업데이트
-              echo "Updating Nginx to route traffic to GREEN"
-              sed -i 's/http:\/\/blue_backend/http:\/\/green_backend/' /home/ubuntu/nginx.conf
-              nginx -s reload
-
-              # 블루 환경 정리
-              echo "Cleaning up BLUE environment"
-              docker-compose stop blue
-              docker-compose rm -f blue
-              docker rmi nimikgnoej/tig-web:blue || true
-            else
-              # 현재 환경이 그린 -> 블루로 전환
-              echo "Switching from GREEN to BLUE"
-              docker-compose pull blue
-              docker-compose up -d blue nginx
-
-              # Health Check
-              echo "Performing health check for BLUE"
-              until [ "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8081/tig/health)" == "200" ]; do
+              docker-compose up -d green
+              until [ "$(curl -s -o /dev/null -w '%{http_code}' https://api.tigleisure.com/tig/health)" == "200" ]; do
                 echo "Waiting for BLUE environment to be healthy..."
                 sleep 5
               done
-
-              # Nginx 설정 업데이트
-              echo "Updating Nginx to route traffic to BLUE"
-              sed -i 's/http:\/\/green_backend/http:\/\/blue_backend/' /home/ubuntu/nginx.conf
-              nginx -s reload
-
-              # 그린 환경 정리
-              echo "Cleaning up GREEN environment"
+              docker exec nginx nginx -s reload
+              docker-compose stop blue
+              docker-compose rm -f blue
+            else
+              echo "Switching from GREEN to BLUE"
+              docker-compose pull blue
+              docker-compose up -d blue
+              until [ "$(curl -s -o /dev/null -w '%{http_code}' https://api.tigleisure.com/tig/health)" == "200" ]; do
+                echo "Waiting for BLUE environment to be healthy..."
+                sleep 5
+              done
+              docker exec nginx nginx -s reload
               docker-compose stop green
               docker-compose rm -f green
-              docker rmi nimikgnoej/tig-web:green || true
             fi
