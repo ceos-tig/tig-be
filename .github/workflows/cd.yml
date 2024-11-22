@@ -99,7 +99,7 @@ jobs:
               # 현재 환경이 블루 -> 그린으로 전환
               echo "Switching from BLUE to GREEN"
               docker-compose pull green
-              docker-compose up -d green
+              docker-compose up -d green nginx
 
               # Health Check
               echo "Performing health check for GREEN"
@@ -122,7 +122,7 @@ jobs:
               # 현재 환경이 그린 -> 블루로 전환
               echo "Switching from GREEN to BLUE"
               docker-compose pull blue
-              docker-compose up -d blue
+              docker-compose up -d blue nginx
 
               # Health Check
               echo "Performing health check for BLUE"
