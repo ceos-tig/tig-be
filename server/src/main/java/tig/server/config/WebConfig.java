@@ -23,10 +23,10 @@ public class WebConfig implements WebMvcConfigurer {
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
         resolvers.add(loginUserArgumentResolver);
     }
-    @Override
-    public void addCorsMappings(final CorsRegistry registry) {
-        registry.addMapping("/**")
-                .allowedOrigins("https://tigleisure.com")
-                .allowedMethods("GET", "POST","PUT","PATCH","DELETE","OPTIONS");
-    }
+//    @Override
+//    public void addCorsMappings(final CorsRegistry registry) {
+//        registry.addMapping("/**")
+//                .allowedOrigins("https://tigleisure.com")
+//                .allowedMethods("GET", "POST","PUT","PATCH","DELETE","OPTIONS");
+//    }
 }
