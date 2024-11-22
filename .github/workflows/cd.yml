@@ -141,3 +141,4 @@ jobs:
               docker-compose stop green
               docker-compose rm -f green
               docker rmi nimikgnoej/tig-web:green || true
+            fi
