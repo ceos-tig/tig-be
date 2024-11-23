@@ -6,6 +6,7 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 import tig.server.base.BaseTimeEntity;
 import tig.server.club.domain.Club;
+import tig.server.coupon.domain.Coupon;
 import tig.server.enums.ProgramEnum;
 import tig.server.enums.Status;
 import tig.server.member.domain.Member;
@@ -73,7 +74,13 @@ public class Reservation extends BaseTimeEntity {
 
     private Integer couponDiscountPrice;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "coupon_id")
+    private Coupon coupon;
 
+    public Long getCouponId() {
+        return coupon != null ? coupon.getId() : null;
+    }
     //* 연관관계 편의 메서드 *//
     public void addCouponDiscountPrice(Integer couponDiscountPrice) {
         this.couponDiscountPrice = couponDiscountPrice;

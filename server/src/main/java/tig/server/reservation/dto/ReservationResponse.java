@@ -96,4 +96,7 @@ public class ReservationResponse {
 
     @Schema(type = "integer", example = "3000")
     private String couponDiscountPrice;
+
+    @Schema(type = "integer", example = "2")
+    private Long couponId;
 }
