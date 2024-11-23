@@ -144,11 +144,16 @@ public class ReservationService {
         Club club = clubMapper.responseToEntity(clubService.getClubById(clubId));
 
         Reservation reservation = reservationMapper.requestToEntity(reservationRequest);
+
         reservation.setMember(member);
         reservation.setClub(club);
 
-        if (usedCoupon != null) reservation.addCouponDiscountPrice(usedCoupon.getDiscount());
-        else reservation.addCouponDiscountPrice(0);
+        if (usedCoupon != null) {
+            reservation.addCouponDiscountPrice(usedCoupon.getDiscount());
+            reservation.injectCoupon(usedCoupon);
+        } else {
+            reservation.addCouponDiscountPrice(0);
+        }
 
         if (club.getType() == Type.GAME) {
             reservationRequest.setEndTime("2000-01-01T00:00:00");
