@@ -267,10 +267,7 @@ public class ClubService {
         return club;
     }
 
-    public HomeResponse getHomeClubsForLoginUser(HomeRequest homeRequest, Member member) {
-        Float requestLatitude = homeRequest.getLatitude();
-        Float requestLongitude = homeRequest.getLongitude();
-
+    public HomeResponse getHomeClubsForLoginUser(Float requestLatitude, Float requestLongitude, Member member) {
         ClubService service = serviceProvider.getObject();
 
         // 사용자가 좋아요한 클럽 조회
@@ -315,10 +312,7 @@ public class ClubService {
                 .build();
     }
 
-    public HomeResponse getHomeClubs(HomeRequest homeRequest) {
-        Float requestLatitude = homeRequest.getLatitude();
-        Float requestLongitude = homeRequest.getLongitude();
-
+    public HomeResponse getHomeClubs(Float requestLatitude, Float requestLongitude) {
         ClubService service = serviceProvider.getObject();
 
         List<ClubResponse> nearestClubs = service.optimizedParallelFindNearestClubs(requestLatitude, requestLongitude, 5)
