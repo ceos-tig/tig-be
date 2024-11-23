@@ -259,6 +259,7 @@ public class ReservationService {
                     .orElseThrow(() -> new BusinessExceptionHandler("coupon not found", ErrorCode.NOT_FOUND_ERROR));
             reservation.minusCouponDiscountPrice(coupon.getDiscount());
             coupon.restore();
+            reservation.cancelReservation();
         }
         // Define the list of valid statuses
         List<Status> validStatuses = Arrays.asList(Status.TBC, Status.CONFIRMED);
