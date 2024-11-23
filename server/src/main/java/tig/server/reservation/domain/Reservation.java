@@ -81,6 +81,10 @@ public class Reservation extends BaseTimeEntity {
     public Long getCouponId() {
         return coupon != null ? coupon.getId() : null;
     }
+
+    public void injectCoupon(Coupon coupon) {
+
+    }
     //* 연관관계 편의 메서드 *//
     public void addCouponDiscountPrice(Integer couponDiscountPrice) {
         this.couponDiscountPrice = couponDiscountPrice;
