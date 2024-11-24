@@ -145,7 +145,7 @@ public class MemberService {
 
             accessToken = tokenProvider.createAccessToken(username, uniqueId);
 
-            discordMessageProvider.sendJoinMessage(EventMessage.SIGN_UP_EVENT);
+            discordMessageProvider.sendJoinMessage(member.getName(), EventMessage.SIGN_UP_EVENT);
             return LoginMemberResponseDto.fromMember(member, accessToken);
         }
     }
@@ -191,7 +191,7 @@ public class MemberService {
             memberRepository.save(member);
 
             accessToken = tokenProvider.createAccessToken(username, uniqueId);
-            discordMessageProvider.sendJoinMessage(EventMessage.SIGN_UP_EVENT);
+            discordMessageProvider.sendJoinMessage(member.getName(), EventMessage.SIGN_UP_EVENT);
             return LoginMemberResponseDto.fromMember(member, accessToken);
         }
     }

@@ -23,8 +23,8 @@ public class DiscordMessageProvider {
     private final DiscordFeignCancel discordFeignCancel;
 
 
-    public void sendJoinMessage(EventMessage eventMessage) {
-        DiscordMessage discordMessage = createJoinMessage(eventMessage.getMessage());
+    public void sendJoinMessage(String name, EventMessage eventMessage) {
+        DiscordMessage discordMessage = createJoinMessage(name, eventMessage.getMessage());
         sendJoinMessageToDiscord(discordMessage);
     }
 
