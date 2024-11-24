@@ -44,8 +44,11 @@ public record DiscordMessage(
                 + "--------------------------------------------\n");
     }
 
-    public static DiscordMessage createJoinMessage(String message) {
-        return new DiscordMessage(message);
+    public static DiscordMessage createJoinMessage(String name, String message) {
+        return new DiscordMessage("\n--------------------------------------------\n"
+                + "| " + message + "\n"
+                + "| " + name + " 님이 회원가입을 완료했습니다!" + "\n"
+                + "--------------------------------------------\n");
     }
 
     private static String changeToDateFormat(String beforeDateTime) {
