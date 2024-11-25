@@ -117,6 +117,7 @@ jobs:
               echo "No active environment detected. Starting fresh deployment with GREEN environment."
             
               echo "ENVSUBST start"
+              source /home/ubuntu/.env
               envsubst < /home/ubuntu/nginx.template.conf > /home/ubuntu/nginx.conf
               # 그린 환경으로 초기화
               docker-compose pull green nginx
@@ -151,6 +152,7 @@ jobs:
               echo "Currently running GREEN environment. Switching to BLUE."
               
               echo "ENVSUBST start"
+              source /home/ubuntu/.env
               envsubst < /home/ubuntu/nginx.template.conf > /home/ubuntu/nginx.conf
             
               # 블루 환경 준비
@@ -190,6 +192,7 @@ jobs:
               echo "Currently running BLUE environment. Switching to GREEN."
             
               echo "ENVSUBST start"
+              source /home/ubuntu/.env
               envsubst < /home/ubuntu/nginx.template.conf > /home/ubuntu/nginx.conf
             
               # 그린 환경 준비
