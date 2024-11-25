@@ -97,9 +97,9 @@ jobs:
       - name: Copy docker-compose.yml to EC2
         run: scp -i tig-key-pair.pem ${{ github.workspace }}/docker-compose.yml ubuntu@${{ secrets.SERVER_IP }}:~
 
-      # 13. EC2에 nginx.template.conf 전송
-      - name: Copy nginx.template.conf to EC2
-        run: scp -i tig-key-pair.pem ${{ github.workspace }}/nginx/nginx.template.conf ubuntu@${{ secrets.SERVER_IP }}:/home/ubuntu/nginx.template.conf
+      # 13. EC2에 nginx.conf.template 전송
+      - name: Copy nginx.conf.template to EC2
+        run: scp -i tig-key-pair.pem ${{ github.workspace }}/nginx/nginx.conf.template ubuntu@${{ secrets.SERVER_IP }}:/home/ubuntu/nginx.conf.template
 
       # 14. 블루/그린 배포 스크립트 실행
       - name: SSH to EC2 and run deployment
@@ -124,7 +124,7 @@ jobs:
               
               # 환경 변수 확인
               echo $environment
-              envsubst '$environment' < /home/ubuntu/nginx.template.conf > /home/ubuntu/nginx.conf
+              envsubst '$environment' < /home/ubuntu/nginx.conf.template > /home/ubuntu/nginx.conf
               
             
               # 그린 환경으로 초기화
@@ -168,7 +168,7 @@ jobs:
             
               # 환경 변수 확인
               echo $environment
-              envsubst '$environment' < /home/ubuntu/nginx.template.conf > /home/ubuntu/nginx.conf
+              envsubst '$environment' < /home/ubuntu/nginx.conf.template > /home/ubuntu/nginx.conf
               
             
               # 블루 환경 준비
@@ -217,7 +217,7 @@ jobs:
             
               # 환경 변수 확인
               echo $environment
-              envsubst '$environment' < /home/ubuntu/nginx.template.conf > /home/ubuntu/nginx.conf
+              envsubst '$environment' < /home/ubuntu/nginx.conf.template > /home/ubuntu/nginx.conf
               
             
               # 그린 환경 준비
