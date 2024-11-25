@@ -31,30 +31,26 @@ jobs:
         working-directory: server
         run: ./gradlew clean build
 
-      # 4. .env 파일 생성
-      - name: Create .env file
-        run: |
-          echo "${{ secrets.ENV_FILE }}" > .env
 
-      # 5. Docker Compose 설치
+      # 4. Docker Compose 설치
       - name: Install Docker Compose
         run: |
           sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
           sudo chmod +x /usr/local/bin/docker-compose
           docker-compose --version
 
-      # 6. Docker 로그인
+      # 5. Docker 로그인
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-      # 7. 기존 이미지 삭제
+      # 6. 기존 이미지 삭제
       - name: Remove existing Docker images
         run: |
           docker rmi nimikgnoej/tig-web:blue || true
           docker rmi nimikgnoej/tig-web:green || true
           docker rmi nimikgnoej/tig-nginx:latest || true
 
-      # 8. Docker 빌드 및 푸시
+      # 7. Docker 빌드 및 푸시
       - name: Build and push Docker image
         run: |
           docker-compose build
@@ -63,27 +59,46 @@ jobs:
           docker push nimikgnoej/tig-web:green
           docker push nimikgnoej/tig-nginx
 
-      # 9. Secrets에서 .pem 파일 생성
+      # 8. Secrets에서 .pem 파일 생성
       - name: Create .pem file from secret
         run: echo "${{ secrets.SERVER_SSH_KEY }}" > tig-key-pair.pem
 
-      # 10. .pem 파일 권한 설정
+      # 9. .pem 파일 권한 설정
       - name: Set permission for .pem file
         run: chmod 600 tig-key-pair.pem
 
-      # 11. Add EC2 host to known_hosts
+      # 10. Add EC2 host to known_hosts
       - name: Add EC2 host to known_hosts
         run: |
           mkdir -p ~/.ssh
           ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
 
-      # 12. EC2에 docker-compose.yml 전송
+      # 11. EC2에 docker-compose.yml 전송
       - name: Copy docker-compose.yml to EC2
         run: scp -i tig-key-pair.pem ${{ github.workspace }}/docker-compose.yml ubuntu@${{ secrets.SERVER_IP }}:~
 
-      # 13. EC2에 nginx.conf 전송
+      # 12. EC2에 nginx.conf 전송
       - name: Copy nginx.conf to EC2
         run: scp -i tig-key-pair.pem ${{ github.workspace }}/nginx/nginx.conf ubuntu@${{ secrets.SERVER_IP }}:/home/ubuntu/nginx.conf
+
+        # 13. 동적으로 .env 파일 생성 및 전송
+      - name: Set active environment in .env and copy to EC2
+        run: |
+          # 기존 secrets.ENV_FILE 내용 저장
+          echo "${{ secrets.ENV_FILE }}" > .env
+
+          # 활성화된 환경 가져오기
+          ACTIVE_ENV=$(ssh -i tig-key-pair.pem ubuntu@${{ secrets.SERVER_IP }} "curl -s http://localhost/active-environment")
+
+          # 환경 변수 추가
+          if [ "$ACTIVE_ENV" = "green" ]; then
+            echo "environment=blue" >> .env # 현재 green이면 다음 환경은 blue
+          else
+            echo "environment=green" >> .env # 현재 blue이면 다음 환경은 green
+          fi
+
+          # EC2에 전송
+          scp -i tig-key-pair.pem .env ubuntu@${{ secrets.SERVER_IP }}:~
 
       # 14. 블루/그린 배포 스크립트 실행
       - name: SSH to EC2 and run deployment
@@ -94,56 +109,86 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
             # 현재 활성화된 환경 확인
-            CURRENT_ENV=$(curl -s http://localhost/active-environment)
-            echo "Current environment: $CURRENT_ENV"
+            IS_GREEN=$(docker ps | grep app-green)
+            IS_BLUE=$(docker ps | grep app-blue)
+            
+            if [ -z "$IS_GREEN" ] && [ -z "$IS_BLUE" ]; then
+              echo "No active environment detected. Starting fresh deployment with GREEN environment."
+              # 그린 환경으로 초기화
+              docker-compose pull green nginx
+              docker-compose up -d green nginx
 
-            # 다음 활성화 환경 설정
-            if [ "$CURRENT_ENV" == "green" ]; then
-              NEW_ENV="blue"
-            else
-              NEW_ENV="green"
+              # Health Check
+              echo "Performing health check for GREEN"
+              MAX_RETRIES=10
+              RETRY_COUNT=0
+              until [ "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8082/tig/health)" == "200" ]; do
+                echo "Waiting for GREEN environment to be healthy..."
+                sleep 5
+                RETRY_COUNT=$((RETRY_COUNT + 1))
+                if [ "$RETRY_COUNT" -ge "$MAX_RETRIES" ]; then
+                  echo "Health check for GREEN environment failed after $MAX_RETRIES retries."
+                  exit 1
+                fi
+              done
+              echo "GREEN environment is healthy. Deployment completed."
+              exit 0
+            fi  
+            if [ -n "$IS_GREEN" ]; then
+              echo "Currently running GREEN environment. Switching to BLUE."
+
+              # 블루 환경 준비
+              docker-compose pull blue nginx
+              docker-compose up -d blue nginx
+
+              # Health Check
+              echo "Performing health check for BLUE"
+              MAX_RETRIES=10
+              RETRY_COUNT=0
+              until [ "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8081/tig/health)" == "200" ]; do
+                echo "Waiting for BLUE environment to be healthy..."
+                sleep 5
+                RETRY_COUNT=$((RETRY_COUNT + 1))
+                if [ "$RETRY_COUNT" -ge "$MAX_RETRIES" ]; then
+                  echo "Health check for BLUE environment failed after $MAX_RETRIES retries."
+                  exit 1
+                fi
+              done
+
+              echo "Deployment to BLUE is successful."
+
+              # 그린 환경 정리
+              echo "Cleaning up GREEN environment"
+              docker-compose stop green
+              docker-compose rm -f green
+              docker rmi nimikgnoej/tig-web:green || true
+            
+            elif [ -n "$IS_BLUE" ]; then
+              echo "Currently running BLUE environment. Switching to GREEN."
+            
+              # 그린 환경 준비
+              docker-compose pull green nginx
+              docker-compose up -d green nginx
+            
+              # Health Check
+              echo "Performing health check for GREEN"
+              MAX_RETRIES=10
+              RETRY_COUNT=0
+              until [ "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8082/tig/health)" == "200" ]; do
+                echo "Waiting for GREEN environment to be healthy..."
+                sleep 5
+                RETRY_COUNT=$((RETRY_COUNT + 1))
+                if [ "$RETRY_COUNT" -ge "$MAX_RETRIES" ]; then
+                  echo "Health check for GREEN environment failed after $MAX_RETRIES retries."
+                  exit 1
+                fi
+              done
+            
+              echo "Deployment to GREEN is successful."
+
+              # 블루 환경 정리
+              echo "Cleaning up BLUE environment"
+              docker-compose stop blue
+              docker-compose rm -f blue
+              docker rmi nimikgnoej/tig-web:blue || true
             fi
-
-            # 새로운 Docker 이미지 배포
-            echo "Deploying new environment: $NEW_ENV"
-            docker-compose pull $NEW_ENV nginx
-            docker-compose up -d $NEW_ENV nginx
-
-            # Health Check
-            echo "Performing health check for $NEW_ENV"
-            MAX_RETRIES=10
-            RETRY_COUNT=0
-            until [ "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/tig/health)" == "200" ]; do
-              echo "Waiting for $NEW_ENV environment to be healthy..."
-              sleep 5
-              RETRY_COUNT=$((RETRY_COUNT + 1))
-              if [ "$RETRY_COUNT" -ge "$MAX_RETRIES" ]; then
-                echo "Health check for $NEW_ENV environment failed after $MAX_RETRIES retries."
-                exit 1
-              fi
-            done
-            echo "$NEW_ENV environment is healthy."
-
-            # Nginx 설정 업데이트
-            echo "Updating Nginx to route traffic to $NEW_ENV"
-            sed -i "s/\$environment .*/\$environment \"$NEW_ENV\";/" /home/ubuntu/nginx.conf
-
-            # Nginx 설정 검증
-            docker cp /home/ubuntu/nginx.conf nginx:/etc/nginx/nginx.conf
-            docker exec nginx nginx -t
-            if [ $? -ne 0 ]; then
-              echo "Nginx configuration test failed. Reverting changes..."
-              sed -i "s/\$environment .*/\$environment \"$CURRENT_ENV\";/" /home/ubuntu/nginx.conf
-              exit 1
-            fi
-
-            # Nginx 재적용
-            echo "Reloading Nginx..."
-            docker exec nginx nginx -s reload
-
-            # 이전 환경 정리
-            echo "Cleaning up $CURRENT_ENV environment"
-            docker-compose stop $CURRENT_ENV
-            docker-compose rm -f $CURRENT_ENV
-            docker rmi nimikgnoej/tig-web:$CURRENT_ENV || true
-            echo "Deployment completed. Active environment: $NEW_ENV"
