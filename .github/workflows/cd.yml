@@ -31,7 +31,6 @@ jobs:
         working-directory: server
         run: ./gradlew clean build
 
-
       # 4. Docker Compose 설치
       - name: Install Docker Compose
         run: |
@@ -63,8 +62,8 @@ jobs:
         run: |
           mkdir -p ~/.ssh
           ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
-          
-      # 13. 동적으로 .env 파일 생성 및 전송
+
+      # 11. 동적으로 .env 파일 생성 및 전송
       - name: Set active environment in .env and copy to EC2
         run: |
           # 기존 secrets.ENV_FILE 내용 저장
@@ -94,14 +93,13 @@ jobs:
           docker push nimikgnoej/tig-web:green
           docker push nimikgnoej/tig-nginx
 
-      # 11. EC2에 docker-compose.yml 전송
+      # 12. EC2에 docker-compose.yml 전송
       - name: Copy docker-compose.yml to EC2
         run: scp -i tig-key-pair.pem ${{ github.workspace }}/docker-compose.yml ubuntu@${{ secrets.SERVER_IP }}:~
 
-      # 12. EC2에 nginx.conf 전송
-      - name: Copy nginx.conf to EC2
-        run: scp -i tig-key-pair.pem ${{ github.workspace }}/nginx/nginx.conf ubuntu@${{ secrets.SERVER_IP }}:/home/ubuntu/nginx.conf
-
+      # 13. EC2에 nginx.template.conf 전송
+      - name: Copy nginx.template.conf to EC2
+        run: scp -i tig-key-pair.pem ${{ github.workspace }}/nginx/nginx.template.conf ubuntu@${{ secrets.SERVER_IP }}:/home/ubuntu/nginx.template.conf
 
       # 14. 블루/그린 배포 스크립트 실행
       - name: SSH to EC2 and run deployment
@@ -135,8 +133,17 @@ jobs:
                 fi
               done
               echo "GREEN environment is healthy. Deployment completed."
+            
+              # Nginx 템플릿을 변환하고 설정 적용
+              echo "Applying Nginx configuration..."
+              envsubst < /home/ubuntu/nginx.template.conf > /home/ubuntu/nginx.conf
+              docker cp /home/ubuntu/nginx.conf nginx:/etc/nginx/nginx.conf
+              docker exec nginx nginx -t
+              docker exec nginx nginx -s reload
+            
               exit 0
             fi  
+
             if [ -n "$IS_GREEN" ]; then
               echo "Currently running GREEN environment. Switching to BLUE."
 
@@ -159,6 +166,13 @@ jobs:
               done
 
               echo "Deployment to BLUE is successful."
+            
+              # Nginx 템플릿을 변환하고 설정 적용
+              echo "Applying Nginx configuration..."
+              envsubst < /home/ubuntu/nginx.template.conf > /home/ubuntu/nginx.conf
+              docker cp /home/ubuntu/nginx.conf nginx:/etc/nginx/nginx.conf
+              docker exec nginx nginx -t
+              docker exec nginx nginx -s reload
 
               # 그린 환경 정리
               echo "Cleaning up GREEN environment"
@@ -188,10 +202,16 @@ jobs:
               done
             
               echo "Deployment to GREEN is successful."
+            
+              # Nginx 템플릿을 변환하고 설정 적용
+              echo "Applying Nginx configuration..."
+              envsubst < /home/ubuntu/nginx.template.conf > /home/ubuntu/nginx.conf
+              docker cp /home/ubuntu/nginx.conf nginx:/etc/nginx/nginx.conf
+              docker exec nginx nginx -t
+              docker exec nginx nginx -s reload
 
               # 블루 환경 정리
               echo "Cleaning up BLUE environment"
               docker-compose stop blue
               docker-compose rm -f blue
               docker rmi nimikgnoej/tig-web:blue || true
-            fi
