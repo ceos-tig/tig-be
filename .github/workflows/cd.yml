@@ -215,3 +215,4 @@ jobs:
               docker-compose stop blue
               docker-compose rm -f blue
               docker rmi nimikgnoej/tig-web:blue || true
+            fi
