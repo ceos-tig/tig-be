@@ -49,6 +49,27 @@ jobs:
           docker rmi nimikgnoej/tig-web:blue || true
           docker rmi nimikgnoej/tig-web:green || true
           docker rmi nimikgnoej/tig-nginx:latest || true
+          
+      # 13. 동적으로 .env 파일 생성 및 전송
+      - name: Set active environment in .env and copy to EC2
+        run: |
+          # 기존 secrets.ENV_FILE 내용 저장
+          echo "${{ secrets.ENV_FILE }}" > .env
+
+          # 활성화된 환경 가져오기
+          ACTIVE_ENV=$(ssh -i tig-key-pair.pem ubuntu@${{ secrets.SERVER_IP }} "curl -s http://localhost/active-environment" || echo "green")
+
+          echo "Current active environment: $ACTIVE_ENV"
+
+          # 환경 변수 추가
+          if [ "$ACTIVE_ENV" = "green" ]; then
+            echo "environment=blue" >> .env # 현재 green이면 다음 환경은 blue
+          else
+            echo "environment=green" >> .env # 현재 blue이면 다음 환경은 green
+          fi
+
+          # EC2에 전송
+          scp -i tig-key-pair.pem .env ubuntu@${{ secrets.SERVER_IP }}:~
 
       # 7. Docker 빌드 및 푸시
       - name: Build and push Docker image
@@ -81,24 +102,6 @@ jobs:
       - name: Copy nginx.conf to EC2
         run: scp -i tig-key-pair.pem ${{ github.workspace }}/nginx/nginx.conf ubuntu@${{ secrets.SERVER_IP }}:/home/ubuntu/nginx.conf
 
-        # 13. 동적으로 .env 파일 생성 및 전송
-      - name: Set active environment in .env and copy to EC2
-        run: |
-          # 기존 secrets.ENV_FILE 내용 저장
-          echo "${{ secrets.ENV_FILE }}" > .env
-
-          # 활성화된 환경 가져오기
-          ACTIVE_ENV=$(ssh -i tig-key-pair.pem ubuntu@${{ secrets.SERVER_IP }} "curl -s http://localhost/active-environment")
-
-          # 환경 변수 추가
-          if [ "$ACTIVE_ENV" = "green" ]; then
-            echo "environment=blue" >> .env # 현재 green이면 다음 환경은 blue
-          else
-            echo "environment=green" >> .env # 현재 blue이면 다음 환경은 green
-          fi
-
-          # EC2에 전송
-          scp -i tig-key-pair.pem .env ubuntu@${{ secrets.SERVER_IP }}:~
 
       # 14. 블루/그린 배포 스크립트 실행
       - name: SSH to EC2 and run deployment
