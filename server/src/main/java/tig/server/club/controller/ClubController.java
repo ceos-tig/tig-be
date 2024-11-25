@@ -58,7 +58,7 @@ public class ClubController {
     @GetMapping("/guest/home")
     @Operation(summary = "홈 화면 업체 조회 : 비로그인")
     public ResponseEntity<ApiResponse<List<HomeResponse>>> getHomeClubs(@RequestParam("latitude") Float latitude,
-                                                                        @RequestParam("latitude") Float longitude) {
+                                                                        @RequestParam("longitude") Float longitude) {
         HomeResponse homeResponse = clubService.getHomeClubs(latitude, longitude);
         ApiResponse<List<HomeResponse>> response = ApiResponse.of(200, "successfully retrieved home clubs", List.of(homeResponse));
         return ResponseEntity.ok(response);
@@ -68,7 +68,7 @@ public class ClubController {
     @Operation(summary = "홈 화면 업체 조회 : 로그인")
     public ResponseEntity<ApiResponse<List<HomeResponse>>> getHomeClubsForLoginUser(@LoginUser Member member,
                                                                                     @RequestParam("latitude") Float latitude,
-                                                                                    @RequestParam("latitude") Float longitude) {
+                                                                                    @RequestParam("longitude") Float longitude) {
         HomeResponse homeResponse = clubService.getHomeClubsForLoginUser(latitude, longitude, member);
         ApiResponse<List<HomeResponse>> response = ApiResponse.of(200, "successfully retrieved home clubs", List.of(homeResponse));
         return ResponseEntity.ok(response);
