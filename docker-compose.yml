@@ -40,6 +40,8 @@ services:
       - "80:80" # 외부로 노출되는 포트
     env_file:
       - .env
+    environment:
+      - environment=${environment}
     depends_on:
       - blue
       - green
