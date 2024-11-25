@@ -126,11 +126,7 @@ jobs:
               echo $environment
               
               envsubst '$environment' < /home/ubuntu/nginx.template.conf > /home/ubuntu/nginx.conf
-              # Nginx 템플릿을 변환하고 설정 적용
-              echo "Applying Nginx configuration..."
-              docker cp /home/ubuntu/nginx.conf nginx:/etc/nginx/nginx.conf
-              docker exec nginx nginx -t
-              docker exec nginx nginx -s reload
+              
             
               # 그린 환경으로 초기화
               docker-compose pull green nginx
@@ -151,6 +147,14 @@ jobs:
               done
               echo "GREEN environment is healthy. Deployment completed."
             
+              # Nginx 템플릿을 변환하고 설정 적용
+              echo "Applying Nginx configuration..."
+              docker cp /home/ubuntu/nginx.conf nginx:/etc/nginx/nginx.conf
+              docker exec nginx nginx -t
+              docker exec nginx nginx -s reload
+              echo "Removing unused images..."
+              docker image prune -f
+            
               exit 0
             fi  
 
@@ -166,11 +170,7 @@ jobs:
               # 환경 변수 확인
               echo $environment
               envsubst '$environment' < /home/ubuntu/nginx.template.conf > /home/ubuntu/nginx.conf
-              # Nginx 템플릿을 변환하고 설정 적용
-              echo "Applying Nginx configuration..."
-              docker cp /home/ubuntu/nginx.conf nginx:/etc/nginx/nginx.conf
-              docker exec nginx nginx -t
-              docker exec nginx nginx -s reload
+              
             
               # 블루 환경 준비
               docker-compose pull blue nginx
@@ -191,7 +191,11 @@ jobs:
               done
 
               echo "Deployment to BLUE is successful."
-            
+              # Nginx 템플릿을 변환하고 설정 적용
+              echo "Applying Nginx configuration..."
+              docker cp /home/ubuntu/nginx.conf nginx:/etc/nginx/nginx.conf
+              docker exec nginx nginx -t
+              docker exec nginx nginx -s reload
             
 
               # 그린 환경 정리
@@ -199,6 +203,9 @@ jobs:
               docker-compose stop green
               docker-compose rm -f green
               docker rmi nimikgnoej/tig-web:green || true
+            
+              echo "Removing unused images..."
+              docker image prune -f
             
             elif [ -n "$IS_BLUE" ]; then
               echo "Currently running BLUE environment. Switching to GREEN."
@@ -212,11 +219,7 @@ jobs:
               # 환경 변수 확인
               echo $environment
               envsubst '$environment' < /home/ubuntu/nginx.template.conf > /home/ubuntu/nginx.conf
-              # Nginx 템플릿을 변환하고 설정 적용
-              echo "Applying Nginx configuration..."
-              docker cp /home/ubuntu/nginx.conf nginx:/etc/nginx/nginx.conf
-              docker exec nginx nginx -t
-              docker exec nginx nginx -s reload
+              
             
               # 그린 환경 준비
               docker-compose pull green nginx
@@ -237,10 +240,18 @@ jobs:
               done
             
               echo "Deployment to GREEN is successful."
+              # Nginx 템플릿을 변환하고 설정 적용
+              echo "Applying Nginx configuration..."
+              docker cp /home/ubuntu/nginx.conf nginx:/etc/nginx/nginx.conf
+              docker exec nginx nginx -t
+              docker exec nginx nginx -s reload
 
               # 블루 환경 정리
               echo "Cleaning up BLUE environment"
               docker-compose stop blue
               docker-compose rm -f blue
               docker rmi nimikgnoej/tig-web:blue || true
+            
+              echo "Removing unused images..."
+              docker image prune -f
             fi
