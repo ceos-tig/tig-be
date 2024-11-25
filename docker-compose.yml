@@ -38,6 +38,8 @@ services:
       dockerfile: Dockerfile # nginx에 대한 Dockerfile
     ports:
       - "80:80" # 외부로 노출되는 포트
+    env_file:
+      - .env
     depends_on:
       - blue
       - green
