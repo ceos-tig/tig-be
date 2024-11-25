@@ -208,11 +208,11 @@ jobs:
               source /home/ubuntu/.env
             
               # .env 파일을 읽고 export
-              export $(cat .env | xargs)
+              export environment=$environment
             
               # 환경 변수 확인
               echo $environment
-              envsubst < /home/ubuntu/nginx.template.conf > /home/ubuntu/nginx.conf
+              envsubst < "${environment}" /home/ubuntu/nginx.template.conf > /home/ubuntu/nginx.conf
             
               # 그린 환경 준비
               docker-compose pull green nginx
