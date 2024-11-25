@@ -1,6 +1,7 @@
 package tig.server.review.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tig.server.club.domain.Club;
@@ -43,6 +44,10 @@ public class ReviewService {
 
     private final ReviewMapper reviewMapper = ReviewMapper.INSTANCE;
     private final ReservationMapper reservationMapper = ReservationMapper.INSTANCE;
+
+    private final RedisTemplate<String, String> redisTemplateAI;
+
+    private static final String REDIS_REVIEW_SUMMARY_KEY_PREFIX = "ReviewSummary:";
 
     @Transactional
     public ReviewWithReservationDTO createReview(Long memberId, Long reservationId, ReviewRequest reviewRequest) {
@@ -129,15 +134,29 @@ public class ReviewService {
                 .limit(50)  // 최신 50개 리뷰만 추출
                 .toList();
 
-        String aiSummary="";
-        StringBuilder prompt = new StringBuilder(); // StringBuilder 객체 초기화
+        // 리뷰 개수 확인
+        long totalReviewCount = reservations.stream()
+                .map(Reservation::getReview)
+                .filter(Objects::nonNull)
+                .count();
 
-        // 최신 50개의 리뷰 중 3개 이상일 때 AI 요약
-        if (latestReviews.size() >= 3) {
+        // Redis에서 캐싱된 요약 확인
+        String redisKey = REDIS_REVIEW_SUMMARY_KEY_PREFIX + clubId;
+        String cachedSummary = redisTemplateAI.opsForValue().get(redisKey);
+
+        String aiSummary = cachedSummary; // Redis에 캐싱된 요약이 없으면 null
+
+        if (totalReviewCount >= 3 && (totalReviewCount % 10 == 0 || aiSummary == null)) {
+            // 리뷰 내용을 AI 요청에 전달
+            StringBuilder prompt = new StringBuilder();
             latestReviews.forEach(review -> prompt.append(review.getContents()).append(" "));
+
+            // AI 요청
             aiSummary = openAIService.reviewSummary(prompt.toString()).getChoices().get(0).getMessage().getContent();
-        } else {
-            aiSummary = "";
+
+            // Redis에 캐싱
+            redisTemplateAI.opsForValue().set(redisKey, aiSummary);
+            System.out.println("AI 요약 결과 Redis에 저장 완료: " + aiSummary);
         }
 
         // 최신 50개의 리뷰에 해당하는 응답 생성
