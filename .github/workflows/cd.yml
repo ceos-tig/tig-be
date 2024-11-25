@@ -120,10 +120,11 @@ jobs:
               source /home/ubuntu/.env
             
               # .env 파일을 읽고 export
-              export $(cat .env | xargs)
+              export environment=$(grep environment /home/ubuntu/.env | cut -d '=' -f2)
               
               # 환경 변수 확인
               echo $environment
+              envsubst '$environment' < /home/ubuntu/nginx.template.conf > /home/ubuntu/nginx.conf
               
             
               # 그린 환경으로 초기화
@@ -163,10 +164,11 @@ jobs:
               source /home/ubuntu/.env
             
               # .env 파일을 읽고 export
-              export $(cat .env | xargs)
+              export environment=$(grep environment /home/ubuntu/.env | cut -d '=' -f2)
             
               # 환경 변수 확인
               echo $environment
+              envsubst '$environment' < /home/ubuntu/nginx.template.conf > /home/ubuntu/nginx.conf
               
             
               # 블루 환경 준비
@@ -211,10 +213,11 @@ jobs:
               source /home/ubuntu/.env
             
               # .env 파일을 읽고 export
-              export $(cat .env | xargs)
+              export environment=$(grep environment /home/ubuntu/.env | cut -d '=' -f2)
             
               # 환경 변수 확인
               echo $environment
+              envsubst '$environment' < /home/ubuntu/nginx.template.conf > /home/ubuntu/nginx.conf
               
             
               # 그린 환경 준비
