@@ -131,7 +131,6 @@ jobs:
               docker-compose pull green nginx
               docker start nginx
               docker cp /home/ubuntu/nginx.conf nginx:/etc/nginx/nginx.conf
-              docker stop nginx
               docker-compose up -d green nginx
 
               # Health Check
@@ -178,7 +177,6 @@ jobs:
               docker-compose pull blue nginx
               docker start nginx
               docker cp /home/ubuntu/nginx.conf nginx:/etc/nginx/nginx.conf
-              docker stop nginx
               docker-compose up -d blue nginx
 
               # Health Check
@@ -230,7 +228,6 @@ jobs:
               docker-compose pull green nginx
               docker start nginx
               docker cp /home/ubuntu/nginx.conf nginx:/etc/nginx/nginx.conf
-              docker stop nginx
               docker-compose up -d green nginx
             
               # Health Check
