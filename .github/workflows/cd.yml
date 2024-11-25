@@ -49,6 +49,10 @@ jobs:
           docker rmi nimikgnoej/tig-web:blue || true
           docker rmi nimikgnoej/tig-web:green || true
           docker rmi nimikgnoej/tig-nginx:latest || true
+
+      # 8. Secrets에서 .pem 파일 생성
+      - name: Create .pem file from secret
+        run: echo "${{ secrets.SERVER_SSH_KEY }}" > tig-key-pair.pem
           
       # 13. 동적으로 .env 파일 생성 및 전송
       - name: Set active environment in .env and copy to EC2
@@ -79,10 +83,6 @@ jobs:
           docker push nimikgnoej/tig-web:blue
           docker push nimikgnoej/tig-web:green
           docker push nimikgnoej/tig-nginx
-
-      # 8. Secrets에서 .pem 파일 생성
-      - name: Create .pem file from secret
-        run: echo "${{ secrets.SERVER_SSH_KEY }}" > tig-key-pair.pem
 
       # 9. .pem 파일 권한 설정
       - name: Set permission for .pem file
