@@ -118,6 +118,13 @@ jobs:
             
               echo "ENVSUBST start"
               source /home/ubuntu/.env
+            
+              # .env 파일을 읽고 export
+              export $(cat .env | xargs)
+              
+              # 환경 변수 확인
+              echo $environment
+              
               envsubst < /home/ubuntu/nginx.template.conf > /home/ubuntu/nginx.conf
               # 그린 환경으로 초기화
               docker-compose pull green nginx
@@ -153,6 +160,12 @@ jobs:
               
               echo "ENVSUBST start"
               source /home/ubuntu/.env
+            
+              # .env 파일을 읽고 export
+              export $(cat .env | xargs)
+            
+              # 환경 변수 확인
+              echo $environment
               envsubst < /home/ubuntu/nginx.template.conf > /home/ubuntu/nginx.conf
             
               # 블루 환경 준비
@@ -193,6 +206,12 @@ jobs:
             
               echo "ENVSUBST start"
               source /home/ubuntu/.env
+            
+              # .env 파일을 읽고 export
+              export $(cat .env | xargs)
+            
+              # 환경 변수 확인
+              echo $environment
               envsubst < /home/ubuntu/nginx.template.conf > /home/ubuntu/nginx.conf
             
               # 그린 환경 준비
