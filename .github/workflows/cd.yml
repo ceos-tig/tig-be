@@ -125,8 +125,6 @@ jobs:
               # 환경 변수 확인
               echo $environment
               
-              envsubst '$environment' < /home/ubuntu/nginx.template.conf > /home/ubuntu/nginx.conf
-              
             
               # 그린 환경으로 초기화
               docker-compose pull green nginx
@@ -169,7 +167,6 @@ jobs:
             
               # 환경 변수 확인
               echo $environment
-              envsubst '$environment' < /home/ubuntu/nginx.template.conf > /home/ubuntu/nginx.conf
               
             
               # 블루 환경 준비
@@ -218,7 +215,6 @@ jobs:
             
               # 환경 변수 확인
               echo $environment
-              envsubst '$environment' < /home/ubuntu/nginx.template.conf > /home/ubuntu/nginx.conf
               
             
               # 그린 환경 준비

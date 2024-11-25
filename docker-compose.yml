@@ -43,8 +43,9 @@ services:
     environment:
       - environment=${environment}
     volumes:
-      - /home/ubuntu/nginx.template.conf:/etc/nginx/nginx.conf
-    command: nginx -g 'daemon off;'
+      - /home/ubuntu/nginx.template.conf:/etc/nginx/nginx.template.conf
+    command: >
+      sh -c "envsubst '$environment' < /etc/nginx/nginx.template.conf > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"
     depends_on:
       - blue
       - green
