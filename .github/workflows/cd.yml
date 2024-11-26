@@ -165,6 +165,13 @@ jobs:
 
             if [ -n "$IS_GREEN" ]; then
               echo "Currently running GREEN environment. Switching to BLUE."
+            
+              # 테스트 환경 test-blue 종료
+              if [ "$(docker ps | grep test-blue)" ]; then
+                echo "Stopping and removing test-blue environment..."
+                docker stop test-blue
+                docker rm test-blue
+              fi
               
               echo "ENVSUBST start"
               source /home/ubuntu/.env
@@ -224,6 +231,13 @@ jobs:
             
             elif [ -n "$IS_BLUE" ]; then
               echo "Currently running BLUE environment. Switching to GREEN."
+            
+              # 테스트 환경 test-green 종료
+              if [ "$(docker ps | grep test-green)" ]; then
+                echo "Stopping and removing test-green environment..."
+                docker stop test-green
+                docker rm test-green
+              fi
             
               echo "ENVSUBST start"
               source /home/ubuntu/.env
