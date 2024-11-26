@@ -93,6 +93,7 @@ public class MemberService {
                 .collect(Collectors.toList());
     }
     public MemberResponse getMemberById(Long id) {
+        System.out.println("id that you requested is : " + id);
         Member member = memberRepository.findById(id)
                 .orElseThrow(() -> new BusinessExceptionHandler("member not found",ErrorCode.NOT_FOUND_ERROR));
 
