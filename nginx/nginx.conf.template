@@ -22,14 +22,14 @@ http {
 
     # 현재 활성화된 환경 설정 (CD에서 이 값만 변경)
     map ${environment} $current_backend {
-        default blue_backend; # 기본은 blue_backend
-        "green" green_backend; # 환경 변수를 green으로 설정 시 green_backend로 전환
+        default "blue_backend"; # 기본은 blue_backend
+        green "green_backend"; # 환경 변수를 green으로 설정 시 green_backend로 전환
     }
 
     # 테스트 환경 설정 (활성화된 환경과 반대로 매핑)
     map $environment $test_backend {
-        default green_backend; # 기본값은 green_backend
-        "green" blue_backend; # 활성화된 환경이 green일 때, test는 blue로 연결
+        default "green_backend"; # 기본값은 green_backend
+        green "blue_backend"; # 활성화된 환경이 green일 때, test는 blue로 연결
     }
 
     server {
