@@ -128,10 +128,8 @@ jobs:
               
             
               # 그린 환경으로 초기화
-              docker-compose pull green nginx
-              docker start nginx
-              docker cp /home/ubuntu/nginx.conf nginx:/etc/nginx/nginx.conf
-              docker-compose up -d green nginx
+              docker-compose pull green
+              docker-compose up -d green
 
               # Health Check
               echo "Performing health check for GREEN"
@@ -150,6 +148,10 @@ jobs:
             
               # Nginx 템플릿을 변환하고 설정 적용
               echo "Applying Nginx configuration..."
+              docker-compose pull nginx
+              docker start nginx
+              docker cp /home/ubuntu/nginx.conf nginx:/etc/nginx/nginx.conf
+              docker-compose up -d nginx
               
               docker exec nginx nginx -t
               docker exec nginx nginx -s reload
@@ -174,10 +176,8 @@ jobs:
               
             
               # 블루 환경 준비
-              docker-compose pull blue nginx
-              docker start nginx
-              docker cp /home/ubuntu/nginx.conf nginx:/etc/nginx/nginx.conf
-              docker-compose up -d blue nginx
+              docker-compose pull blue
+              docker-compose up -d blue
 
               # Health Check
               echo "Performing health check for BLUE"
@@ -196,7 +196,10 @@ jobs:
               echo "Deployment to BLUE is successful."
               # Nginx 템플릿을 변환하고 설정 적용
               echo "Applying Nginx configuration..."
-              
+              docker-compose pull nginx
+              docker start nginx
+              docker cp /home/ubuntu/nginx.conf nginx:/etc/nginx/nginx.conf
+              docker-compose up -d nginx
               docker exec nginx nginx -t
               docker exec nginx nginx -s reload
             
@@ -225,10 +228,8 @@ jobs:
               
             
               # 그린 환경 준비
-              docker-compose pull green nginx
-              docker start nginx
-              docker cp /home/ubuntu/nginx.conf nginx:/etc/nginx/nginx.conf
-              docker-compose up -d green nginx
+              docker-compose pull green
+              docker-compose up -d green
             
               # Health Check
               echo "Performing health check for GREEN"
@@ -247,7 +248,10 @@ jobs:
               echo "Deployment to GREEN is successful."
               # Nginx 템플릿을 변환하고 설정 적용
               echo "Applying Nginx configuration..."
-              
+              docker-compose pull nginx
+              docker start nginx
+              docker cp /home/ubuntu/nginx.conf nginx:/etc/nginx/nginx.conf
+              docker-compose up -d nginx
               docker exec nginx nginx -t
               docker exec nginx nginx -s reload
 
