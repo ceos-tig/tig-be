@@ -213,6 +213,12 @@ jobs:
               docker-compose rm -f green
               docker rmi nimikgnoej/tig-web:green || true
             
+              # test-green 배포
+              echo "Starting test-green environment for testing..."
+              docker pull nimikgnoej/tig-web:green
+              docker run -d -p 8082:8080 --env-file ./.env --name test-green nimikgnoej/tig-web:green
+              docker network connect ubuntu_app-network test-green
+            
               echo "Removing unused images..."
               docker image prune -f
             
@@ -263,6 +269,12 @@ jobs:
               docker-compose stop blue
               docker-compose rm -f blue
               docker rmi nimikgnoej/tig-web:blue || true
+              
+              # test-blue 배포
+              echo "Starting test-blue environment for testing..."
+              docker pull nimikgnoej/tig-web:blue
+              docker run -d -p 8081:8080 --env-file ./.env --name test-blue nimikgnoej/tig-web:blue
+              docker network connect ubuntu_app-network test-blue
             
               echo "Removing unused images..."
               docker image prune -f
