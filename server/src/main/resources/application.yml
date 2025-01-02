@@ -18,6 +18,8 @@ spring:
 management:
   endpoints:
     web:
+      exposure:
+        include: "prometheus"
       base-path: /tig
 
 
