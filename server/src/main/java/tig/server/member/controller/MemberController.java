@@ -115,10 +115,8 @@ public class MemberController {
 
     @Operation(summary = "로그아웃")
     @GetMapping("/logout")
-    public ResponseEntity<ApiResponse<Void>> logout(@LoginUser Member member, HttpServletResponse httpServletResponse) {
-        memberService.logout(member.getId());
-
-        // 쿠키 삭제
+    public ResponseEntity<ApiResponse<Void>> logout(@LoginUser Member member, HttpServletResponse response) {
+        // 쿠키 만료 처리
         ResponseCookie expiredCookie = ResponseCookie.from("refreshToken", member.getRefreshToken())
                 .maxAge(0) // 즉시 만료
                 .path("/")
@@ -126,10 +124,13 @@ public class MemberController {
                 .secure(true)
                 .sameSite("None")
                 .build();
-        httpServletResponse.addHeader(HttpHeaders.SET_COOKIE, expiredCookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, expiredCookie.toString());
 
-        ApiResponse<Void> response = ApiResponse.of(200, "successfully logged out!", null);
-        return ResponseEntity.ok(response);
+        // 로그아웃 로직 실행
+        memberService.logout(member.getId());
+
+        ApiResponse<Void> apiResponse = ApiResponse.of(200, "successfully logged out!", null);
+        return ResponseEntity.ok(apiResponse);
     }
 
     @Operation(summary = "피드백 입력")
