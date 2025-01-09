@@ -116,17 +116,16 @@ public class MemberController {
     @Operation(summary = "로그아웃")
     @GetMapping("/logout")
     public ResponseEntity<ApiResponse<Void>> logout(@LoginUser Member member, HttpServletResponse response) {
-        // 쿠키 만료 처리
-        ResponseCookie expiredCookie = ResponseCookie.from("refreshToken", member.getRefreshToken())
-                .maxAge(0) // 즉시 만료
-                .path("/")
-                .httpOnly(true)
-                .secure(true)
-                .sameSite("None")
-                .build();
-        response.addHeader(HttpHeaders.SET_COOKIE, expiredCookie.toString());
+        // 1. 만료 날짜 설정 (과거 날짜로 설정)
+        String expires = "Thu, 01 Jan 1970 00:00:00 GMT";
 
-        // 로그아웃 로직 실행
+        // 2. Set-Cookie 헤더 작성
+        String expiredCookie = "refreshToken=; Path=/; HttpOnly; Secure; SameSite=None; Expires=" + expires;
+
+        // 3. 응답 헤더에 추가
+        response.addHeader(HttpHeaders.SET_COOKIE, expiredCookie);
+
+        // 4. 로그아웃 로직 실행
         memberService.logout(member.getId());
 
         ApiResponse<Void> apiResponse = ApiResponse.of(200, "successfully logged out!", null);
