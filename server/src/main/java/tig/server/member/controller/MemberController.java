@@ -119,7 +119,7 @@ public class MemberController {
         memberService.logout(member.getId());
 
         // 쿠키 삭제
-        ResponseCookie expiredCookie = ResponseCookie.from("refreshToken", "")
+        ResponseCookie expiredCookie = ResponseCookie.from("refreshToken", member.getRefreshToken())
                 .maxAge(0) // 즉시 만료
                 .path("/")
                 .httpOnly(true)
