@@ -51,6 +51,7 @@ public class KakaoController {
                 .secure(true) // HTTPS를 사용할 경우에만 true로 설정
                 .maxAge(14 * 24 * 60 * 60) // 2주
                 .sameSite("None")
+                .domain(".tigleisure.com") // 도메인 설정 (api.tigleisure.com 과 같은 하위 도메인에서 접근 가능)
                 .build();
 
         // 쿠키를 응답 헤더에 추가
