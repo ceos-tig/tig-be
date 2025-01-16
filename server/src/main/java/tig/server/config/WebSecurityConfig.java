@@ -42,8 +42,14 @@ public class WebSecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
+
+        configuration.setAllowedOrigins(Arrays.asList(
+                "https://localhost:3000",
+                "https://tigleisure.com"
+        ));
+
         configuration.setAllowCredentials(true);
-        configuration.setAllowedOriginPatterns(List.of("*")); // 모든 Origin 허용
+//        configuration.setAllowedOriginPatterns(List.of("*")); // 모든 Origin 허용
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setExposedHeaders(List.of("*"));
