@@ -1,5 +1,6 @@
 package tig.server.oauth2.kakao.controller;
 
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -44,18 +45,44 @@ public class KakaoController {
         KakaoUserInfoResponseDto userInfo = kakaoService.getUserInfo(kakaoAccessToken);
         LoginMemberResponseDto member = memberService.createKakaoMember(userInfo);
 
-        // Refresh Token 쿠키 설정
-        ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", member.getRefreshToken())
-                .httpOnly(true)
-                .path("/")
-                .secure(true) // HTTPS를 사용할 경우에만 true로 설정
-                .maxAge(14 * 24 * 60 * 60) // 2주
-                .sameSite("None")
-                .domain(".tigleisure.com") // 도메인 설정 (api.tigleisure.com 과 같은 하위 도메인에서 접근 가능)
-                .build();
 
-        // 쿠키를 응답 헤더에 추가
-        response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
+        if (origin.equals("https://localhost:3000") || origin.equals("https://localhost:8080")) {
+            // localhost에 대한 쿠키 설정 (두 개의 쿠키 생성)
+            ResponseCookie localCookie = ResponseCookie.from("refreshToken", member.getRefreshToken())
+                    .httpOnly(true)
+                    .secure(true) // 로컬 환경에서는 Secure=false
+                    .path("/")
+                    .domain("localhost") // localhost 도메인
+                    .maxAge(14 * 24 * 60 * 60) // 2주 (초 단위)
+                    .sameSite("None") // SameSite 설정
+                    .build();
+
+            ResponseCookie tigDomainCookie = ResponseCookie.from("refreshToken", member.getRefreshToken())
+                    .httpOnly(true)
+                    .secure(true)
+                    .path("/")
+                    .domain(".tigleisure.com") // .tigleisure.com 도메인
+                    .maxAge(14 * 24 * 60 * 60)
+                    .sameSite("None")
+                    .build();
+
+            // 응답 헤더에 두 개의 쿠키 추가
+            response.addHeader(HttpHeaders.SET_COOKIE, localCookie.toString());
+            response.addHeader(HttpHeaders.SET_COOKIE, tigDomainCookie.toString());
+        } else if (origin.equals("https://tigleisure.com")) {
+            // 배포 환경에 대한 쿠키 설정
+            ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", member.getRefreshToken())
+                    .httpOnly(true)
+                    .secure(true) // HTTPS 환경
+                    .path("/")
+                    .domain(".tigleisure.com") // .tigleisure.com 도메인
+                    .maxAge(14 * 24 * 60 * 60)
+                    .sameSite("None")
+                    .build();
+
+            // 응답 헤더에 쿠키 추가
+            response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
+        }
 
         LoginAccessTokenResponseDto loginAccessTokenResponseDto = LoginAccessTokenResponseDto.fromMember(member.getAccessToken());
         ApiResponse<LoginAccessTokenResponseDto> result = ApiResponse.of(200, "Login Success", loginAccessTokenResponseDto);
