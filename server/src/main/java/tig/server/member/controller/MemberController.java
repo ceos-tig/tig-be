@@ -3,6 +3,7 @@ package tig.server.member.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +34,7 @@ import java.util.List;
 public class MemberController {
     private final MemberService memberService;
     private final MemberMapper memberMapper = MemberMapper.INSTANCE;
+    private final HttpServletResponse httpServletResponse;
 
     /**
      * refresh token을 통한 access token 재발급
@@ -115,17 +117,18 @@ public class MemberController {
 
     @Operation(summary = "로그아웃")
     @GetMapping("/logout")
-    public ResponseEntity<ApiResponse<Void>> logout(@LoginUser Member member, HttpServletResponse response) {
-        // 1. 만료 날짜 설정 (과거 날짜로 설정)
-        String expires = "Thu, 01 Jan 1970 00:00:00 GMT";
-
-        // 2. Set-Cookie 헤더 작성
-        String expiredCookie = "refreshToken=; Path=/; HttpOnly; Secure; SameSite=None; Expires=" + expires;
-
-        // 3. 응답 헤더에 추가
-        response.addHeader(HttpHeaders.SET_COOKIE, expiredCookie);
-
-        // 4. 로그아웃 로직 실행
+    public ResponseEntity<ApiResponse<Void>> logout(@LoginUser Member member,
+                                                    @CookieValue(value = "refreshToken", required = true)Cookie refreshToken) {
+        // 쿠키 유효 기간을 0으로 설정하여 삭제
+        ResponseCookie clearCookie = ResponseCookie.from("refreshToken", refreshToken.getValue())
+                .httpOnly(true)
+                .secure(true) // HTTPS 환경에서만 사용
+                .domain(".tigleisure.com")
+                .path("/")
+                .maxAge(0) // 즉시 삭제
+                .sameSite("None") // SameSite 설정
+                .build();
+        httpServletResponse.addHeader(HttpHeaders.SET_COOKIE, clearCookie.toString());
         memberService.logout(member.getId());
 
         ApiResponse<Void> apiResponse = ApiResponse.of(200, "successfully logged out!", null);
