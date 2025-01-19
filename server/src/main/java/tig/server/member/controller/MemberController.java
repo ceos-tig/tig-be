@@ -120,7 +120,7 @@ public class MemberController {
     public ResponseEntity<ApiResponse<Void>> logout(@LoginUser Member member,
                                                     @CookieValue(value = "refreshToken", required = true)Cookie refreshToken) {
         // 쿠키 유효 기간을 0으로 설정하여 삭제
-        ResponseCookie clearCookie = ResponseCookie.from("refreshToken", refreshToken.getValue())
+        ResponseCookie clearRefreshToken = ResponseCookie.from("refreshToken", refreshToken.getValue())
                 .httpOnly(true)
                 .secure(true) // HTTPS 환경에서만 사용
                 .domain(".tigleisure.com")
@@ -128,7 +128,18 @@ public class MemberController {
                 .maxAge(0) // 즉시 삭제
                 .sameSite("None") // SameSite 설정
                 .build();
-        httpServletResponse.addHeader(HttpHeaders.SET_COOKIE, clearCookie.toString());
+
+        ResponseCookie clearAccessToken = ResponseCookie.from("accessToken", null)
+                .httpOnly(true)
+                .secure(true) // HTTPS 환경에서만 사용
+                .domain(".tigleisure.com")
+                .path("/")
+                .maxAge(0) // 즉시 삭제
+                .sameSite("None") // SameSite 설정
+                .build();
+
+        httpServletResponse.addHeader(HttpHeaders.SET_COOKIE, clearRefreshToken.toString());
+        httpServletResponse.addHeader(HttpHeaders.SET_COOKIE, clearAccessToken.toString());
         memberService.logout(member.getId());
 
         ApiResponse<Void> apiResponse = ApiResponse.of(200, "successfully logged out!", null);
