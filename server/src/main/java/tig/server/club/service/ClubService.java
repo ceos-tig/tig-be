@@ -580,7 +580,6 @@ public class ClubService {
                 .clubId(club.getId())  // 클럽 ID
                 .clubName(club.getClubName())  // 클럽 이름
                 .address(club.getAddress())  // 클럽 주소
-                .isHeart(false)  // isHeart 초기 값 설정
                 .prices(priceResponses)  // 가격 정보 설정
                 .build();
     }
