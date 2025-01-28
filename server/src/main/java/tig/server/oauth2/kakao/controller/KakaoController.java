@@ -46,7 +46,7 @@ public class KakaoController {
         LoginMemberResponseDto member = memberService.createKakaoMember(userInfo);
 
 
-        if (origin.equals("https://localhost:3000") || origin.equals("https://localhost:8080")) { // 로컬에는 body와 쿠키 모두 전송
+        if ("https://localhost:3000".equals(origin) || "https://localhost:8080".equals(origin)) { // 로컬에는 body와 쿠키 모두 전송
             ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", member.getAccessToken())
                     .httpOnly(true)
                     .secure(true)
@@ -73,7 +73,7 @@ public class KakaoController {
             ApiResponse<LoginAccessTokenResponseDto> result = ApiResponse.of(200, "Login Success(AccessToken IN RESPONSE)", loginAccessTokenResponseDto);
 
             return ResponseEntity.ok(result);
-        } else if (origin.equals("https://tigleisure.com")) {
+        } else if ("https://tigleisure.com".equals(origin)) {
             ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", member.getAccessToken())
                     .httpOnly(true)
                     .secure(true)
