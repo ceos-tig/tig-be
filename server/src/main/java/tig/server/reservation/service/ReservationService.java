@@ -100,8 +100,8 @@ public class ReservationService {
 
         // Convert updatedAt to Korean time
         try {
-            ZonedDateTime utcDateTime = ZonedDateTime.parse(updatedAt, DateTimeFormatter.ISO_DATE_TIME);
-            ZonedDateTime koreanDateTime = utcDateTime.withZoneSameInstant(ZoneId.of("Asia/Seoul"));
+            LocalDateTime localDateTime = LocalDateTime.parse(updatedAt, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
+            ZonedDateTime koreanDateTime = localDateTime.atZone(ZoneId.of("Asia/Seoul"));
             updatedAt = koreanDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
         } catch (DateTimeParseException e) {
             // Handle parsing exception if necessary
