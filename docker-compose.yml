@@ -8,7 +8,7 @@ services:
       dockerfile: Dockerfile
     image: nimikgnoej/tig-web:blue # 블루 환경용 이미지 태그
     ports:
-      - "8081:8080" # 블루 환경 포트
+      - "8081:8081" # 블루 환경 포트
     env_file:
       - .env
     environment:
@@ -24,7 +24,7 @@ services:
       dockerfile: Dockerfile
     image: nimikgnoej/tig-web:green # 그린 환경용 이미지 태그
     ports:
-      - "8082:8080" # 그린 환경 포트
+      - "8082:8082" # 그린 환경 포트
     env_file:
       - .env
     environment:
