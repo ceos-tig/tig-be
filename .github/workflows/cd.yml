@@ -69,8 +69,9 @@ jobs:
           # 기존 secrets.ENV_FILE 내용 저장
           echo "${{ secrets.ENV_FILE }}" > .env
 
-          # 활성화된 환경 가져오기
-          ACTIVE_ENV=$(ssh -i tig-key-pair.pem ubuntu@${{ secrets.SERVER_IP }} "curl -s http://localhost/active-environment" || echo "green")
+          # 현재 활성화된 환경 가져오기
+          ACTIVE_ENV=$(ssh -i tig-key-pair.pem ubuntu@${{ secrets.SERVER_IP }} \ 
+            "curl -fs http://api.tigleisure.com/deploy/status | jq -r '.environment'" || echo "green")
 
           echo "Current active environment: $ACTIVE_ENV"
 
@@ -216,8 +217,8 @@ jobs:
 
               # 그린 환경 정리
               echo "Cleaning up GREEN environment"
-              docker-compose stop green
-              docker-compose rm -f green
+              docker-compose stop app-green
+              docker-compose rm -f app-green
               docker rmi nimikgnoej/tig-web:green || true
             
               # test-green 배포
@@ -280,8 +281,8 @@ jobs:
 
               # 블루 환경 정리
               echo "Cleaning up BLUE environment"
-              docker-compose stop blue
-              docker-compose rm -f blue
+              docker-compose stop app-blue
+              docker-compose rm -f app-blue
               docker rmi nimikgnoej/tig-web:blue || true
               
               # test-blue 배포
