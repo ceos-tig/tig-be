@@ -167,10 +167,10 @@ jobs:
               echo "Currently running GREEN environment. Switching to BLUE."
             
               # 테스트 환경 test-blue 종료
-              if [ "$(docker ps | grep app-blue)" ]; then
+              if [ "$(docker ps | grep test-blue)" ]; then
                 echo "Stopping and removing test-blue environment..."
-                docker stop app-blue
-                docker rm app-blue
+                docker stop test-blue
+                docker rm test-blue
               fi
               
               echo "ENVSUBST start"
