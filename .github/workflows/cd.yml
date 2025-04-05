@@ -77,9 +77,9 @@ jobs:
 
           # 환경 변수 추가
           if [ "$ACTIVE_ENV" = "green" ]; then
-            echo "environment=blue" >> .env # 현재 green이면 다음 환경은 blue
+            echo "now GREEN next is environment=blue" >> .env # 현재 green이면 다음 환경은 blue
           else
-            echo "environment=green" >> .env # 현재 blue이면 다음 환경은 green
+            echo "now BLUE next is environment=green" >> .env # 현재 blue이면 다음 환경은 green
           fi
 
           # EC2에 전송
@@ -124,7 +124,7 @@ jobs:
               export environment=$(grep environment /home/ubuntu/.env | cut -d '=' -f2)
               
               # 환경 변수 확인
-              echo $environment
+              echo "current env's environment value : $environment"
               envsubst '$environment' < /home/ubuntu/nginx.conf.template > /home/ubuntu/nginx.conf
               
             
