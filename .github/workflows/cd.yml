@@ -217,8 +217,8 @@ jobs:
 
               # 그린 환경 정리
               echo "Cleaning up GREEN environment"
-              docker-compose stop app-green
-              docker-compose rm -f app-green
+              docker stop app-green
+              docker rm -f app-green
               docker rmi nimikgnoej/tig-web:green || true
             
               # test-green 배포
@@ -281,8 +281,8 @@ jobs:
 
               # 블루 환경 정리
               echo "Cleaning up BLUE environment"
-              docker-compose stop app-blue
-              docker-compose rm -f app-blue
+              docker stop app-blue
+              docker rm -f app-blue
               docker rmi nimikgnoej/tig-web:blue || true
               
               # test-blue 배포
