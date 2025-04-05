@@ -77,9 +77,9 @@ jobs:
 
           # 환경 변수 추가
           if [ "$ACTIVE_ENV" = "green" ]; then
-            echo "now GREEN next is environment=blue" >> .env # 현재 green이면 다음 환경은 blue
+            echo "environment=blue" >> .env # 현재 green이면 다음 환경은 blue
           else
-            echo "now BLUE next is environment=green" >> .env # 현재 blue이면 다음 환경은 green
+            echo "environment=green" >> .env # 현재 blue이면 다음 환경은 green
           fi
 
           # EC2에 전송
