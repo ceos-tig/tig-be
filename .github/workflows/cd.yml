@@ -71,7 +71,7 @@ jobs:
 
           # 현재 활성화된 환경 가져오기
           ACTIVE_ENV=$(ssh -i tig-key-pair.pem ubuntu@${{ secrets.SERVER_IP }} \ 
-            "curl -fs http://localhost/deploy/status | jq -r '.environment'" || echo "green")
+            "curl -fs http://localhost:8080/deploy/status | jq -r '.environment'" || echo "green")
 
           echo "Current active environment: $ACTIVE_ENV"
 
