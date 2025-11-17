@@ -9,9 +9,7 @@ import tig.server.annotation.LoginUser;
 import tig.server.enums.Status;
 import tig.server.global.response.ApiResponse;
 import tig.server.member.domain.Member;
-import tig.server.reservation.dto.ReservationClubResponse;
-import tig.server.reservation.dto.ReservationRequest;
-import tig.server.reservation.dto.ReservationResponse;
+import tig.server.reservation.dto.*;
 import tig.server.reservation.service.ReservationService;
 
 import java.text.ParseException;
@@ -51,6 +49,17 @@ public class ReservationController {
         ReservationResponse createdReservation = reservationService.createReservation(member, clubId, reservationRequest);
         createdReservation.setStatus(Status.TBC);
         ApiResponse<ReservationResponse> response = ApiResponse.of(200, "successfully reserved", createdReservation);
+        return ResponseEntity.status(201).body(response);
+    }
+
+    @PostMapping("/package")
+    @Operation(summary = "패키지 예약")
+    public ResponseEntity<ApiResponse<PackageReservationResponse>> createPackageReservation(
+            @LoginUser Member member,
+            @RequestBody PackageReservationRequest request) {
+        
+        PackageReservationResponse packageReservation = reservationService.createPackageReservation(member, request);
+        ApiResponse<PackageReservationResponse> response = ApiResponse.of(201, "패키지 예약이 성공적으로 생성되었습니다.", packageReservation);
         return ResponseEntity.status(201).body(response);
     }
 
@@ -158,6 +167,14 @@ public class ReservationController {
     public ResponseEntity<ApiResponse<ReservationClubResponse>> checkClubInfo(@PathVariable Long clubId) {
         ReservationClubResponse responseList = reservationService.checkClubInfo(clubId);
         ApiResponse<ReservationClubResponse> response = ApiResponse.of(200, "업체 예약 관련 정보 조회 성공", responseList);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/package-set/{packageSetId}")
+    @Operation(summary = "패키지 세트 예약 위해 필요한 정보 조회")
+    public ResponseEntity<ApiResponse<ReservationPackageSetResponse>> checkPackageSetInfo(@PathVariable Long packageSetId) {
+        ReservationPackageSetResponse responseList = reservationService.checkPackageSetInfo(packageSetId);
+        ApiResponse<ReservationPackageSetResponse> response = ApiResponse.of(200, "패키지 세트 예약 관련 정보 조회 성공", responseList);
         return ResponseEntity.ok(response);
     }
 

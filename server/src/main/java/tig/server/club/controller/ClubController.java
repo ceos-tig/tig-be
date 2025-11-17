@@ -47,6 +47,22 @@ public class ClubController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/package/user/{packageId}")
+    @Operation(summary = "특정 패키지 조회 : 로그인 된 사용자를 위함")
+    public ResponseEntity<ApiResponse<PackageResponse>> getPackageById(@LoginUser Member member, @PathVariable(name = "packageId") Long clubId) {
+        PackageResponse packageByIdForLoginUser = clubService.getPackageByIdForLoginUser(member.getId(), clubId);
+        ApiResponse<PackageResponse> response = ApiResponse.of(200, "successfully retrieved club", packageByIdForLoginUser);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/package/guest/{packageId}")
+    @Operation(summary = "특정 패키지 조회 : 로그인 안된 사용자를 위함")
+    public ResponseEntity<ApiResponse<PackageResponse>> getPackageByIdForLoginUser(@PathVariable(name = "packageId") Long clubId) {
+        PackageResponse packageById = clubService.getPackageById(clubId);
+        ApiResponse<PackageResponse> response = ApiResponse.of(200, "successfully retrieved club", packageById);
+        return ResponseEntity.ok(response);
+    }
+
 //    @PostMapping("")
 //    @Operation(summary = "업체 업로드")
 //    public ResponseEntity<ApiResponse<ClubResponse>> createClub(@RequestBody ClubRequest clubRequest) {
@@ -71,6 +87,23 @@ public class ClubController {
                                                                                     @RequestParam("longitude") Float longitude) {
         HomeResponse homeResponse = clubService.getHomeClubsForLoginUser(latitude, longitude, member);
         ApiResponse<List<HomeResponse>> response = ApiResponse.of(200, "successfully retrieved home clubs", List.of(homeResponse));
+        return ResponseEntity.ok(response);
+    }
+
+
+    @GetMapping("/package/guest/home")
+    @Operation(summary = "홈 화면 패키지 조회 : 비로그인")
+    public ResponseEntity<ApiResponse<List<HomePackageResponse>>> getHomePackages() {
+        HomePackageResponse homePackages = clubService.getHomePackages();
+        ApiResponse<List<HomePackageResponse>> response = ApiResponse.of(200, "successfully retrieved home clubs", List.of(homePackages));
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/package/user/home")
+    @Operation(summary = "홈 화면 패키지 조회 : 로그인")
+    public ResponseEntity<ApiResponse<List<HomePackageResponse>>> getHomePackagesForLoginUser(@LoginUser Member member) {
+        HomePackageResponse homePackagesForLoginUser = clubService.getHomePackagesForLoginUser(member);
+        ApiResponse<List<HomePackageResponse>> response = ApiResponse.of(200, "successfully retrieved home clubs", List.of(homePackagesForLoginUser));
         return ResponseEntity.ok(response);
     }
 

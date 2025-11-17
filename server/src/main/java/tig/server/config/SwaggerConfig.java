@@ -26,7 +26,8 @@ public class SwaggerConfig {
                 .security(Arrays.asList(securityRequirement))
                 .servers(Arrays.asList(
                         new Server().url("http://localhost:8080").description("Local server"),
-                        new Server().url("https://api.tigleisure.com").description("Production server")
+                        new Server().url("https://api.tigleisure.com").description("Production server"),
+                        new Server().url("https://test.tigleisure.com").description("Test server")
                 ));
     }
 

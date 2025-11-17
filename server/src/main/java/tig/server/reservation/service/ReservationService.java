@@ -1,5 +1,6 @@
 package tig.server.reservation.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -13,6 +14,7 @@ import tig.server.coupon.domain.Coupon;
 import tig.server.coupon.repository.CouponRepository;
 import tig.server.discord.DiscordMessageProvider;
 import tig.server.discord.EventMessage;
+import tig.server.enums.PackageCategory;
 import tig.server.enums.Status;
 import tig.server.enums.Type;
 import tig.server.global.exception.BusinessExceptionHandler;
@@ -21,19 +23,25 @@ import tig.server.member.domain.Member;
 import tig.server.operatinghours.domain.OperatingHours;
 import tig.server.operatinghours.dto.OperatingHoursResponse;
 import tig.server.operatinghours.repository.OperatingHoursRepository;
+import tig.server.packageSet.domain.PackageSet;
+import tig.server.packageSet.repository.PackageSetRepository;
 import tig.server.payment.dto.PaymentResponseDto;
 import tig.server.payment.service.PaymentService;
 import tig.server.price.dto.*;
 import tig.server.price.repository.*;
+import tig.server.reservation.PackageReservationRequest;
+import tig.server.reservation.domain.PackageReservation;
 import tig.server.reservation.domain.Reservation;
-import tig.server.reservation.dto.ReservationClubResponse;
-import tig.server.reservation.dto.ReservationRequest;
-import tig.server.reservation.dto.ReservationResponse;
+import tig.server.reservation.dto.*;
+import tig.server.packageSet.dto.PackagePriceDto;
+import tig.server.review.repository.PackageSetReviewRepository;
 import tig.server.reservation.mapper.ReservationMapper;
+import tig.server.reservation.repository.PackageReservationRepository;
 import tig.server.reservation.repository.ReservationRepository;
 import tig.server.review.domain.Review;
 
 import java.text.ParseException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -41,6 +49,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -67,9 +76,19 @@ public class ReservationService {
     private final PaymentService paymentService;
 
     private final ClubMapper clubMapper;
+    private final ObjectMapper objectMapper;
 
     private final DiscordMessageProvider discordMessageProvider;
     private final CouponRepository couponRepository;
+    private final GolfClubReservationService golfClubReservationService;
+    private final PensionReservationService pensionReservationService;
+    private final BusReservationService busReservationService;
+    private final BuffetReservationService buffetReservationService;
+    private final LunchBoxReservationService lunchBoxReservationService;
+    private final UniformReservationService uniformReservationService;
+    private final PackageSetRepository packageSetRepository;
+    private final PackageReservationRepository packageReservationRepository;
+    private final PackageSetReviewRepository packageSetReviewRepository;
 
     public List<ReservationResponse> getAllReservations() {
         return reservationRepository.findAll().stream()
@@ -440,6 +459,37 @@ public class ReservationService {
                 .build();
     }
 
+    public ReservationPackageSetResponse checkPackageSetInfo(Long packageSetId) {
+        PackageSet packageSet = packageSetRepository.findById(packageSetId)
+                .orElseThrow(() -> new BusinessExceptionHandler("package set not found", ErrorCode.NOT_FOUND_ERROR));
+
+        // 패키지 가격 정보 조회
+        List<PackagePriceDto> priceResponses = packageSet.getPackagePrices().stream()
+                .map(packagePrice -> PackagePriceDto.builder()
+                        .id(packagePrice.getId())
+                        .optionType(packagePrice.getOptionType())
+                        .optionValue(packagePrice.getOptionValue())
+                        .price(packagePrice.getPrice())
+                        .description(packagePrice.getDescription())
+                        .isDefault(packagePrice.getIsDefault())
+                        .build())
+                .collect(Collectors.toList());
+
+        // 리뷰 통계 정보 조회
+        Double averageRating = packageSetReviewRepository.findAverageRatingByPackageSetId(packageSetId);
+        Long reviewCount = packageSetReviewRepository.countByPackageSetId(packageSetId);
+
+        // ReservationPackageSetResponse로 반환
+        return ReservationPackageSetResponse.builder()
+                .packageSetName(packageSet.getName())
+                .address(packageSet.getAddress())
+                .prices(priceResponses)
+                .category(packageSet.getCategory())
+                .averageRating(averageRating != null ? averageRating : 0.0)
+                .reviewCount(reviewCount != null ? reviewCount : 0L)
+                .build();
+    }
+
     private List<?> getPriceResponsesByCategory(Club club) {
         switch (club.getCategory()) {
             case TABLE_TENNIS:
@@ -554,6 +604,111 @@ public class ReservationService {
             return 0L;
         }
         return review.getId();
+    }
+
+    @Transactional
+    public PackageReservationResponse createPackageReservation(Member member, tig.server.reservation.dto.PackageReservationRequest request) {
+        // 패키지 존재 확인
+        PackageSet packageSet = packageSetRepository.findById(request.getPackageSetId())
+                .orElseThrow(() -> new BusinessExceptionHandler("패키지를 찾을 수 없습니다.", ErrorCode.NOT_FOUND_ERROR));
+
+        // 요청 데이터 유효성 검증
+        validatePackageReservationRequest(request);
+
+        // PackageReservation 생성
+        PackageReservation reservation = PackageReservation.builder()
+                .member(member)
+                .packageSet(packageSet)
+                .category(request.getPackageCategory())
+                .message(request.getMessage())
+                .status(Status.TBC)
+                .build();
+
+        PackageReservation savedReservation = packageReservationRepository.save(reservation);
+
+        // 응답 생성
+        return buildPackageReservationResponse(savedReservation, request);
+    }
+
+    private void validatePackageReservationRequest(tig.server.reservation.dto.PackageReservationRequest request) {
+        // 기본 유효성 검증
+        if (request.getPackageSetId() == null) {
+            throw new BusinessExceptionHandler("패키지 ID는 필수입니다.", ErrorCode.BAD_REQUEST_ERROR);
+        }
+        
+        if (request.getPackageCategory() == null) {
+            throw new BusinessExceptionHandler("패키지 카테고리는 필수입니다.", ErrorCode.BAD_REQUEST_ERROR);
+        }
+
+        if (!request.isValidForCategory()) {
+            throw new BusinessExceptionHandler("패키지 카테고리에 맞는 옵션이 필요합니다.", ErrorCode.BAD_REQUEST_ERROR);
+        }
+
+        if (request.getTotalParticipants() <= 0) {
+            throw new BusinessExceptionHandler("총 참여 인원은 1명 이상이어야 합니다.", ErrorCode.BAD_REQUEST_ERROR);
+        }
+
+        // 날짜 검증 (날짜가 제공된 경우)
+        if (request.getDate() != null) {
+            try {
+                LocalDate reservationDate = LocalDate.parse(request.getDate());
+                if (reservationDate.isBefore(LocalDate.now())) {
+                    throw new BusinessExceptionHandler("과거 날짜로는 예약할 수 없습니다.", ErrorCode.BAD_REQUEST_ERROR);
+                }
+            } catch (Exception e) {
+                throw new BusinessExceptionHandler("올바른 날짜 형식을 입력해주세요. (YYYY-MM-DD)", ErrorCode.BAD_REQUEST_ERROR);
+            }
+        }
+
+        // 카테고리별 추가 검증
+        validateByCategory(request);
+    }
+
+    private void validateByCategory(tig.server.reservation.dto.PackageReservationRequest request) {
+        switch (request.getPackageCategory()) {
+            case GOLF_COURSE:
+                if (request.getTotalParticipants() > 4) {
+                    throw new BusinessExceptionHandler("골프장 예약은 최대 4명까지 가능합니다.", ErrorCode.BAD_REQUEST_ERROR);
+                }
+                break;
+            case BUS:
+                String busType = request.getBusType();
+                if (busType != null && busType.contains("24인승") && request.getTotalParticipants() > 24) {
+                    throw new BusinessExceptionHandler("24인승 버스는 최대 24명까지 탑승 가능합니다.", ErrorCode.BAD_REQUEST_ERROR);
+                }
+                if (busType != null && busType.contains("45인승") && request.getTotalParticipants() > 45) {
+                    throw new BusinessExceptionHandler("45인승 버스는 최대 45명까지 탑승 가능합니다.", ErrorCode.BAD_REQUEST_ERROR);
+                }
+                break;
+            case GROUP_UNIFORM:
+                if (request.getUniformSize() == null) {
+                    throw new BusinessExceptionHandler("단체복 사이즈를 선택해주세요.", ErrorCode.BAD_REQUEST_ERROR);
+                }
+                break;
+            case CATERING:
+            case PENSION:
+            case LUNCH_BOX:
+                // 기본 검증만 수행
+                break;
+        }
+    }
+
+    private PackageReservationResponse buildPackageReservationResponse(PackageReservation savedReservation, tig.server.reservation.dto.PackageReservationRequest request) {
+        PackageReservationResponse response = PackageReservationResponse.from(savedReservation);
+        
+        // 요청 정보를 응답에 추가
+        response.setDate(request.getDate());
+        response.setStartTime(request.getStartTime());
+        response.setEndTime(request.getEndTime());
+        response.setAdultCount(request.getAdultCount());
+        response.setTeenagerCount(request.getTeenagerCount());
+        response.setKidsCount(request.getKidsCount());
+        response.setUserName(request.getUserName());
+        response.setPhoneNumber(request.getPhoneNumber());
+        response.setTotalPrice(request.getTotalPrice());
+        response.setPackageOptions(request.getPackageOptions());
+        
+        return response;
     }
 
 }

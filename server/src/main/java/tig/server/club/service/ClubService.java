@@ -13,12 +13,15 @@ import tig.server.config.S3Uploader;
 import tig.server.enums.Category;
 import tig.server.enums.District;
 import tig.server.enums.Facility;
+import tig.server.enums.PackageCategory;
 import tig.server.global.exception.BusinessExceptionHandler;
 import tig.server.global.code.ErrorCode;
 import tig.server.member.domain.Member;
 import tig.server.operatinghours.domain.OperatingHours;
 import tig.server.operatinghours.dto.OperatingHoursResponse;
 import tig.server.operatinghours.repository.OperatingHoursRepository;
+import tig.server.packageSet.domain.PackageSet;
+import tig.server.packageSet.repository.PackageSetRepository;
 import tig.server.price.dto.*;
 import tig.server.price.repository.*;
 import tig.server.reservation.domain.Reservation;
@@ -39,6 +42,7 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class ClubService {
 
+    private final PackageSetRepository packageSetRepository;
     private final ClubRepository clubRepository;
     private final ReservationRepository reservationRepository;
     private final WishlistRepository wishlistRepository;
@@ -110,6 +114,20 @@ public class ClubService {
         clubResponse.setOperatingHours(operatingHoursResponses);
 
         return calculateAvgRating(clubResponse);
+    }
+
+    public PackageResponse getPackageById(Long id) {
+        PackageSet packageSet = packageSetRepository.findById(id)
+                .orElseThrow(() -> new BusinessExceptionHandler("package not found", ErrorCode.NOT_FOUND_ERROR));
+        // 이미지 추가해야됨
+        return convertToPackageResponse(packageSet);
+    }
+
+    public PackageResponse getPackageByIdForLoginUser(Long memberId, Long id) {
+        PackageSet packageSet = packageSetRepository.findById(id)
+                .orElseThrow(() -> new BusinessExceptionHandler("package not found", ErrorCode.NOT_FOUND_ERROR));
+        // 이미지 추가해야됨
+        return convertToPackageResponse(packageSet);
     }
 
     private List<?> getPriceResponsesByCategory(Club club) {
@@ -345,6 +363,167 @@ public class ClubService {
                 .popularClubs(popularClubs)
                 .recommendedClubs(recommendedClubs)
                 .nearestClubsByCategory(nearestClubsByCategory)
+                .build();
+    }
+
+    public HomePackageResponse getHomePackagesForLoginUser(Member member) {
+        // 사용자가 좋아요한 패키지 조회
+//        Set<Long> likedPackageIds = packageWishlistRepository.findLikedPackageIds(member.getId());
+
+        // 랜덤 패키지 5개
+        List<PackageResponse> randomPackages = getRandomPackages(5)
+                .stream()
+                .peek(packageResponse -> {
+                    packageResponse.setPresignedImageUrls(packageResponse.getImageUrls());
+//                    packageResponse.setIsHeart(likedPackageIds.contains(packageResponse.getId()));  // 좋아요 여부 설정
+                })
+                .collect(Collectors.toList());
+
+        // 인기 패키지
+        List<PackageResponse> popularPackages = getPopularPackages().stream()
+                .peek(packageResponse -> {
+                    packageResponse.setPresignedImageUrls(packageResponse.getImageUrls());
+//                    packageResponse.setIsHeart(likedPackageIds.contains(packageResponse.getId()));  // 좋아요 여부 설정
+                })
+                .collect(Collectors.toList());
+
+        // 추천 패키지
+        List<PackageResponse> recommendedPackages = getRecommendedPackages(10).stream()
+                .peek(packageResponse -> {
+                    packageResponse.setPresignedImageUrls(packageResponse.getImageUrls());
+//                    packageResponse.setIsHeart(likedPackageIds.contains(packageResponse.getId()));  // 좋아요 여부 설정
+                })
+                .collect(Collectors.toList());
+
+        // 카테고리별 랜덤 패키지
+        Map<PackageCategory, List<CategoryPackageResponse>> randomPackagesByCategory = findRandomPackagesByCategory(10);
+
+        randomPackagesByCategory.forEach((category, categoryPackageResponses) ->
+                categoryPackageResponses.forEach(categoryPackageResponse -> {
+                    categoryPackageResponse.setPresignedImageUrls(categoryPackageResponse.getImageUrls());
+//                    categoryPackageResponse.setIsHeart(likedPackageIds.contains(categoryPackageResponse.getId()));  // 좋아요 여부 설정
+                })
+        );
+
+        return HomePackageResponse.builder()
+                .randomPackages(randomPackages)
+                .popularPackages(popularPackages)
+                .recommendedPackages(recommendedPackages)
+                .randomPackagesByCategory(randomPackagesByCategory)
+                .build();
+    }
+
+    public HomePackageResponse getHomePackages() {
+        // 랜덤 패키지 5개 (근처 클럽 대신)
+        List<PackageResponse> randomPackages = getRandomPackages(5)
+                .stream()
+                .peek(packageResponse -> packageResponse.setPresignedImageUrls(packageResponse.getImageUrls()))
+                .collect(Collectors.toList());
+
+        // 인기 패키지
+        List<PackageResponse> popularPackages = getPopularPackages().stream()
+                .peek(packageResponse -> {
+                    packageResponse.setPresignedImageUrls(packageResponse.getImageUrls());
+                })
+                .collect(Collectors.toList());
+
+        // 추천 패키지
+        List<PackageResponse> recommendedPackages = getRecommendedPackages(10).stream()
+                .peek(packageResponse -> {
+                    packageResponse.setPresignedImageUrls(packageResponse.getImageUrls());
+                })
+                .collect(Collectors.toList());
+
+        // 카테고리별 랜덤 패키지
+        Map<PackageCategory, List<CategoryPackageResponse>> randomPackagesByCategory = findRandomPackagesByCategory(10);
+
+        randomPackagesByCategory.forEach((category, categoryPackageResponses) ->
+                categoryPackageResponses.forEach(categoryPackageResponse -> {
+                    categoryPackageResponse.setPresignedImageUrls(categoryPackageResponse.getImageUrls());
+                })
+        );
+
+        return HomePackageResponse.builder()
+                .randomPackages(randomPackages)
+                .popularPackages(popularPackages)
+                .recommendedPackages(recommendedPackages)
+                .randomPackagesByCategory(randomPackagesByCategory)
+                .build();
+    }
+
+    public List<PackageResponse> getRandomPackages(int limit) {
+        List<PackageSet> randomPackages = packageSetRepository.findRandomPackages(limit);
+
+        return randomPackages.stream()
+                .map(this::convertToPackageResponse)
+                .collect(Collectors.toList());
+    }
+
+    private PackageResponse convertToPackageResponse(PackageSet packageEntity) {
+        List<tig.server.packageSet.dto.PackagePriceDto> packagePrices = packageEntity.getPackagePrices() != null
+                ? packageEntity.getPackagePrices().stream()
+                    .map(tig.server.packageSet.dto.PackagePriceDto::from)
+                    .collect(Collectors.toList())
+                : Collections.emptyList();
+
+        return PackageResponse.builder()
+                .id(packageEntity.getId())
+                .name(packageEntity.getName())
+                .address(packageEntity.getAddress())
+                .price(packageEntity.getDefaultPriceString())
+                .ratingSum(packageEntity.getRatingSum())
+                .ratingCount(packageEntity.getRatingCount())
+                .category(packageEntity.getCategory())
+                .packagePrices(packagePrices)
+//                .imageUrls(packageEntity.getImageUrls())
+                .build();
+    }
+
+    public List<PackageResponse> getPopularPackages() {
+        List<PackageSet> popularPackages = packageSetRepository.findPopularPackagesByRating();
+
+        return popularPackages.stream()
+                .map(this::convertToPackageResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<PackageResponse> getRecommendedPackages(int limit) {
+        List<PackageSet> recommendedPackages = packageSetRepository.findRandomPackages(limit);
+
+        return recommendedPackages.stream()
+                .map(this::convertToPackageResponse)
+                .collect(Collectors.toList());
+    }
+
+    public Map<PackageCategory, List<CategoryPackageResponse>> findRandomPackagesByCategory(int limitPerCategory) {
+        Map<PackageCategory, List<CategoryPackageResponse>> result = new HashMap<>();
+
+        // 모든 카테고리에 대해 랜덤 패키지 조회
+        for (PackageCategory category : PackageCategory.values()) {
+            List<PackageSet> randomPackages = packageSetRepository.findRandomPackagesByCategory(String.valueOf(category), limitPerCategory);
+
+            List<CategoryPackageResponse> categoryResponses = randomPackages.stream()
+                    .map(this::convertToCategoryPackageResponse)
+                    .collect(Collectors.toList());
+
+            if (!categoryResponses.isEmpty()) {
+                result.put(category, categoryResponses);
+            }
+        }
+
+        return result;
+    }
+
+    private CategoryPackageResponse convertToCategoryPackageResponse(PackageSet packageEntity) {
+        return CategoryPackageResponse.builder()
+                .id(packageEntity.getId())
+                .name(packageEntity.getName())
+                .address(packageEntity.getAddress())
+                .price(packageEntity.getDefaultPriceString())
+                .ratingSum(packageEntity.getRatingSum())
+                .ratingCount(packageEntity.getRatingCount())
+                .category(packageEntity.getCategory())
+//                .imageUrls(packageEntity.getImageUrls())
                 .build();
     }
 

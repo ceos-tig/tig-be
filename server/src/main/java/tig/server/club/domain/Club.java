@@ -6,6 +6,7 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 import tig.server.base.BaseTimeEntity;
 import tig.server.enums.Category;
+import tig.server.enums.MajorCategory;
 import tig.server.enums.Type;
 import tig.server.reservation.domain.Reservation;
 
@@ -41,7 +42,10 @@ public class Club extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private Category category;
     @Enumerated(EnumType.STRING)
-    private Type type; //TODO : @Enumerated 넣어야 함
+    private Type type;
+
+    @Enumerated(EnumType.STRING)
+    private MajorCategory majorCategory;
 
     // coordinates
     private Float latitude;

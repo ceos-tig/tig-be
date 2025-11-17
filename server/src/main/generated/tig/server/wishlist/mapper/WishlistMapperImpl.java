@@ -8,7 +8,7 @@ import tig.server.wishlist.dto.WishlistResponse;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2024-11-15T12:52:14+0900",
+    date = "2025-08-03T15:22:38+0900",
     comments = "version: 1.5.1.Final, compiler: javac, environment: Java 17.0.7 (Oracle Corporation)"
 )
 @Component

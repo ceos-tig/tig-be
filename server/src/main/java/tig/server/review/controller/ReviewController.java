@@ -12,7 +12,11 @@ import tig.server.review.dto.ReviewRequest;
 import tig.server.review.dto.ReviewResponse;
 import tig.server.review.dto.ReviewWithReservationDTO;
 import tig.server.review.dto.ReviewWithSummaryResponseDto;
+import tig.server.review.dto.PackageSetReviewRequest;
+import tig.server.review.dto.PackageSetReviewResponse;
+import tig.server.review.dto.PackageSetReviewWithSummaryResponse;
 import tig.server.review.service.ReviewService;
+import tig.server.review.service.PackageSetReviewService;
 
 import java.util.List;
 
@@ -22,6 +26,7 @@ import java.util.List;
 @Tag(name = "review", description = "리뷰 API")
 public class ReviewController {
     private final ReviewService reviewService;
+    private final PackageSetReviewService packageSetReviewService;
 
     @PostMapping("/{reservationId}")
     @Operation(summary = "리뷰 작성")
@@ -63,6 +68,57 @@ public class ReviewController {
     public ResponseEntity<ApiResponse<Void>> deleteReview(@PathVariable("reviewId") Long reviewId) {
         reviewService.deleteReview(reviewId);
         ApiResponse<Void> response = ApiResponse.of(200, "successfully deleted review", null);
+        return ResponseEntity.ok(response);
+    }
+
+    // PackageSet Review APIs
+    @PostMapping("/package-set")
+    @Operation(summary = "패키지 세트 리뷰 작성")
+    public ResponseEntity<ApiResponse<PackageSetReviewResponse>> createPackageSetReview(@LoginUser Member member,
+                                                                                       @RequestBody PackageSetReviewRequest request) {
+        PackageSetReviewResponse result = packageSetReviewService.createPackageSetReview(member.getId(), request);
+        ApiResponse<PackageSetReviewResponse> response = ApiResponse.of(200, "successfully created package set review", result);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/package-set/{reviewId}")
+    @Operation(summary = "특정 패키지 세트 리뷰 조회")
+    public ResponseEntity<ApiResponse<PackageSetReviewResponse>> getPackageSetReview(@PathVariable("reviewId") Long reviewId) {
+        PackageSetReviewResponse result = packageSetReviewService.getPackageSetReviewById(reviewId);
+        ApiResponse<PackageSetReviewResponse> response = ApiResponse.of(200, "successfully retrieved package set review", result);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/package-set/package/{packageSetId}")
+    @Operation(summary = "특정 패키지 세트의 모든 리뷰 조회")
+    public ResponseEntity<ApiResponse<PackageSetReviewWithSummaryResponse>> getPackageSetReviews(@PathVariable("packageSetId") Long packageSetId) {
+        PackageSetReviewWithSummaryResponse result = packageSetReviewService.getPackageSetReviewsByPackageSetId(packageSetId);
+        ApiResponse<PackageSetReviewWithSummaryResponse> response = ApiResponse.of(200, "successfully retrieved package set reviews", result);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/package-set/member")
+    @Operation(summary = "내가 작성한 패키지 세트 리뷰 조회")
+    public ResponseEntity<ApiResponse<List<PackageSetReviewResponse>>> getMyPackageSetReviews(@LoginUser Member member) {
+        List<PackageSetReviewResponse> result = packageSetReviewService.getPackageSetReviewsByMemberId(member.getId());
+        ApiResponse<List<PackageSetReviewResponse>> response = ApiResponse.of(200, "successfully retrieved my package set reviews", result);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/package-set/{reviewId}")
+    @Operation(summary = "패키지 세트 리뷰 수정")
+    public ResponseEntity<ApiResponse<PackageSetReviewResponse>> modifyPackageSetReview(@PathVariable("reviewId") Long reviewId,
+                                                                                       @RequestBody PackageSetReviewRequest request) {
+        PackageSetReviewResponse result = packageSetReviewService.modifyPackageSetReview(reviewId, request);
+        ApiResponse<PackageSetReviewResponse> response = ApiResponse.of(200, "successfully modified package set review", result);
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/package-set/{reviewId}")
+    @Operation(summary = "패키지 세트 리뷰 삭제")
+    public ResponseEntity<ApiResponse<Void>> deletePackageSetReview(@PathVariable("reviewId") Long reviewId) {
+        packageSetReviewService.deletePackageSetReview(reviewId);
+        ApiResponse<Void> response = ApiResponse.of(200, "successfully deleted package set review", null);
         return ResponseEntity.ok(response);
     }
 }
