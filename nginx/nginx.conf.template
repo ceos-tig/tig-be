@@ -1,5 +1,6 @@
 user nginx;
 worker_processes auto;
+env environment;
 
 events {
     worker_connections 1024;
@@ -21,15 +22,15 @@ http {
     }
 
     # 현재 활성화된 환경 설정 (CD에서 이 값만 변경)
-    map ${environment} $current_backend {
-        default "blue_backend"; # 기본은 blue_backend
-        green "green_backend"; # 환경 변수를 green으로 설정 시 green_backend로 전환
+    map $environment $current_backend {
+        default http://blue_backend; # 기본은 blue_backend
+        green http://green_backend;; # 환경 변수를 green으로 설정 시 green_backend로 전환
     }
 
     # 테스트 환경 설정 (활성화된 환경과 반대로 매핑)
     map $environment $test_backend {
-        default "green_backend"; # 기본값은 green_backend
-        green "blue_backend"; # 활성화된 환경이 green일 때, test는 blue로 연결
+        default http://green_backend; # 기본값은 green_backend
+        green http://blue_backend; # 활성화된 환경이 green일 때, test는 blue로 연결
     }
 
     server {
@@ -40,7 +41,7 @@ http {
 
         location / {
             # 현재 활성화된 환경에 따라 동적으로 전환
-            proxy_pass http://$current_backend;
+            proxy_pass $current_backend;
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -48,14 +49,14 @@ http {
 
         # Health Check
         location /tig/health {
-            proxy_pass http://$current_backend/tig/health;
+            proxy_pass $current_backend/tig/health;
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         }
 
         location /deploy/status {
-            proxy_pass http://$current_backend/deploy/status; # 활성화된 환경에 대한 요청 처리
+            proxy_pass $current_backend/deploy/status; # 활성화된 환경에 대한 요청 처리
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -63,7 +64,7 @@ http {
 
         # 활성 환경 상태 확인
         location = /active-environment {
-            proxy_pass http://$current_backend/tig/health;
+            proxy_pass $current_backend/tig/health;
             proxy_intercept_errors on;
 
             error_page 502 503 504 = @blue_backend;
@@ -82,7 +83,7 @@ http {
 
         location / {
             # 테스트 환경은 활성화된 환경과 반대의 백엔드로 연결
-            proxy_pass http://$test_backend;
+            proxy_pass $test_backend;
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -90,7 +91,7 @@ http {
 
         # 테스트용 Health Check
         location /tig/health {
-            proxy_pass http://$test_backend/tig/health;
+            proxy_pass $test_backend/tig/health;
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
