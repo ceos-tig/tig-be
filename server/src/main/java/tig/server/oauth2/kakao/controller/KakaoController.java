@@ -98,7 +98,34 @@ public class KakaoController {
 
             ApiResponse<LoginAccessTokenResponseDto> result = ApiResponse.of(200, "Login Success(NO AccessToken IN RESPONSE)", null);
             return ResponseEntity.ok(result);
+        } else if ("https://tigleisure.co.kr".equals(origin)) {
+            ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", member.getAccessToken())
+                    .httpOnly(true)
+                    .secure(true)
+                    .path("/")
+                    .domain(".tigleisure.com") // .tigleisure.com 도메인
+                    .maxAge(60 * 60)// 2주 (초 단위)
+                    .sameSite("None") // SameSite 설정
+                    .build();
+
+            ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", member.getRefreshToken())
+                    .httpOnly(true)
+                    .secure(true) // HTTPS 환경
+                    .path("/")
+                    .domain(".tigleisure.com") // .tigleisure.com 도메인
+                    .maxAge(14 * 24 * 60 * 60)
+                    .sameSite("None")
+                    .build();
+
+            // 응답 헤더에 쿠키 추가
+            response.addHeader(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
+            response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
+
+            ApiResponse<LoginAccessTokenResponseDto> result = ApiResponse.of(200, "Login Success(NO AccessToken IN RESPONSE)", null);
+            return ResponseEntity.ok(result);
         }
+
+
         ApiResponse<LoginAccessTokenResponseDto> result = ApiResponse.of(200, "LOGIN ERROR", null);
         return ResponseEntity.ok(result);
     }
