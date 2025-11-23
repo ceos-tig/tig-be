@@ -124,7 +124,9 @@ public class KakaoController {
             response.addHeader(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
             response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
 
-            ApiResponse<LoginAccessTokenResponseDto> result = ApiResponse.of(200, "Login Success(NO AccessToken IN RESPONSE)", null);
+            LoginAccessTokenResponseDto loginAccessTokenResponseDto = LoginAccessTokenResponseDto.fromMember(member.getAccessToken());
+            ApiResponse<LoginAccessTokenResponseDto> result = ApiResponse.of(200, "Login Success(AccessToken IN RESPONSE)", loginAccessTokenResponseDto);
+
             return ResponseEntity.ok(result);
         }
 
