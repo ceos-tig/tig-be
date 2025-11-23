@@ -47,7 +47,8 @@ public class WebSecurityConfig {
                 "https://localhost:3000",
                 "http://localhost:3000",
                 "https://tigleisure.com",
-                "https://tigleisure.co.kr"
+                "https://tigleisure.co.kr",
+                "https://www.tigleisure.co.kr"
         ));
 
         configuration.setAllowCredentials(true);
