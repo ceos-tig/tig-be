@@ -46,7 +46,7 @@ public class KakaoController {
         LoginMemberResponseDto member = memberService.createKakaoMember(userInfo);
 
 
-        if ("https://localhost:3000".equals(origin) || "https://localhost:8080".equals(origin)) { // 로컬에는 body와 쿠키 모두 전송
+        if ("https://localhost:3000".equals(origin) || "https://localhost:8080".equals(origin) || "http://localhost:3000".equals(origin)) { // 로컬에는 body와 쿠키 모두 전송
             ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", member.getAccessToken())
                     .httpOnly(true)
                     .secure(true)

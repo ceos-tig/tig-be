@@ -45,7 +45,9 @@ public class WebSecurityConfig {
 
         configuration.setAllowedOrigins(Arrays.asList(
                 "https://localhost:3000",
-                "https://tigleisure.com"
+                "http://localhost:3000",
+                "https://tigleisure.com",
+                "https://tigleisure.co.kr"
         ));
 
         configuration.setAllowCredentials(true);
