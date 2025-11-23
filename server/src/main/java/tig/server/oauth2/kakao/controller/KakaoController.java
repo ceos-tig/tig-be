@@ -41,7 +41,7 @@ public class KakaoController {
             kakaoAccessToken = kakaoService.getAccessTokenFromKakaoDeployTest(code);
         } else if(origin.equals("https://tigleisure.com")){
             kakaoAccessToken = kakaoService.getAccessTokenFromKakaoDeploy(code);
-        } else if(origin.equals("https://tigleisure.co.kr")) {
+        } else if(origin.equals("https://tigleisure.co.kr") || origin.equals("https://www.tigleisure.co.kr")) {
             kakaoAccessToken= kakaoService.getAccessTokenFromKakaoAdminDeploy(code);
         }
 
@@ -101,7 +101,7 @@ public class KakaoController {
 
             ApiResponse<LoginAccessTokenResponseDto> result = ApiResponse.of(200, "Login Success(NO AccessToken IN RESPONSE)", null);
             return ResponseEntity.ok(result);
-        } else if ("https://tigleisure.co.kr".equals(origin)) {
+        } else if ("https://tigleisure.co.kr".equals(origin) || "https://www.tigleisure.co.kr".equals(origin) ) {
             ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", member.getAccessToken())
                     .httpOnly(true)
                     .secure(true)
