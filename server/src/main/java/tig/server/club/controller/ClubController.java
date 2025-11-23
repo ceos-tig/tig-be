@@ -10,6 +10,7 @@ import tig.server.amenity.service.AmenityService;
 import tig.server.annotation.LoginUser;
 import tig.server.club.dto.*;
 import tig.server.club.service.ClubService;
+import tig.server.config.S3Uploader;
 import tig.server.global.response.ApiResponse;
 import tig.server.member.domain.Member;
 
@@ -22,6 +23,7 @@ import java.util.List;
 public class ClubController {
 
     private final ClubService clubService;
+    private final S3Uploader s3Uploader;
 
 //    @GetMapping("")
 //    @Operation(summary = "전체 업체 조회")
@@ -112,5 +114,26 @@ public class ClubController {
     public ResponseEntity<ApiResponse<NearestResponse>> getNearestDistrict(@RequestBody NearestRequest nearestRequest) {
         ApiResponse<NearestResponse> response = ApiResponse.of(200, "successfully retrieved nearest district", clubService.getNearestDistrict(nearestRequest));
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/presigned")
+    public PresignedUrlResponse getPresignedUrl(
+            @RequestParam String originalFileName
+    ) {
+        // 1) 유니크한 파일 이름 생성 (확장자는 유지해도 되고 안 해도 됨)
+        String uniqueFileName = s3Uploader.getUniqueFilename(originalFileName);
+
+        // 2) 이 파일이 실제 S3 object key가 되도록 규칙 정하기
+        // 여기서는 "clubId/uuid" 형태로 사용한다고 가정
+        String objectKey = 12314L + "/" + uniqueFileName;
+
+        // 3) presigned URL 발급 (버킷 key 기준)
+        String presignedUrl = s3Uploader.uploadFile(objectKey); // bucket, key=objectKey
+
+        // 4) 나중에 조회할 때 쓸 이미지 URL (CloudFront)
+        String imageUrl = s3Uploader.getImageUrl(objectKey);
+
+        // 5) DB에는 imageUrl 또는 objectKey 둘 중 하나를 저장해두면 됨
+        return new PresignedUrlResponse(presignedUrl, imageUrl, objectKey);
     }
 }
