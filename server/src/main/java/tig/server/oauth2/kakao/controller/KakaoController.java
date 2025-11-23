@@ -35,11 +35,11 @@ public class KakaoController {
         String origin = request.getHeader("Origin");
 
         String kakaoAccessToken = null;
-        if(origin.equals("https://localhost:3000") || origin.equals("https://localhost:8080")){
+        if(origin.equals("https://localhost:3000") || origin.equals("https://localhost:8080") || origin.equals("http://localhost:3000")){
             kakaoAccessToken = kakaoService.getAccessTokenFromKakaoTest(code);
         } else if(origin.equals("https://main--testtig.netlify.app")) {
             kakaoAccessToken = kakaoService.getAccessTokenFromKakaoDeployTest(code);
-        } else if(origin.equals("https://tigleisure.com")){
+        } else if(origin.equals("https://tigleisure.com") || origin.equals("https://tigleisure.co.kr")){
             kakaoAccessToken = kakaoService.getAccessTokenFromKakaoDeploy(code);
         }
         KakaoUserInfoResponseDto userInfo = kakaoService.getUserInfo(kakaoAccessToken);
