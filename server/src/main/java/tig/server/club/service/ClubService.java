@@ -358,6 +358,31 @@ public class ClubService {
                 })
         );
 
+        Long SPECIAL_CLUB_ID = 1056L;
+
+        Club specialClub = clubRepository.findById(SPECIAL_CLUB_ID)
+                .orElseThrow(() -> new BusinessExceptionHandler("club not found", ErrorCode.NOT_FOUND_ERROR));
+
+        Category specialCategory = specialClub.getCategory();
+
+        // 자기 카테고리의 리스트만 가져오거나, 없으면 새로 생성
+        List<CategoryClubResponse> specialCategoryList =
+                nearestClubsByCategory.computeIfAbsent(specialCategory, k -> new ArrayList<>());
+
+        // 이미 포함돼 있는지 체크 (중복 방지)
+        boolean exists = specialCategoryList.stream()
+                .anyMatch(c -> c.getClubId().equals(SPECIAL_CLUB_ID));
+
+        if (!exists) {
+            // 이미 정의된 helper 사용해서 DTO 생성 (평점/가격/presigned 세팅 포함)
+            CategoryClubResponse specialCategoryClub = toCategoryClubResponse(specialClub);
+
+            // 맨 앞에 꽂아서 항상 최상단에 보이게
+            specialCategoryList.add(0, specialCategoryClub);
+        }
+
+
+
         return HomeResponse.builder()
                 .nearestClubs(nearestClubs)
                 .popularClubs(popularClubs)

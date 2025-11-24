@@ -19,6 +19,8 @@ public interface ClubRepository extends JpaRepository<Club, Long> {
     @Query("UPDATE Club c SET c.isDeleted = true WHERE c.id = :id")
     void softDeleteById(@Param("id") Long id);
 
+    Optional<Club> findByClubId(Long clubId);
+
     List<Club> findTop5ByOrderByRatingCountDesc();
 
     @Query("SELECT c FROM Club c WHERE REPLACE(c.clubName, ' ', '') LIKE %:keyword% OR c.clubName LIKE %:keyword%")
